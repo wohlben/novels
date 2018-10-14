@@ -28,7 +28,9 @@ def add_queue_event(parser_type_id):
 
         last_scrape = last_fetch(parser_type_id)
 
-        if last_scrape and last_scrape.last_change > timezone.now() - timedelta(minutes=15):
+        if last_scrape and last_scrape.last_change > timezone.now() - timedelta(
+            minutes=15
+        ):
             logger.warning(
                 f"last scrape was within 15 minutes ({last_scrape.last_change}) -- skipping queue"
             )
@@ -41,6 +43,6 @@ def add_queue_event(parser_type_id):
             parser_type_id=parser_type_id,
         )
         return True
-    except Exception as e: # pragma: no cover
+    except Exception as e:  # pragma: no cover
         logger.error('failed to add a new "rrl latest" scrape')
         raise e

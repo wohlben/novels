@@ -68,8 +68,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            "debug": True
-
+            "debug": True,
         },
     }
 ]
@@ -85,7 +84,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "django",
         "USER": "django",
-        "HOST": "/tmp/",
+        "HOST": "database",
     }
 }
 
@@ -143,8 +142,8 @@ LOGGING = {
 
 STATIC_URL = "/static/"
 
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULTS_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = "redis://cache:6379"
+CELERY_RESULTS_BACKEND = "redis://cache:6379"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"

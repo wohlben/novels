@@ -63,7 +63,7 @@ def parse_chapters(element, fiction):
                 Chapter.objects.filter(id=chap.id).update(**chapter)
                 logger.info(f'refreshed "{fiction.title}": "{chap.title}"')
 
-        except Exception as err: # pragma: no cover
+        except Exception as err:  # pragma: no cover
             logger.exception(f"failed to parse a chapter in {fic}")
             raise err
     return True
@@ -93,5 +93,5 @@ def parse_fictions(tree):
                 logger.info(f'refreshed "{fic.title}"')
 
             yield (fic, element)
-        except Exception as err: # pragma: no cover
+        except Exception as err:  # pragma: no cover
             logger.exception("failed to parse a novel")

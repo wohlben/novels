@@ -12,7 +12,7 @@ class FetchLatestTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         logging.disable(logging.CRITICAL)
-        cls.rrl_latest_parser_id = models.Parser.objects.get(name='rrl latest').id
+        cls.rrl_latest_parser_id = models.Parser.objects.get(name="rrl latest").id
 
     def pending_fetches(self):
         return rrl_generator.all_pending_fetches(self.rrl_latest_parser_id)
@@ -22,13 +22,16 @@ class FetchLatestTestCase(TestCase):
 
     def test_starting_data(self):
         pending_fetches = self.pending_fetches()
-        self.assertEqual(pending_fetches, 0, f"{pending_fetches} unexpected pending parses found")
-
+        self.assertEqual(
+            pending_fetches, 0, f"{pending_fetches} unexpected pending parses found"
+        )
 
     def test_fetch_latest_add_to_queue(self):
         tasks.fetch_latest()
         pending_fetches = self.pending_fetches()
-        self.assertEqual(pending_fetches, 1, f"found {pending_fetches} in the queue, expected one")
+        self.assertEqual(
+            pending_fetches, 1, f"found {pending_fetches} in the queue, expected one"
+        )
 
     def test_fetch_latest_repeated_add(self):
         tasks.fetch_latest()
@@ -36,7 +39,11 @@ class FetchLatestTestCase(TestCase):
         tasks.fetch_latest()
 
         pending_fetches = self.pending_fetches()
-        self.assertEqual(pending_fetches, 1, f"further calls shouldn't add another fetch to the queue, found {pending_fetches}")
+        self.assertEqual(
+            pending_fetches,
+            1,
+            f"further calls shouldn't add another fetch to the queue, found {pending_fetches}",
+        )
 
     def test_fetch_latest_recent_fetch(self):
         tasks.fetch_latest()
@@ -49,17 +56,21 @@ class FetchLatestTestCase(TestCase):
         tasks.fetch_latest()
 
         pending_fetches = self.pending_fetches()
-        self.assertEqual(pending_fetches, 0, f"recently fetched content shouldn't be enqueued again - found {pending_fetches}")
+        self.assertEqual(
+            pending_fetches,
+            0,
+            f"recently fetched content shouldn't be enqueued again - found {pending_fetches}",
+        )
 
 
 class ParseLatestTestCase(TestCase):
-    fixtures = ['2018_10_14_scrapes.json']
+    fixtures = ["2018_10_14_scrapes.json"]
     parser_id = int
 
     @classmethod
     def setUpTestData(cls):
         logging.disable(logging.CRITICAL)
-        cls.parser_id = models.Parser.objects.get(name='rrl latest').id
+        cls.parser_id = models.Parser.objects.get(name="rrl latest").id
 
     def pending_parses(self):
         return rrl_parser.all_pending_parses(self.parser_id).count()
@@ -78,20 +89,40 @@ class ParseLatestTestCase(TestCase):
 
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()
-        self.assertNotEquals(pending_parses, 0, "didn't find any pending parses. maybe fixture wasn't imported?")
-        self.assertEquals(pending_parses, 2, f"didn't find the expected amount of testing data -- found {pending_parses}")
+        self.assertNotEquals(
+            pending_parses,
+            0,
+            "didn't find any pending parses. maybe fixture wasn't imported?",
+        )
+        self.assertEquals(
+            pending_parses,
+            2,
+            f"didn't find the expected amount of testing data -- found {pending_parses}",
+        )
 
     def test_fixture_data_available_scrapes(self):
         available_scrapes = self.available_scrapes()
-        self.assertEquals(available_scrapes, 3, f"testing data should include 3 scrapes -- found {available_scrapes}")
+        self.assertEquals(
+            available_scrapes,
+            3,
+            f"testing data should include 3 scrapes -- found {available_scrapes}",
+        )
 
     def test_fixture_data_available_fictions(self):
         available_fictions = self.available_fictions()
-        self.assertEqual(0, available_fictions, f"found {available_fictions} fictions after import, tests will be inconclusive" )
+        self.assertEqual(
+            0,
+            available_fictions,
+            f"found {available_fictions} fictions after import, tests will be inconclusive",
+        )
 
     def test_fixture_data_available_chapters(self):
         available_chapters = self.available_chapters()
-        self.assertEqual(0, available_chapters, f"found {available_chapters} chapters after import, tests will be inconclusive" )
+        self.assertEqual(
+            0,
+            available_chapters,
+            f"found {available_chapters} chapters after import, tests will be inconclusive",
+        )
 
     def test_pending_parses_execution(self):
         tasks.parse_latest()
@@ -112,6 +143,6 @@ class ParseLatestTestCase(TestCase):
     def test_parsed_chapters(self):
         tasks.parse_latest()
         chapters = novel_models.Chapter.objects.all().count()
-        self.assertGreater(chapters, 0, msg="the Parser should've created some chapters...")
-
-
+        self.assertGreater(
+            chapters, 0, msg="the Parser should've created some chapters..."
+        )
