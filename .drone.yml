@@ -17,14 +17,15 @@ pipeline:
   ci_commit:
     image: alpine/git
     commands:
+      - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
       - git config --global user.email droneci
       - git config --global user.email ci@wohlben.de
       - git add -f development.requirements requirements.txt coverage
       - git commit -m "added requirements and coverage"
-      - git push --force https://${github_token}:x-oauth-basic@github.com/wohlben/vigilant-fiesta.git HEAD:coverage
+      - git push origin HEAD:coverage
     when:
       branch: master
-    secrets: [ github_token ]
+    secrets: [ ssh_key ]
 
 services:
   database:
