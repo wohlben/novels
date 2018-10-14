@@ -10,7 +10,7 @@ def add_parsers(apps, schema_editor):
         Parser.objects.create(name=p)
 
 
-def removeParsers(apps, schema_editor):
+def removeParsers(apps, schema_editor):  # pragma: no cover
     Parser = apps.get_model("scrapes", "Parser")
     parsers = ["rrl latest", "rrl chapter", "rrl novel"]
     for p in parsers:

@@ -1,19 +1,21 @@
 from lxml import html
-from lxml.etree import tostring
-from time import time
-from scrapes.models import Scrapes, Parser, ParseLog
+from scrapes.models import Scrapes, ParseLog
 from novels.models import Fiction, Chapter
 import logging
 from django.utils import timezone
 
 logger = logging.getLogger("scrapes.tasks")
-BASEURL = "https://www.royalroad.com"
+BASE_URL = "https://www.royalroad.com"
+
+
+def all_pending_parses(parser_id):
+    return Scrapes.objects.filter(http_code=200, parser_type_id=parser_id).exclude(
+        id__in=ParseLog.objects.all().values("scrape")
+    )
 
 
 def latest_extractor(parser_id):
-    pending_parses = Scrapes.objects.filter(parser_type_id=parser_id).exclude(
-        id__in=ParseLog.objects.all().values("scrape")
-    )
+    pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:
         logger.info("nothing to parse")
@@ -48,7 +50,7 @@ def parse_chapters(element, fiction):
             chapter = {}
             chapter["fiction"] = fiction
             path = element.xpath("./a/@href")[0]
-            chapter["url"] = f"{BASEURL}{path}"
+            chapter["url"] = f"{BASE_URL}{path}"
             chapter["remote_id"] = int(path.split("/")[5])
             chapter["title"] = element.xpath("./a/span/text()")[0]
             chapter["published_relative"] = element.xpath(".//time/text()")[0]
@@ -61,7 +63,7 @@ def parse_chapters(element, fiction):
                 Chapter.objects.filter(id=chap.id).update(**chapter)
                 logger.info(f'refreshed "{fiction.title}": "{chap.title}"')
 
-        except Exception as err:
+        except Exception as err: # pragma: no cover
             logger.exception(f"failed to parse a chapter in {fic}")
             raise err
     return True
@@ -76,7 +78,7 @@ def parse_fictions(tree):
                 0
             ]
             path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
-            fiction["url"] = f"{BASEURL}{path}"
+            fiction["url"] = f"{BASE_URL}{path}"
             fiction["remote_id"] = int(path.split("/")[2])
             fic, created = Fiction.objects.get_or_create(
                 remote_id=fiction["remote_id"], defaults=fiction
@@ -91,5 +93,5 @@ def parse_fictions(tree):
                 logger.info(f'refreshed "{fic.title}"')
 
             yield (fic, element)
-        except Exception as err:
+        except Exception as err: # pragma: no cover
             logger.exception("failed to parse a novel")
