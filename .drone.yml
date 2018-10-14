@@ -1,0 +1,36 @@
+pipeline:
+  ci:
+    image: python:3.6
+    commands:
+      - pip install pipenv
+      - pipenv install
+      - pipenv run pip freeze > requirements.txt
+      - pipenv install --dev
+      - pipenv run pip freeze > development.requirements
+      - pipenv run python manage.py migrate
+      - pipenv run coverage run manage.py test
+      - pipenv run coverage report -m
+      - pipenv run coverage html
+    environment:
+      - PIPENV_PYPI_MIRROR=http://192.168.10.51:3141/root/pypi/+simple/
+
+  ci_commit:
+    image: alpine/git
+    commands:
+      - git config --global user.email droneci
+      - git config --global user.email ci@wohlben.de
+      - git add -f development.requirements requirements.txt coverage
+      - git commit -m "added requirements and coverage"
+      - git push --force https://${github_token}:x-oauth-basic@github.com/wohlben/vigilant-fiesta.git HEAD:coverage
+    branches: [ master ]
+    secrets: [ github_token ]
+
+services:
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=django
+      - POSTGRES_DB=django
+
+  cache:
+    image: redis

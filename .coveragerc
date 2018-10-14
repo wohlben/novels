@@ -1,15 +1,16 @@
 [run]
-source = 
+source =
     .
 plugins =
     django_coverage_plugin
-omit = 
+omit =
     manage.py
+    coverage/*
     app/wsgi.py
     app/celery.py
 
 [report]
-exclude_lines = 
+exclude_lines =
     # Have to re-enable the standard pragma
     pragma: no cover
 
@@ -26,4 +27,3 @@ exclude_lines =
     if __name__ == .__main__.:
 [html]
 directory = coverage
-
