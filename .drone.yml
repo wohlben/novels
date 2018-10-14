@@ -22,7 +22,8 @@ pipeline:
       - git add -f development.requirements requirements.txt coverage
       - git commit -m "added requirements and coverage"
       - git push --force https://${github_token}:x-oauth-basic@github.com/wohlben/vigilant-fiesta.git HEAD:coverage
-    branches: [ master ]
+    when:
+      branch: master
     secrets: [ github_token ]
 
 services:
