@@ -1,6 +1,6 @@
 from celery import shared_task
 from requests import get
-from scrapes.url_generators import rrl_latest as rrl_latest_generator
+from scrapes.fetch_generators import rrl_latest as rrl_latest_generator
 from scrapes.parsers import rrl as rrl_latest_parser
 import logging
 from scrapes.models import Scrapes, Parser
@@ -30,9 +30,8 @@ def fetch_content():
             logger.info(f"finished {instance.id} with https_code {instance.http_code}")
 
         return True
-    except Exception as e:
-        logger.error(f"failed to fetch content for {instance.url}")
-        raise e
+    except Exception:
+        logger.exception(f"failed to fetch content for {instance.url}")
 
 
 @shared_task

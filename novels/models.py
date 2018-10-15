@@ -1,7 +1,10 @@
+"""Modeldefinitions for the novel app."""
 from django.db import models
 
 
 class Fiction(models.Model):
+    """Fiction database model."""
+
     pic_url = models.TextField(blank=True, null=True)
     pic = models.BinaryField(blank=True, null=True)
     title = models.TextField(blank=True)
@@ -12,6 +15,8 @@ class Fiction(models.Model):
 
 
 class Chapter(models.Model):
+    """Chapter database model."""
+
     fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)
     remote_id = models.TextField(blank=True, null=True)

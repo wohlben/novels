@@ -1,3 +1,4 @@
+"""discovery for pending rrl latest parses and parsing them into fictions and novels."""
 from lxml import html
 from scrapes.models import Scrapes, ParseLog
 from novels.models import Fiction, Chapter
@@ -9,12 +10,14 @@ BASE_URL = "https://www.royalroad.com"
 
 
 def all_pending_parses(parser_id):
+    """Return the pending parses that this parser can handle."""
     return Scrapes.objects.filter(http_code=200, parser_type_id=parser_id).exclude(
         id__in=ParseLog.objects.all().values("scrape")
     )
 
 
 def latest_extractor(parser_id):
+    """Return False if no Parses were necessary, True the parsing was successful."""
     pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:
@@ -32,10 +35,10 @@ def latest_extractor(parser_id):
             scrape=scrape, parser_id=parser_id, started=timezone.now()
         )
 
-        novels = parse_fictions(tree)
+        novels = _parse_fictions(tree)
 
         for novel, html_element in novels:
-            parse_chapters(html_element, novel)
+            _parse_chapters(html_element, novel)
 
         parse_log.finished = timezone.now()
         parse_log.success = True
@@ -44,7 +47,7 @@ def latest_extractor(parser_id):
     return True
 
 
-def parse_chapters(element, fiction):
+def _parse_chapters(element, fiction):
     for element in element.xpath('.//li[@class="list-item"]'):
         try:
             chapter = {}
@@ -63,13 +66,12 @@ def parse_chapters(element, fiction):
                 Chapter.objects.filter(id=chap.id).update(**chapter)
                 logger.info(f'refreshed "{fiction.title}": "{chap.title}"')
 
-        except Exception as err:  # pragma: no cover
-            logger.exception(f"failed to parse a chapter in {fic}")
-            raise err
+        except Exception:  # pragma: no cover
+            logger.exception(f"failed to parse a chapter in {fiction}")
     return True
 
 
-def parse_fictions(tree):
+def _parse_fictions(tree):
     for element in tree.xpath('//div[@class="fiction-list-item row"]'):
         try:
             fiction = {}
@@ -93,5 +95,5 @@ def parse_fictions(tree):
                 logger.info(f'refreshed "{fic.title}"')
 
             yield (fic, element)
-        except Exception as err:  # pragma: no cover
+        except Exception:  # pragma: no cover
             logger.exception("failed to parse a novel")

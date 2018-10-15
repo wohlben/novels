@@ -1,4 +1,5 @@
-from scrapes.models import Scrapes, Parser
+"""Conditionally creates pending fetches for unparsed chapters ."""
+from scrapes.models import Scrapes
 from datetime import timedelta
 from django.utils import timezone
 import logging
@@ -6,19 +7,22 @@ import logging
 logger = logging.getLogger("scrapes.tasks")
 
 
-def all_pending_fetches(parser_type_id):
+def pending_fetches(parser_type_id, url):
+    """Return quantity of pending fetches relating to this module."""
     return Scrapes.objects.filter(
-        http_code=None, content=None, parser_type_id=parser_type_id
+        http_code=None, content=None, parser_type_id=parser_type_id, url=url
     ).count()
 
 
 def last_fetch(parser_type_id):
+    """Return the last fetch object for modifications."""
     return Scrapes.objects.filter(parser_type_id=parser_type_id).last()
 
 
 def add_queue_event(parser_type_id):
+    """Conditionally add a new pending fetch."""
     try:
-        pending_scrapes = all_pending_fetches(parser_type_id)
+        pending_scrapes = pending_fetches(parser_type_id)
 
         if pending_scrapes > 0:
             logger.warning(
@@ -43,6 +47,5 @@ def add_queue_event(parser_type_id):
             parser_type_id=parser_type_id,
         )
         return True
-    except Exception as e:  # pragma: no cover
-        logger.error('failed to add a new "rrl latest" scrape')
-        raise e
+    except Exception:  # pragma: no cover
+        logger.exception('failed to add a new "rrl latest" scrape')

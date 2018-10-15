@@ -1,7 +1,7 @@
 from django.test import TestCase
 from scrapes import tasks, models
 from scrapes.parsers import rrl as rrl_parser
-from scrapes.url_generators import rrl_latest as rrl_generator
+from scrapes.fetch_generators import rrl_latest as rrl_generator
 from novels import models as novel_models
 import logging
 
