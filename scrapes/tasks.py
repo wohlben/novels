@@ -14,6 +14,7 @@ rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
 
 @shared_task
 def fetch_content():
+    """Fetch an URL from a remote server."""
     try:
         instance = Scrapes.objects.filter(http_code=None, content=None).first()
         if not instance:
@@ -36,9 +37,11 @@ def fetch_content():
 
 @shared_task
 def fetch_latest():
+    """Periodic task to conditionally enqueue a rrl latest fetch."""
     rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
 
 
 @shared_task
 def parse_latest():
+    """Periodic task to parse all available rrl latest fetches."""
     rrl_latest_parser.latest_extractor(rrl_latest_parser_id)

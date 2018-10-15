@@ -56,9 +56,10 @@ def _parse_chapters(element, fiction):
             chapter["url"] = f"{BASE_URL}{path}"
             chapter["remote_id"] = int(path.split("/")[5])
             chapter["title"] = element.xpath("./a/span/text()")[0]
-            chapter["published_relative"] = element.xpath(".//time/text()")[0]
+            published_relative = element.xpath(".//time/text()")[0]
             chap, created = Chapter.objects.get_or_create(
-                remote_id=chapter["remote_id"], defaults=chapter
+                remote_id=chapter["remote_id"],
+                defaults={**chapter, "published_relative": published_relative},
             )
             if created:
                 logger.info(f'created "{fiction.title}": "{chap.title}"')
