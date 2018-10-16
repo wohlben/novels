@@ -119,6 +119,7 @@ def chapter_extractor(parser_id):
 
 
 def _clean_chapter_content(content):
+    content = content.decode('unicode_escape').strip()
     removedScripts = re.sub(r"<script.*?</script>", "", str(content))
     removeHtmlEscapes = unescape(removedScripts)
     content = tomd.convert(removeHtmlEscapes.replace("<br/>", "\n"))
@@ -128,7 +129,7 @@ def _clean_chapter_content(content):
 def _parse_chapter_page(element, url):
     try:
         remote_id = url.split('/')[-2]
-        chap, created = Chapter.objects.get_or_create(url=url)
+        chap = Chapter.objects.get(url=url)
         chap.content = _clean_chapter_content(tostring(element.cssselect('.chapter-content')[0]))
         if chap.remote_id is None:
             chap.remote_id = remote_id
@@ -141,7 +142,7 @@ def _parse_chapter_page(element, url):
         logging.info(f'updated content of "{chap.title}"')
         return True
     except Exception:  # pragma: no cover
-        logging.exception("failed to parse chapter")
+        logging.exception(f"failed to parse chapter from {url}")
 
 
 def _parse_fiction_page(element, url):

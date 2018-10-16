@@ -1,7 +1,7 @@
 from django.test import TestCase
-from scrapes import tasks, models
+from scrapes import models
 from scrapes.parsers import rrl as rrl_parser
-from scrapes.fetch_generators import rrl_latest as rrl_generator
+from scrapes.fetch_generators import rrl_latest as rrl_latest_generator
 from novels import models as novel_models
 import logging
 
@@ -15,10 +15,10 @@ class FetchLatestTestCase(TestCase):
         cls.rrl_latest_parser_id = models.Parser.objects.get(name="rrl latest").id
 
     def pending_fetches(self):
-        return rrl_generator.all_pending_fetches(self.rrl_latest_parser_id)
+        return rrl_latest_generator.all_pending_fetches(self.rrl_latest_parser_id)
 
     def last_fetch(self):
-        return rrl_generator.last_fetch(self.rrl_latest_parser_id)
+        return rrl_latest_generator.last_fetch(self.rrl_latest_parser_id)
 
     def test_starting_data(self):
         pending_fetches = self.pending_fetches()
@@ -27,16 +27,16 @@ class FetchLatestTestCase(TestCase):
         )
 
     def test_fetch_latest_add_to_queue(self):
-        tasks.fetch_latest()
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
         pending_fetches = self.pending_fetches()
         self.assertEqual(
             pending_fetches, 1, f"found {pending_fetches} in the queue, expected one"
         )
 
     def test_fetch_latest_repeated_add(self):
-        tasks.fetch_latest()
-        tasks.fetch_latest()
-        tasks.fetch_latest()
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
 
         pending_fetches = self.pending_fetches()
         self.assertEqual(
@@ -46,14 +46,14 @@ class FetchLatestTestCase(TestCase):
         )
 
     def test_fetch_latest_recent_fetch(self):
-        tasks.fetch_latest()
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
 
         last_fetch = self.last_fetch()
         last_fetch.content = "dummycontent"
         last_fetch.http_code = "200"
         last_fetch.save()
 
-        tasks.fetch_latest()
+        rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
 
         pending_fetches = self.pending_fetches()
         self.assertEqual(
@@ -125,23 +125,23 @@ class ParseLatestTestCase(TestCase):
         )
 
     def test_pending_parses_execution(self):
-        tasks.parse_latest()
+        rrl_parser.latest_extractor(self.parser_id)
         pending_parses = self.pending_parses()
         self.assertEqual(0, pending_parses, f"found {pending_parses}, after parsing")
 
     def test_repeated_parses_executions(self):
-        tasks.parse_latest()
-        tasks.parse_latest()
+        rrl_parser.latest_extractor(self.parser_id)
+        rrl_parser.latest_extractor(self.parser_id)
         pending_parses = self.pending_parses()
         self.assertEqual(0, pending_parses, f"found {pending_parses}, after parsing")
 
     def test_parsed_fictions(self):
-        tasks.parse_latest()
+        rrl_parser.latest_extractor(self.parser_id)
         novels = novel_models.Fiction.objects.all().count()
         self.assertGreater(novels, 0, msg="the Parser should've created some novels...")
 
     def test_parsed_chapters(self):
-        tasks.parse_latest()
+        rrl_parser.latest_extractor(self.parser_id)
         chapters = novel_models.Chapter.objects.all().count()
         self.assertGreater(
             chapters, 0, msg="the Parser should've created some chapters..."
