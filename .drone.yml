@@ -18,14 +18,12 @@ pipeline:
     image: alpine/git
     commands:
       - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
-      - git config --global user.email droneci
-      - git config --global user.email ci@wohlben.de
-      - git add -f development.requirements requirements.txt coverage
-      - git commit -m "added requirements and coverage"
-      - git push origin HEAD:coverage
+      - bash .ci/add_requirements.sh
     when:
       branch: master
     secrets: [ ssh_key ]
+
+  # TODO: publish coverage to webserver
 
 services:
   database:
