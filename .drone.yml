@@ -18,7 +18,7 @@ pipeline:
     image: alpine/git
     commands:
       - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
-      - bash .ci/add_requirements.sh
+      - sh .ci/add_requirements.sh
     when:
       branch: master
     secrets: [ ssh_key ]
