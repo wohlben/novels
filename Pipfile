@@ -11,6 +11,8 @@ requests = "*"
 redis = "*"
 "psycopg2-binary" = "*"
 lxml = "*"
+tomd = "*"
+cssselect = "*"
 
 [dev-packages]
 pycodestyle = "*"

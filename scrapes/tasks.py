@@ -1,7 +1,11 @@
 from celery import shared_task
 from requests import get
-from scrapes.fetch_generators import rrl_latest as rrl_latest_generator
-from scrapes.parsers import rrl as rrl_latest_parser
+from scrapes.fetch_generators import (
+    rrl_latest as rrl_latest_generator,
+    rrl_chapter as rrl_chapter_generator,
+    rrl_novel as rrl_novel_generator,
+)
+from scrapes.parsers import rrl as rrl_parser
 import logging
 from scrapes.models import Scrapes, Parser
 
@@ -36,12 +40,16 @@ def fetch_content():
 
 
 @shared_task
-def fetch_latest():
-    """Periodic task to conditionally enqueue a rrl latest fetch."""
+def generators():
+    """Periodic task to conditionally enqueue new fetches."""
     rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
+    rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
+    rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
 
 
 @shared_task
-def parse_latest():
-    """Periodic task to parse all available rrl latest fetches."""
-    rrl_latest_parser.latest_extractor(rrl_latest_parser_id)
+def parsers():
+    """Periodic task to parse all available rrl fetches."""
+    rrl_parser.latest_extractor(rrl_latest_parser_id)
+    rrl_parser.chapter_extractor(rrl_chapter_parser_id)
+    rrl_parser.novel_extractor(rrl_novel_parser_id)
