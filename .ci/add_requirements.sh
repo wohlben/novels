@@ -5,5 +5,5 @@ if ! git diff --exit-code --name-only development.requirements requirements.txt 
   git config --global user.email ci@wohlben.de
   git add -f development.requirements requirements.txt
   git commit -m "added requirements"
-  git push origin
+  git push origin master
 fi
