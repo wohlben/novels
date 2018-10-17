@@ -15,7 +15,7 @@ pipeline:
       - PIPENV_PYPI_MIRROR=http://192.168.10.51:3141/root/pypi/+simple/
       - PIP_TRUST_MIRROR=192.168.10.51
 
-  ci_commit:
+  publish_requirements:
     image: alpine/git
     commands:
       - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
