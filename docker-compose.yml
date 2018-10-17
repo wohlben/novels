@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  celery:
+    build: .
+    command: bash startup.sh celery
+
+  django:
+    build: .
+    command: bash startup.sh django
+
+  cache:
+    image: redis
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_DB=django
+      - POSTGRES_USER=django
