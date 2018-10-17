@@ -1,6 +1,10 @@
 from celery import shared_task
 from requests import get
-from scrapes.fetch_generators import rrl_latest_generator, rrl_chapter_generator, rrl_novel_generator
+from scrapes.fetch_generators import (
+    rrl_latest_generator,
+    rrl_chapter_generator,
+    rrl_novel_generator,
+)
 from scrapes.parsers import rrl_chapter_parser, rrl_novel_parser, rrl_latest_parser
 import logging
 from scrapes.models import Scrapes, Parser
@@ -13,7 +17,7 @@ rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
 
 
 @shared_task
-def fetch_content():  #TODO: mock response.....
+def fetch_content():  # TODO: mock response.....
     """Fetch an URL from a remote server."""
     try:
         instance = Scrapes.objects.filter(http_code=None, content=None).first()

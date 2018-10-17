@@ -17,13 +17,30 @@ class GenerateNovelTestCase(TestCase):
 
     def setUp(self):
         fictions = [
-            {'title': "monitored", 'monitored': True, 'url': "someurl/fiction/1/novelname"},
-            {'title': "monitored", 'monitored': True, 'url': "someurl/fiction/1/novelname", 'author': 'some-author'},
-            {'title': "unmonitored", 'monitored': False, 'url': "another-url/fiction/22/novel-name2"},
-            {'title': "unmonitored", 'monitored': False, 'url': "another-url/fiction/22/novel-name2", 'author': 'some-author'},
+            {
+                "title": "monitored",
+                "monitored": True,
+                "url": "someurl/fiction/1/novelname",
+            },
+            {
+                "title": "monitored",
+                "monitored": True,
+                "url": "someurl/fiction/1/novelname",
+                "author": "some-author",
+            },
+            {
+                "title": "unmonitored",
+                "monitored": False,
+                "url": "another-url/fiction/22/novel-name2",
+            },
+            {
+                "title": "unmonitored",
+                "monitored": False,
+                "url": "another-url/fiction/22/novel-name2",
+                "author": "some-author",
+            },
         ]
         [Fiction.objects.create(**fic) for fic in fictions]
-
 
     def add_queue_events(self):
         return rrl_novel_generator.add_queue_events(self.parser_id)
@@ -35,11 +52,17 @@ class GenerateNovelTestCase(TestCase):
         return len(rrl_novel_generator.pending_fetches(self.parser_id))
 
     def test_starting_data(self):
-        self.assertGreater(self.missing_novels(), 0, "test data isn't providing anything to add to the pending queue")
+        self.assertGreater(
+            self.missing_novels(),
+            0,
+            "test data isn't providing anything to add to the pending queue",
+        )
 
     def test_adding_fetch_events(self):
         self.add_queue_events()
-        self.assertEquals(self.missing_novels(), 0, "we're still finding chapters to queue...")
+        self.assertEquals(
+            self.missing_novels(), 0, "we're still finding chapters to queue..."
+        )
 
     def test_correct_amount_added(self):
         pending = self.pending_fetches()

@@ -158,8 +158,5 @@ CELERY_BEAT_SCHEDULE = {
         "task": "scrapes.tasks.generators",
         "schedule": crontab(minute="*/25"),
     },
-    "parsers": {
-        "task": "scrapes.tasks.parsers",
-        "schedule": crontab(minute="*/5"),
-    },
+    "parsers": {"task": "scrapes.tasks.parsers", "schedule": crontab(minute="*/5")},
 }

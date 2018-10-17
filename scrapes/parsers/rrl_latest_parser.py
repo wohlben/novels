@@ -6,7 +6,7 @@ import logging
 from django.utils import timezone
 from . import all_pending_parses
 
-__all__ = ['latest_extractor']
+__all__ = ["latest_extractor"]
 
 logger = logging.getLogger("scrapes.tasks")
 BASE_URL = "https://www.royalroad.com"

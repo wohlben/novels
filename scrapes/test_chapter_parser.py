@@ -34,9 +34,7 @@ class ParseChapterTestCase(TestCase):
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()
         self.assertGreater(
-            pending_parses,
-            0,
-            "test data doesn't provide any data to parse",
+            pending_parses, 0, "test data doesn't provide any data to parse"
         )
 
     def test_fixture_data_available_scrapes(self):

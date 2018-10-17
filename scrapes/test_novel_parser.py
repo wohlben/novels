@@ -30,9 +30,7 @@ class ParseNovelTestCase(TestCase):
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()
         self.assertGreater(
-            pending_parses,
-            0,
-            "test data doesn't provide any relevant data to parse",
+            pending_parses, 0, "test data doesn't provide any relevant data to parse"
         )
 
     def test_fixture_data_available_scrapes(self):
@@ -47,14 +45,10 @@ class ParseNovelTestCase(TestCase):
         monitored = novel_models.Fiction.objects.filter(monitored=False).count()
         unmonitored = novel_models.Fiction.objects.filter(monitored=True).count()
         self.assertGreater(
-            monitored,
-            0,
-            f"we'll need a monitored fiction for the tests"
+            monitored, 0, f"we'll need a monitored fiction for the tests"
         )
         self.assertGreater(
-            unmonitored,
-            0,
-            "while we don't strictly need one, i still want one..."
+            unmonitored, 0, "while we don't strictly need one, i still want one..."
         )
 
     def test_pending_parses_execution(self):

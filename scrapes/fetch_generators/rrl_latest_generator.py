@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger("scrapes.tasks")
 
-__all__ = ['pending_fetches', 'last_fetch', 'add_queue_event']
+__all__ = ["pending_fetches", "last_fetch", "add_queue_event"]
 
 
 def pending_fetches(parser_type_id):

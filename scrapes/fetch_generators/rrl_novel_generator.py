@@ -3,7 +3,7 @@ from scrapes.models import Scrapes
 from novels.models import Chapter, Fiction
 import logging
 
-__all__ = ['pending_fetches', 'missing_novels', 'add_queue_events']
+__all__ = ["pending_fetches", "missing_novels", "add_queue_events"]
 
 logger = logging.getLogger("scrapes.tasks")
 

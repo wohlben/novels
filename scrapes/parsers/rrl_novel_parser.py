@@ -6,7 +6,7 @@ import logging
 from django.utils import timezone
 from . import all_pending_parses
 
-__all__ = ['novel_extractor']
+__all__ = ["novel_extractor"]
 
 logger = logging.getLogger("scrapes.tasks")
 BASE_URL = "https://www.royalroad.com"
@@ -44,25 +44,34 @@ def novel_extractor(parser_id):
 
 def _parse_fiction_page(element, url):
     try:
-        remote_id = url.split('/')[-2]
+        remote_id = url.split("/")[-2]
         fic, created = Fiction.objects.get_or_create(url=url)
-        if fic.remote_id is None: # pragma: no cover
+        if fic.remote_id is None:  # pragma: no cover
             fic.remote_id = remote_id
-        if fic.remote_id != remote_id: # pragma: no cover
-            logger.error('unexpected remote_id. not updating content on possible parsing error!')
+        if fic.remote_id != remote_id:  # pragma: no cover
+            logger.error(
+                "unexpected remote_id. not updating content on possible parsing error!"
+            )
             return False
 
-        chapters = element.xpath('//tr')
+        chapters = element.xpath("//tr")
         for chapter in chapters:
-            url_element = chapter.xpath('./td/a/@href')
+            url_element = chapter.xpath("./td/a/@href")
             if len(url_element) == 0:
                 continue
-            chap_url = BASE_URL + chapter.xpath('./td/a/@href')[0]
-            chap_remote_id = chap_url.split('/')[-2]
-            chap, created = Chapter.objects.get_or_create(url=chap_url, fiction=fic, defaults={'remote_id': chap_remote_id})
-            chap.title = chapter.xpath('./td/a/text()')[0].encode('utf-8').decode('unicode_escape').strip()
+            chap_url = BASE_URL + chapter.xpath("./td/a/@href")[0]
+            chap_remote_id = chap_url.split("/")[-2]
+            chap, created = Chapter.objects.get_or_create(
+                url=chap_url, fiction=fic, defaults={"remote_id": chap_remote_id}
+            )
+            chap.title = (
+                chapter.xpath("./td/a/text()")[0]
+                .encode("utf-8")
+                .decode("unicode_escape")
+                .strip()
+            )
             chap.save()
-            logger.info(f'created chapter ')
+            logger.info(f"created chapter ")
 
         fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
         fic.save()

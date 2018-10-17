@@ -5,7 +5,12 @@ from datetime import timedelta
 from django.utils import timezone
 import logging
 
-__all__ = ['pending_fetches', 'missing_chapters', 'monitored_novels', 'add_queue_events']
+__all__ = [
+    "pending_fetches",
+    "missing_chapters",
+    "monitored_novels",
+    "add_queue_events",
+]
 
 logger = logging.getLogger("scrapes.tasks")
 

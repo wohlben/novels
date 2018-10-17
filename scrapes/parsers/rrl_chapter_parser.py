@@ -11,7 +11,7 @@ from html import unescape
 import tomd
 from lxml.etree import tostring
 
-__all__ = ['chapter_extractor']
+__all__ = ["chapter_extractor"]
 
 logger = logging.getLogger("scrapes.tasks")
 BASE_URL = "https://www.royalroad.com"
@@ -50,7 +50,7 @@ def chapter_extractor(parser_id):
 
 
 def _clean_chapter_content(content):
-    content = content.decode('unicode_escape').strip()
+    content = content.decode("unicode_escape").strip()
     removedScripts = re.sub(r"<script.*?</script>", "", str(content))
     removeHtmlEscapes = unescape(removedScripts)
     content = tomd.convert(removeHtmlEscapes.replace("<br/>", "\n"))
@@ -59,16 +59,22 @@ def _clean_chapter_content(content):
 
 def _parse_chapter_page(element, url):
     try:
-        remote_id = url.split('/')[-2]
+        remote_id = url.split("/")[-2]
         chap = Chapter.objects.get(url=url)
-        chap.content = _clean_chapter_content(tostring(element.cssselect('.chapter-content')[0]))
+        chap.content = _clean_chapter_content(
+            tostring(element.cssselect(".chapter-content")[0])
+        )
         if chap.remote_id is None:
             chap.remote_id = remote_id  # pragma: no cover
         if chap.remote_id != remote_id:  # pragma: no cover
-            logger.error('unexpected remote_id. not updating content on possible parsing error!')
+            logger.error(
+                "unexpected remote_id. not updating content on possible parsing error!"
+            )
             return False
         timestamp = int(element.xpath('//i[@title="Published"]/../time/@unixtime')[0])
-        chap.published = timezone.make_aware(datetime.utcfromtimestamp(timestamp), timezone.utc)
+        chap.published = timezone.make_aware(
+            datetime.utcfromtimestamp(timestamp), timezone.utc
+        )
         chap.save()
         logging.info(f'updated content of "{chap.title}"')
         return True
