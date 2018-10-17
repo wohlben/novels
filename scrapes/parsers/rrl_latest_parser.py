@@ -17,7 +17,7 @@ def latest_extractor(parser_id):
     pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:
-        logger.info("nothing to parse")
+        logger.info("no rrl latest page to parse")
         return False
 
     logger.info(f"found {pending_parses.count()} scrapes to parse!")
@@ -80,7 +80,11 @@ def _parse_chapters(element, fiction):
 
 
 def _parse_fictions(tree):
-    for element in tree.xpath('//div[@class="fiction-list-item row"]'):
+    created_fictions = 0
+    updated_fictions = 0
+    fictions = tree.xpath('//div[@class="fiction-list-item row"]')
+    expected_fictions = len(fictions)
+    for element in fictions:
         try:
             fiction = {}
             fiction["pic_url"] = element.xpath("./figure/img/@src")[0]
@@ -91,17 +95,20 @@ def _parse_fictions(tree):
             fiction["url"] = f"{BASE_URL}{path}"
             fiction["remote_id"] = int(path.split("/")[2])
             fic, created = Fiction.objects.get_or_create(
-                remote_id=fiction["remote_id"], defaults=fiction
+                url=fiction["url"], defaults=fiction
             )
             if created:
-                logger.info(f'created "{fic.title}"')
-            elif fic.monitored is False:
-                logger.info(f'skipping "{fic.title}" as its not monitored')
-                continue
+                created_fictions += 1
             else:
+                updated_fictions += 1
                 Fiction.objects.filter(id=fic.id).update(**fiction)
-                logger.info(f'refreshed "{fic.title}"')
 
             yield (fic, element)
         except Exception:  # pragma: no cover
             logger.exception("failed to parse a novel")
+    if created_fictions + updated_fictions == expected_fictions:
+        logger.info(
+            f"added {created_fictions} and updated {updated_fictions}"
+        )
+    else:
+        logger.warning(f"expected {expected_fictions}, but only got {created_fictions} adds and {updated_fictions} updates parsing latest")

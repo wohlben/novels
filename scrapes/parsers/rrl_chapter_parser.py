@@ -22,7 +22,7 @@ def chapter_extractor(parser_id):
     pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:
-        logger.info("nothing to parse")
+        logger.info("no rrl chapter page to parse")
         return False
 
     logger.info(f"found {pending_parses.count()} chapter scrapes to parse!")
