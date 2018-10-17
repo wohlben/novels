@@ -1,11 +1,7 @@
 from celery import shared_task
 from requests import get
-from scrapes.fetch_generators import (
-    rrl_latest as rrl_latest_generator,
-    rrl_chapter as rrl_chapter_generator,
-    rrl_novel as rrl_novel_generator,
-)
-from scrapes.parsers import rrl as rrl_parser
+from scrapes.fetch_generators import rrl_latest_generator, rrl_chapter_generator, rrl_novel_generator
+from scrapes.parsers import rrl_chapter_parser, rrl_novel_parser, rrl_latest_parser
 import logging
 from scrapes.models import Scrapes, Parser
 
@@ -17,7 +13,7 @@ rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
 
 
 @shared_task
-def fetch_content():
+def fetch_content():  #TODO: mock response.....
     """Fetch an URL from a remote server."""
     try:
         instance = Scrapes.objects.filter(http_code=None, content=None).first()
@@ -45,11 +41,13 @@ def generators():
     rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
     rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
     rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
+    return True
 
 
 @shared_task
 def parsers():
     """Periodic task to parse all available rrl fetches."""
-    rrl_parser.latest_extractor(rrl_latest_parser_id)
-    rrl_parser.chapter_extractor(rrl_chapter_parser_id)
-    rrl_parser.novel_extractor(rrl_novel_parser_id)
+    rrl_latest_parser.latest_extractor(rrl_latest_parser_id)
+    rrl_chapter_parser.chapter_extractor(rrl_chapter_parser_id)
+    rrl_novel_parser.novel_extractor(rrl_novel_parser_id)
+    return True

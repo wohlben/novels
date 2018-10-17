@@ -6,8 +6,10 @@ import logging
 
 logger = logging.getLogger("scrapes.tasks")
 
+__all__ = ['pending_fetches', 'last_fetch', 'add_queue_event']
 
-def all_pending_fetches(parser_type_id):
+
+def pending_fetches(parser_type_id):
     """Return quantity of pending fetches relating to this module."""
     return Scrapes.objects.filter(
         http_code=None, content=None, parser_type_id=parser_type_id
@@ -22,7 +24,7 @@ def last_fetch(parser_type_id):
 def add_queue_event(parser_type_id):
     """Conditionally add a new pending fetch."""
     try:
-        pending_scrapes = all_pending_fetches(parser_type_id)
+        pending_scrapes = pending_fetches(parser_type_id)
 
         if pending_scrapes > 0:
             logger.warning(
