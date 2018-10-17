@@ -1,8 +1,8 @@
 pipeline:
-  ci:
+  django_tests:
     image: python:3.6
     commands:
-      - pip install pipenv
+      - pip install -i $PIPENV_PYPI_MIRROR --trusted-host $PIP_TRUST_MIRROR pipenv
       - pipenv install
       - pipenv run pip freeze > requirements.txt
       - pipenv install --dev
@@ -13,6 +13,7 @@ pipeline:
       - pipenv run coverage html
     environment:
       - PIPENV_PYPI_MIRROR=http://192.168.10.51:3141/root/pypi/+simple/
+      - PIP_TRUST_MIRROR=192.168.10.51
 
   ci_commit:
     image: alpine/git
