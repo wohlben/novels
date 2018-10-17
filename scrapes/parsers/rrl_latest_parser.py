@@ -68,10 +68,14 @@ def _parse_chapters(element, fiction):
 
         except Exception:  # pragma: no cover
             logger.exception(f"failed to parse a chapter in {fiction}")
-    if (added_chapters + updated_chapters == len(chapters)):
-        logger.info(f'added {added_chapters} and updated {updated_chapters} for {fiction.title}')
+    if added_chapters + updated_chapters == len(chapters):
+        logger.info(
+            f"added {added_chapters} and updated {updated_chapters} for {fiction.title}"
+        )
     else:
-        logger.warning(f'expected {len(chapters)}, but only got {added_chapters} adds and {updated_chapters} updates for {fiction.title}')
+        logger.warning(
+            f"expected {len(chapters)}, but only got {added_chapters} adds and {updated_chapters} updates for {fiction.title}"
+        )
     return True
 
 
