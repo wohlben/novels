@@ -6,3 +6,5 @@ celerybeat-schedule
 coverage
 development.requirements
 requirements.txt
+.env
+.ropeproject
