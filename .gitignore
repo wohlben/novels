@@ -8,3 +8,4 @@ development.requirements
 requirements.txt
 .env
 .ropeproject
+node_modules

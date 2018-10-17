@@ -142,6 +142,11 @@ LOGGING = {
 
 STATIC_URL = "/static/"
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "node_modules"),
+]
+
 CELERY_BROKER_URL = "redis://cache:6379"
 CELERY_RESULTS_BACKEND = "redis://cache:6379"
 CELERY_ACCEPT_CONTENT = ["application/json"]
