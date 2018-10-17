@@ -55,6 +55,7 @@ def _parse_fiction_page(element, url):
             return False
 
         chapters = element.xpath("//tr")
+        created_chapters = 0
         for chapter in chapters:
             url_element = chapter.xpath("./td/a/@href")
             if len(url_element) == 0:
@@ -71,11 +72,11 @@ def _parse_fiction_page(element, url):
                 .strip()
             )
             chap.save()
-            logger.info(f"created chapter ")
+            created_chapters += 1
 
         fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
         fic.save()
-        logger.info(f'updated content of "{fic.title}"')
+        logger.info(f'updated content of "{fic.title}" and added {created_chapters}')
         return True
     except Exception:  # pragma: no cover
         logging.exception("failed to parse chapter")
