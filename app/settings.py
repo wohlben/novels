@@ -153,8 +153,11 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
-SOCIAL_AUTH_GITHUB_KEY = os.environ["github_auth_key"]
-SOCIAL_AUTH_GITHUB_SECRET = os.environ["github_auth_secret"]
+SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
+SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
+
+if SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown":
+    print("logging in won't be possible without github auth")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
