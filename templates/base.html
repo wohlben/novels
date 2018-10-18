@@ -31,6 +31,12 @@
         </aside>
         <div class="column is-4 hero is-fullheight" id="content">
           {% block content %}
+          	{% if user.is_authenticated %}
+               <p class="display-4">Hello, {{ user.username }}</p>
+          	{% else %}
+               <a class="lead" href="{% url 'login' %}">Log in</a>
+          	{% endif %}
+
           {% endblock %}
         </div>
     </div>

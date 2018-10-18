@@ -13,24 +13,19 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 from celery.schedules import crontab
+from . import env_variable
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "w$e7gs=$0j0mbta*+t69r2ks45#d_&ad4d%r_jow)(^v(-))1!"
+SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_variable("django_debug", False)
 
-ALLOWED_HOSTS = []
-
-
-# Application definition
+ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -40,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_results",
+    "social_django",
     "profiles",
     "novels",
     "scrapes",
@@ -60,7 +56,7 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['templates'],
+        "DIRS": ["templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -68,8 +64,10 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
-            "debug": True,
+            "debug": env_variable("django_debug", False),
         },
     }
 ]
@@ -83,12 +81,22 @@ WSGI_APPLICATION = "app.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "django",
-        "USER": "django",
-        "HOST": "database",
+        "NAME": env_variable("database_name", "django"),
+        "USER": env_variable("database_user", "django"),
+        "HOST": env_variable("database_host", "database"),
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env_variable("cache", "redis://cache:6379") + "/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "example"
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -101,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
     # {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     # {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-AUTH_USER_MODEL = 'profiles.User'
+AUTH_USER_MODEL = "profiles.User"
 
 
 # Internationalization
@@ -138,6 +146,15 @@ LOGGING = {
         "scrapes.tasks": {"handlers": ["console"], "level": "INFO", "propagate": True},
     },
 }
+AUTHENTICATION_BACKENDS = (
+    "social_core.backends.github.GithubOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "home"
+SOCIAL_AUTH_GITHUB_KEY = os.environ["github_auth_key"]
+SOCIAL_AUTH_GITHUB_SECRET = os.environ["github_auth_secret"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -149,10 +166,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "node_modules"),
 ]
 
-CELERY_BROKER_URL = "redis://cache:6379"
-CELERY_RESULTS_BACKEND = "redis://cache:6379"
+CELERY_BROKER_URL = env_variable("cache", "redis://cache:6379") + "/1"
+CELERY_RESULTS_BACKEND = env_variable("results", "django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"
 
 CELERY_BEAT_SCHEDULE = {
