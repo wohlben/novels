@@ -107,8 +107,8 @@ def _parse_fictions(tree):
         except Exception:  # pragma: no cover
             logger.exception("failed to parse a novel")
     if created_fictions + updated_fictions == expected_fictions:
-        logger.info(
-            f"added {created_fictions} and updated {updated_fictions}"
-        )
+        logger.info(f"added {created_fictions} and updated {updated_fictions}")
     else:
-        logger.warning(f"expected {expected_fictions}, but only got {created_fictions} adds and {updated_fictions} updates parsing latest")
+        logger.warning(
+            f"expected {expected_fictions}, but only got {created_fictions} adds and {updated_fictions} updates parsing latest"
+        )

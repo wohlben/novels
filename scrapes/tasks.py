@@ -17,7 +17,7 @@ rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
 
 
 @shared_task
-def fetch_content():  # TODO: mock response.....
+def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""
     try:
         instance = Scrapes.objects.filter(http_code=None, content=None).first()
