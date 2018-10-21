@@ -21,7 +21,8 @@ urlpatterns = [path("admin/", admin.site.urls)]
 
 urlpatterns += [
     path("scrapes/", include("scrapes.urls")),
-    path("auth/", include("social_django.urls", namespace="social")),
+    path("api/", include("api.urls", namespace="api")),
     path("login/", views.LoginView.as_view(template_name="login.html"), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
+    path('api-auth/', include('rest_framework.urls')),
 ]

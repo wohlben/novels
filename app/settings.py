@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "django_filters",
     "django_celery_results",
     "social_django",
     "profiles",
@@ -135,6 +137,7 @@ LOGGING = {
         "scrapes.tasks": {"handlers": ["console"], "level": "INFO", "propagate": True},
     },
 }
+
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.github.GithubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
@@ -174,4 +177,17 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/25"),
     },
     "parsers": {"task": "scrapes.tasks.parsers", "schedule": crontab(minute="*/5")},
+}
+
+GRAPHENE = {
+    'SCHEMA': 'app.schema.schema' # Where your Graphene schema lives
+}
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }

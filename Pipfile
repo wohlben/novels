@@ -14,6 +14,9 @@ lxml = "*"
 tomd = "*"
 cssselect = "*"
 social-auth-app-django = "*"
+django-filter = "*"
+djangorestframework = "*"
+markdown = "*"
 
 [dev-packages]
 pycodestyle = "*"

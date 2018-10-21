@@ -6,7 +6,7 @@ class Fiction(models.Model):
     """Fiction database model."""
 
     pic_url = models.TextField(blank=True, null=True)
-    pic = models.BinaryField(blank=True, null=True)
+    # pic = models.BinaryField(blank=True, null=True)
     title = models.TextField(blank=True)
     url = models.TextField()
     remote_id = models.TextField(blank=True, null=True)
