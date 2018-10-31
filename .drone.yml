@@ -22,7 +22,7 @@ pipeline:
       - sh .ci/move_coverage.sh
     volumes:
       - /root/.ssh:/root/.ssh
-      - /srv/coverage:/coverage
+      - /srv/coverage/novels:/coverage
 
 services:
   database:
