@@ -1,8 +1,6 @@
-# install
-
 ![build status](https://ci.wohlben.de/api/badges/wohlben/novels/status.svg "build status")
 
-[coverage](https://coverage.wohlben.de/novels/)
+# install
 
 ```bash
 dnf install redis postgresql-server
@@ -11,7 +9,8 @@ pipenv install --dev
 ```
 
 
-# coverage
+# [coverage](https://coverage.wohlben.de/novels/)
+
 ```bash
 coverage run manage.py test
 coverage report -m
