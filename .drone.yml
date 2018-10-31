@@ -20,8 +20,6 @@ pipeline:
     commands:
       - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
       - sh .ci/add_requirements.sh
-    when:
-      branch: master
     secrets: [ ssh_key ]
 
   # TODO: publish coverage to webserver
