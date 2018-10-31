@@ -1,5 +1,9 @@
 # install
 
+![build status](https://ci.wohlben.de/api/badges/wohlben/novels/status.svg "build status")
+
+[coverage](https://coverage.wohlben.de/novels/)
+
 ```bash
 dnf install redis postgresql-server
 systemctl start postgres redis
