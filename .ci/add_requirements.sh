@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -x
-set -ou
 
 git config --global user.email droneci
 git config --global user.email ci@wohlben.de

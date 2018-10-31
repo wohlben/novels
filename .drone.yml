@@ -19,10 +19,10 @@ pipeline:
     image: alpine/git
     commands:
       - sh .ci/add_requirements.sh
+      - sh .ci/move_coverage.sh
     volumes:
       - /root/.ssh:/root/.ssh
-
-  # TODO: publish coverage to webserver
+      - /srv/coverage:/coverage
 
 services:
   database:
