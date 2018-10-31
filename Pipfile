@@ -17,6 +17,7 @@ social-auth-app-django = "*"
 django-filter = "*"
 djangorestframework = "*"
 markdown = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 pycodestyle = "*"

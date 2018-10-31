@@ -12,19 +12,17 @@ pipeline:
       - pipenv run coverage report -m
       - pipenv run coverage html
     environment:
-      - PIPENV_PYPI_MIRROR=http://192.168.10.51:3141/root/pypi/+simple/
-      - PIP_TRUST_MIRROR=192.168.10.51
+      - PIPENV_PYPI_MIRROR=http://192.168.10.11:3141/root/pypi/+simple/
+      - PIP_TRUST_MIRROR=192.168.10.11
 
   publish_requirements:
     image: alpine/git
     commands:
-      - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
       - sh .ci/add_requirements.sh
-    when:
-      branch: master
-    secrets: [ ssh_key ]
-
-  # TODO: publish coverage to webserver
+      - sh .ci/move_coverage.sh
+    volumes:
+      - /root/.ssh:/root/.ssh
+      - /srv/coverage/novels:/coverage
 
 services:
   database:
