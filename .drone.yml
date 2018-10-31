@@ -18,9 +18,9 @@ pipeline:
   publish_requirements:
     image: alpine/git
     commands:
-      - mkdir -p ~/.ssh && echo "$ssh_key" > ~/.ssh/id_rsa
       - sh .ci/add_requirements.sh
-    secrets: [ ssh_key ]
+    volumes:
+      - /root/.ssh:/root/.ssh
 
   # TODO: publish coverage to webserver
 
