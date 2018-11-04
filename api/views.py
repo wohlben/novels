@@ -2,11 +2,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from api.serializers import FictionListSerializer, FictionSerializer, ChapterListSerializer, ChapterSerializer
 from novels.models import Fiction, Chapter
 from rest_framework import viewsets
+from api.pagination import VariablePagination
 
 class FictionViewSet(viewsets.ModelViewSet):
     queryset = Fiction.objects.all().order_by('title')
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('monitored', 'author')
+    pagination_class = VariablePagination
 
     def get_serializer_class(self):
         if self.action == 'list':
