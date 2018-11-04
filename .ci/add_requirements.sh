@@ -10,7 +10,7 @@ if [[ "$(git remote get-url origin)" == "https://github.com/wohlben/novels.git" 
   git remote set-url origin git@github.com:wohlben/novels.git
 fi
 
-if ! ssh-keyscan -F github.com; then
+if ! ssh-keygen -F github.com; then
   echo "importing github pubkey"
   ssh-keyscan github.com >> ~/.ssh/known_hosts
 fi
