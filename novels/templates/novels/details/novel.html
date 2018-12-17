@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">{{ novel.title }}</h1>
+    {% if novel.author %}
+      <p class="lead">a novel by {{ novel.author }}</p>
+    {% endif %}
+    <ul class="list-group">
+      {% for chapter in novel.chapter_set.all %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ chapter.title }}
+        {% if chapter.published %}
+        <span class="badge badge-primary badge-pill">{{ chapter.published }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

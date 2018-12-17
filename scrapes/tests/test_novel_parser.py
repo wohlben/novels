@@ -2,6 +2,7 @@ from django.test import TestCase
 from scrapes import models
 from scrapes.parsers import rrl_novel_parser
 from novels import models as novel_models
+from profiles.models import User
 import logging
 
 
@@ -13,6 +14,8 @@ class ParseNovelTestCase(TestCase):
     def setUpTestData(cls):
         logging.disable(logging.CRITICAL)
         cls.parser_id = models.Parser.objects.get(name="rrl novel").id
+        user = User.objects.create(username="testuser")
+        novel_models.Fiction.objects.all()[0].watching.add(user)
 
     def pending_parses(self):
         return rrl_novel_parser.all_pending_parses(self.parser_id).count()
@@ -42,8 +45,8 @@ class ParseNovelTestCase(TestCase):
         )
 
     def test_fixture_data_available_fictions(self):
-        monitored = novel_models.Fiction.objects.filter(monitored=False).count()
-        unmonitored = novel_models.Fiction.objects.filter(monitored=True).count()
+        monitored = novel_models.Fiction.objects.exclude(watching=None).count()
+        unmonitored = novel_models.Fiction.objects.filter(watching=None).count()
         self.assertGreater(
             monitored, 0, f"we'll need a monitored fiction for the tests"
         )

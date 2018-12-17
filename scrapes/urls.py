@@ -5,5 +5,8 @@ from . import APP_NAME
 app_name = APP_NAME
 
 urlpatterns = [
-    path("", views.TestView.as_view(), name="home")
+    path("", views.TestView.as_view(), name="home"),
+    path("history", views.HistoryView.as_view(), name="history"),
+    path("queue", views.QueueView.as_view(), name="queue"),
+    path("log", views.ParseLogListView.as_view(), name="log"),
 ]

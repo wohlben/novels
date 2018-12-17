@@ -26,6 +26,7 @@ SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 DEBUG = env_variable("django_debug", False)
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
+INTERNAL_IPS = ('127.0.0.1', '192.168.1.26')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'debug_toolbar',
     'corsheaders',
     "rest_framework",
     "django_filters",
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -146,9 +149,10 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "scrapes:home"
 SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
 SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 if SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown":
     print("logging in won't be possible without github auth")

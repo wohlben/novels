@@ -26,6 +26,7 @@ pyyaml = "*"
 coverage = "*"
 python-language-server = {extras = ["all"]}
 django-coverage-plugin = "*"
+django-debug-toolbar = "*"
 
 [requires]
 python_version = "3.6"

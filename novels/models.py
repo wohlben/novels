@@ -1,7 +1,6 @@
 """Modeldefinitions for the novel app."""
 from django.db import models
 
-
 class Fiction(models.Model):
     """Fiction database model."""
 
@@ -11,8 +10,8 @@ class Fiction(models.Model):
     url = models.TextField()
     remote_id = models.TextField(blank=True, null=True)
     author = models.TextField(blank=True, null=True)
-    monitored = models.BooleanField(default=False)
 
+    watching = models.ManyToManyField("profiles.User")
 
 class Chapter(models.Model):
     """Chapter database model."""

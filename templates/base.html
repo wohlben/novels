@@ -6,50 +6,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}base template{% endblock %}</title>
-    <link rel="stylesheet" href="{% static "font-awesome/font-awesome.css" %}">
-    <link rel="stylesheet" href="{% static "bulma/css/bulma.min.css" %}" />
+    <link rel="stylesheet" href="{% static "font-awesome/css/font-awesome.css" %}">
+    <link rel="stylesheet" href="{% static "awesomplete/awesomplete.css" %}">
+    <!--<link rel="stylesheet" href="{% static "bulma/css/bulma.min.css" %}" />-->
+    <link rel="stylesheet" href="{% static "bootswatch/dist/darkly/bootstrap.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
     {% block additional_css_opts %}
     {% endblock %}
 </head>
-
 <body>
-    <!--nav class="navbar has-shadow is-dark" role="navigation" aria-label="main navbar">
-      <div class="navbar-brand">
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
-      </div>
-    </nav>-->
-    <div class="columns">
-        <aside id="navigation" class="column is-2 aside hero is-fullheight is-dark">
-            <div>
-
-            </div>
-        </aside>
-        <div class="column is-4 hero is-fullheight" id="content">
-          {% block content %}
-          	{% if user.is_authenticated %}
-               <p class="display-4">Hello, {{ user.username }}</p>
-          	{% else %}
-               <a class="lead" href="{% url 'login' %}">Log in</a>
-          	{% endif %}
-
-          {% endblock %}
-        </div>
+  {% if user.is_authenticated %}
+    {% include "navbar.html" %}
+    <div class="content">
+      {% block content %}
+        <p>Hello, {{ user.username }}</p>
+      {% endblock %}
     </div>
     {% block footer %}
     <!--<footer class="footer">
-        <div class="container">
-            <div class="content has-text-centered">
-            </div>
-        </div>
+       <div class="container">
+           <div class="content has-text-centered">
+           </div>
+       </div>
     </footer>-->
     {% endblock %}
-
+  {% else %}
+    <a href="{% url 'social:begin' 'github' %}">
+      <h4>Login with GitHub</h4>
+      <br />
+      <img src="{% static "img/Octocat.jpg" %}" />
+    </a>
+  {% endif %}
     <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
+    <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
+    <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
+    <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
     <script src="{% static "js/base.js" %}"></script>
 </body>
 

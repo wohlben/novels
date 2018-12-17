@@ -1,6 +1,7 @@
 from django.test import TestCase
 from scrapes.models import Parser
 from novels.models import Fiction, Chapter
+from profiles.models import User
 from scrapes.fetch_generators import rrl_chapter_generator
 import logging
 
@@ -17,16 +18,16 @@ class GenerateChapterTestCase(TestCase):
         fictions = [
             {
                 "title": "monitored",
-                "monitored": True,
                 "url": "someurl/fiction/1/novelname",
             },
             {
                 "title": "unmonitored",
-                "monitored": False,
                 "url": "another-url/fiction/22/novel-name2",
             },
         ]
         fics = [Fiction.objects.create(**fic) for fic in fictions]
+        user = User.objects.create(username="testuser")
+        fics[0].watching.add(user)
         chapters = [
             {"fiction": fics[0], "url": "someurl/chapter/333/chapter"},
             {

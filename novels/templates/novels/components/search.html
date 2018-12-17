@@ -1,0 +1,14 @@
+{% load static %}
+<link rel="stylesheet" href="{% static "awesomplete/awesomplete.css" %}">
+<script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
+<input id="novel-select" class="awesomplete" list="novel-list" class="form-control mr-sm-2" type="search" placeholder="Novel" aria-label="Search"/>
+<datalist id="novel-list">
+    {% for novel in novels %}
+    <option id="novel-{{ novel.id }}" label="{{ novel.title }}">{% url "novels:novel" novel_id=novel.id %}</option>
+    {% endfor %}
+</datalist>
+<script>
+  Awesomplete.$("#novel-select").addEventListener('awesomplete-selectcomplete', evnt  => {
+    location.href = evnt.text.value;
+  });
+</script>

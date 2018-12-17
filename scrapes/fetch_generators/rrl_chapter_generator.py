@@ -32,7 +32,7 @@ def missing_chapters(parser_type_id):
 
 def monitored_novels(parser_type_id):
     """Return IDs of all monitored Fiction objects."""
-    return Fiction.objects.filter(monitored=True).values("id")
+    return Fiction.objects.exclude(watching=None).values("id")
 
 
 def add_queue_events(parser_type_id):
