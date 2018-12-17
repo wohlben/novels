@@ -15,16 +15,16 @@ pipeline:
       - PIPENV_PYPI_MIRROR=http://192.168.10.11:3141/root/pypi/+simple/
       - PIP_TRUST_MIRROR=192.168.10.11
 
-  publish_requirements:
-    image: alpine/git
-    commands:
-      - sh .ci/add_requirements.sh
-      - sh .ci/move_coverage.sh
-    when:
-      branch: [master, develop, release/*]
-    volumes:
-      - /root/.ssh:/root/.ssh
-      - /srv/coverage/novels:/coverage
+  # publish_requirements:
+  #   image: alpine/git
+  #   commands:
+  #     - sh .ci/add_requirements.sh
+  #     - sh .ci/move_coverage.sh
+  #   when:
+  #     branch: [master, develop, release/*]
+  #   volumes:
+  #     - /root/.ssh:/root/.ssh
+  #     - /srv/coverage/novels:/coverage
 
 services:
   database:
