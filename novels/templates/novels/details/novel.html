@@ -11,7 +11,7 @@
     <ul class="list-group">
       {% for chapter in novel.chapter_set.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        {{ chapter.title }}
+        <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>
         {% if chapter.published %}
         <span class="badge badge-primary badge-pill">{{ chapter.published }}</span>
         {% endif %}

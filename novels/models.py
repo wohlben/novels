@@ -24,5 +24,6 @@ class Chapter(models.Model):
     content = models.TextField(blank=True, null=True)
     published = models.DateTimeField(blank=True, null=True)
     published_relative = models.TextField(blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
     discovered = models.DateTimeField(auto_now_add=True)
     url = models.TextField()

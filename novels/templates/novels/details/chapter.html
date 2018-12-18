@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ chapter.title }}{% endblock %}
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h6 class="display-6">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}
+    <h1 class="display-4">{{ chapter.title }}</h1>
+    <p class="lead">last updated: {{ chapter.updated }}</p>
+
+    <span class="chapter">
+      {{ chapter.content|safe  }}
+    </span>
+  </div>
+</div>
+{% endblock %}

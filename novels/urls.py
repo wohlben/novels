@@ -10,5 +10,7 @@ urlpatterns = [
     path("watch", views.ToggleFictionWatch.as_view(), name="watch"),
     path("watch/<novel_id>", views.WatchComponent.as_view(), name="watch-component"),
     path("novel/<novel_id>", views.FictionDetailView.as_view(), name="novel"),
+    path("chapter/<chapter_id>", views.ChapterDetailView.as_view(), name="chapter"),
     path("search", views.SearchComponent.as_view(), name="search"),
+
 ]

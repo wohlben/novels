@@ -1,5 +1,5 @@
-from novels.models import Fiction
 from django.views.generic import TemplateView, FormView
+from novels.models import Fiction, Chapter
 from novels.forms import WatchingForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
@@ -51,6 +51,12 @@ class FictionDetailView(TemplateView):
         context = {'novel': Fiction.objects.get(id=novel_id)}
         return context
 
+class ChapterDetailView(TemplateView):
+    template_name = "novels/details/chapter.html"
+
+    def get_context_data(self, chapter_id):
+        context = {'chapter': Chapter.objects.prefetch_related('fiction').get(id=chapter_id)}
+        return context
 
 class SearchComponent(TemplateView):
     template_name = "novels/components/search.html"
