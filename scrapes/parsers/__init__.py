@@ -3,9 +3,9 @@ from scrapes.models import Scrapes
 from novels.models import Chapter
 
 __all__ = [
-    "rrl_latest",
-    "rrl_novel",
-    "rrl_chapter",
+    "rrl_latest_parser",
+    "rrl_novel_parser",
+    "rrl_chapter_parser",
     "all_pending_parses",
     "available_chapter_urls",
 ]

@@ -50,11 +50,12 @@ def chapter_extractor(parser_id):
 
 
 def _clean_chapter_content(content):
-    content = content.decode("unicode_escape").strip()
+    # content = content.decode("unicode_escape").strip()
+    content = content.decode('unicode_escape').encode('raw_unicode_escape').decode('utf-8')
     removedScripts = re.sub(r"<script.*?</script>", "", str(content))
-    removeHtmlEscapes = unescape(removedScripts)
-    content = tomd.convert(removeHtmlEscapes.replace("<br/>", "\n"))
-    return content
+    #removeHtmlEscapes = unescape(removedScripts)
+    #content = tomd.convert(removeHtmlEscapes.replace("<br/>", "\n"))
+    return removedScripts
 
 
 def _parse_chapter_page(element, url):

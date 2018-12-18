@@ -1,6 +1,6 @@
 """Conditionally creates pending fetches for new monitored novels ."""
 from scrapes.models import Scrapes
-from novels.models import Chapter, Fiction
+from novels.models import Fiction
 import logging
 
 __all__ = ["pending_fetches", "missing_novels", "add_queue_events"]
