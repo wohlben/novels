@@ -1,0 +1,5 @@
+  <form method=POST action={% url "novels:watch" %}
+  {{ form }}
+  {% csrf_token %}
+  <button type=submit value="save" />
+  </form>

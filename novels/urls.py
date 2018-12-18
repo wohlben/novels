@@ -7,6 +7,8 @@ app_name = APP_NAME
 urlpatterns = [
     path("", views.FictionListView.as_view(), name="novels"),
     path("watching", views.WatchingListView.as_view(), name="watching"),
+    path("watch", views.ToggleFictionWatch.as_view(), name="watch"),
+    path("watch/<novel_id>", views.WatchComponent.as_view(), name="watch-component"),
     path("novel/<novel_id>", views.FictionDetailView.as_view(), name="novel"),
     path("search", views.SearchComponent.as_view(), name="search"),
 ]

@@ -4,6 +4,7 @@
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
     <h1 class="display-4">{{ novel.title }}</h1>
+    <span id="watch-component" ic-src="{% url "novels:watch-component" novel_id=novel.id %}" ic-trigger-on="load"></span>
     {% if novel.author %}
       <p class="lead">a novel by {{ novel.author }}</p>
     {% endif %}
