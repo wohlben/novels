@@ -40,7 +40,12 @@ class FictionListView(TemplateView):
     template_name = "novels/lists/novels.html"
 
     def get_context_data(self, **kwargs):
-        context = {'novels': Fiction.objects.all().order_by('title').values('id', 'title', 'author',)}
+        context = {}
+        if self.request.GET.get('populated'):
+            context['novels'] = Fiction.objects.order_by('title').filter(id__in=Chapter.objects.exclude(published=None).values('fiction')).values('id', 'title', 'author')
+        else:
+            context['novels'] = Fiction.objects.all().order_by('title').values('id', 'title', 'author',)
+
         return context
 
 

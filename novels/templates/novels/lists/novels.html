@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col hero" onclick="setUrlGetParam('populated=true');">show only novels with chapters</div>
+    <div class="col hero" onclick="setUrlGetParam('');"> show all novels </div>
+  </div>
+</div>
 <ul class="list-group">
   {% for novel in novels %}
     <li class="list-group-item container-fluid">
       <a href="{% url "novels:novel" novel_id=novel.id %}" class="d-flex justify-content-between align-items-center">
         {{ novel.title }}
       </a>
-
-      </div>
     </li>
   {% endfor %}
 </ul>
