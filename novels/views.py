@@ -21,7 +21,7 @@ class ToggleFictionWatch(FormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            novel_id = request.POST.get('novel_id')
+            novel_id = form.data.get('novel_id')
             fiction = Fiction.objects.get(id=novel_id)
             if request.user.fiction_set.filter(id=fiction.id).count() > 0:
                 fiction.watching.remove(request.user)

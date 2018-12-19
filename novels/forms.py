@@ -1,5 +1,7 @@
-from django import forms
+from django.forms import ModelForm
 from novels.models import Fiction
 
-class WatchingForm(forms.Form):
-    novel_id = forms.IntegerField()        
+class WatchingForm(ModelForm):
+    class Meta:
+        model = Fiction
+        fields = ['id']
