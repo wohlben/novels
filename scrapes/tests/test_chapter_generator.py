@@ -16,14 +16,8 @@ class GenerateChapterTestCase(TestCase):
 
     def setUp(self):
         fictions = [
-            {
-                "title": "monitored",
-                "url": "someurl/fiction/1/novelname",
-            },
-            {
-                "title": "unmonitored",
-                "url": "another-url/fiction/22/novel-name2",
-            },
+            {"title": "monitored", "url": "someurl/fiction/1/novelname"},
+            {"title": "unmonitored", "url": "another-url/fiction/22/novel-name2"},
         ]
         fics = [Fiction.objects.create(**fic) for fic in fictions]
         user = User.objects.create(username="testuser")

@@ -12,5 +12,4 @@ urlpatterns = [
     path("novel/<novel_id>", views.FictionDetailView.as_view(), name="novel"),
     path("chapter/<chapter_id>", views.ChapterDetailView.as_view(), name="chapter"),
     path("search", views.SearchComponent.as_view(), name="search"),
-
 ]

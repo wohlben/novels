@@ -18,19 +18,13 @@ class GenerateNovelTestCase(TestCase):
 
     def setUp(self):
         fictions = [
-            {
-                "title": "monitored",
-                "url": "someurl/fiction/1/novelname",
-            },
+            {"title": "monitored", "url": "someurl/fiction/1/novelname"},
             {
                 "title": "monitored",
                 "url": "someurl/fiction/1/novelname",
                 "author": "some-author",
             },
-            {
-                "title": "unmonitored",
-                "url": "another-url/fiction/22/novel-name2",
-            },
+            {"title": "unmonitored", "url": "another-url/fiction/22/novel-name2"},
             {
                 "title": "unmonitored",
                 "url": "another-url/fiction/22/novel-name2",
@@ -67,4 +61,8 @@ class GenerateNovelTestCase(TestCase):
     def test_correct_amount_added(self):
         pending = self.pending_fetches()
         self.add_queue_events()
-        self.assertEquals(pending + 1, self.pending_fetches(), "test data should've added only one new fetch")
+        self.assertEquals(
+            pending + 1,
+            self.pending_fetches(),
+            "test data should've added only one new fetch",
+        )

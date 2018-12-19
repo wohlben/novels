@@ -22,14 +22,14 @@ from django.shortcuts import redirect
 urlpatterns = [path("admin/", admin.site.urls)]
 
 urlpatterns += [
-    path('', RedirectView.as_view(pattern_name='scrapes:home', permanent=False)),
+    path("", RedirectView.as_view(pattern_name="scrapes:home", permanent=False)),
     path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
     path("api/", include("api.urls", namespace="api")),
     path("login/", views.LoginView.as_view(template_name="login.html"), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
-    path('auth/', include('social_django.urls', namespace='social')),
-    path('api-auth/', include('rest_framework.urls')),
+    path("auth/", include("social_django.urls", namespace="social")),
+    path("api-auth/", include("rest_framework.urls")),
 ]
 
 from django.conf import settings
@@ -37,6 +37,5 @@ from django.urls import include, path  # For django versions from 2.0 and up
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+
+    urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns

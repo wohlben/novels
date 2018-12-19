@@ -6,14 +6,17 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('scrapes', '0004_auto_20181013_1604'),
-    ]
+    dependencies = [("scrapes", "0004_auto_20181013_1604")]
 
     operations = [
         migrations.AddField(
-            model_name='scrapes',
-            name='added_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='scrapes.ParseLog'),
-        ),
+            model_name="scrapes",
+            name="added_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="scrapes.ParseLog",
+            ),
+        )
     ]

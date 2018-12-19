@@ -8,17 +8,16 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('novels', '0001_initial'),
+        ("novels", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='chapter',
-            options={'ordering': ['published', 'id']},
+            name="chapter", options={"ordering": ["published", "id"]}
         ),
         migrations.AddField(
-            model_name='fiction',
-            name='watching',
+            model_name="fiction",
+            name="watching",
             field=models.ManyToManyField(to=settings.AUTH_USER_MODEL),
         ),
     ]

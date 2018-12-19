@@ -1,6 +1,5 @@
 """Extraction of Data from basic scrapes."""
 from scrapes.models import Scrapes
-from novels.models import Chapter
 
 __all__ = [
     "rrl_latest_parser",

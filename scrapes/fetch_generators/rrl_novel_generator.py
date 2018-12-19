@@ -10,13 +10,17 @@ logger = logging.getLogger("scrapes.tasks")
 
 def pending_fetches(parser_type_id):
     """Return Scrape urls of parser_type_id."""
-    return Scrapes.objects.filter(parser_type_id=parser_type_id, content=None).values("url")
+    return Scrapes.objects.filter(parser_type_id=parser_type_id, content=None).values(
+        "url"
+    )
 
 
 def missing_novels(parser_type_id):
     """Return monitored Fiction objects that should to be fetched."""
-    return Fiction.objects.exclude(watching=None).exclude(
-        url__in=pending_fetches(parser_type_id)).filter(author=None
+    return (
+        Fiction.objects.exclude(watching=None)
+        .exclude(url__in=pending_fetches(parser_type_id))
+        .filter(author=None)
     )
 
 

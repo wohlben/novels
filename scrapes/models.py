@@ -11,7 +11,13 @@ class Scrapes(models.Model):
     content = models.TextField(blank=True, null=True)
     http_code = models.IntegerField(blank=True, null=True)
     parser_type = models.ForeignKey("Parser", on_delete=models.CASCADE)
-    added_by = models.ForeignKey("ParseLog", null=True, blank=True, related_name='added_by', on_delete=models.SET_NULL)
+    added_by = models.ForeignKey(
+        "ParseLog",
+        null=True,
+        blank=True,
+        related_name="added_by",
+        on_delete=models.SET_NULL,
+    )
     added_reason = models.TextField(blank=True, null=True)
 
 

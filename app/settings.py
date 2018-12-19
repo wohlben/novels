@@ -26,7 +26,7 @@ SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 DEBUG = env_variable("django_debug", False)
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
-INTERNAL_IPS = ('127.0.0.1', '192.168.1.26')
+INTERNAL_IPS = ("127.0.0.1", "192.168.1.26")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -35,8 +35,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'debug_toolbar',
-    'corsheaders',
+    "debug_toolbar",
+    "corsheaders",
     "rest_framework",
     "django_filters",
     "django_celery_results",
@@ -47,8 +47,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -185,21 +185,17 @@ CELERY_BEAT_SCHEDULE = {
     "parsers": {"task": "scrapes.tasks.parsers", "schedule": crontab(minute="*/5")},
 }
 
-GRAPHENE = {
-    'SCHEMA': 'app.schema.schema' # Where your Graphene schema lives
-}
+GRAPHENE = {"SCHEMA": "app.schema.schema"}  # Where your Graphene schema lives
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 100,
 }
 
-CORS_ORIGIN_WHITELIST = (
-        env_variable("cors_whitelist", "").split()
-)
+CORS_ORIGIN_WHITELIST = env_variable("cors_whitelist", "").split()

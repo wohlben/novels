@@ -6,19 +6,23 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('scrapes', '0005_scrapes_added_by'),
-    ]
+    dependencies = [("scrapes", "0005_scrapes_added_by")]
 
     operations = [
         migrations.AddField(
-            model_name='scrapes',
-            name='added_reason',
+            model_name="scrapes",
+            name="added_reason",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='scrapes',
-            name='added_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='added_by', to='scrapes.ParseLog'),
+            model_name="scrapes",
+            name="added_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="added_by",
+                to="scrapes.ParseLog",
+            ),
         ),
     ]

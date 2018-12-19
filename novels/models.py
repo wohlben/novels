@@ -1,6 +1,7 @@
 """Modeldefinitions for the novel app."""
 from django.db import models
 
+
 class Fiction(models.Model):
     """Fiction database model."""
 
@@ -13,10 +14,12 @@ class Fiction(models.Model):
 
     watching = models.ManyToManyField("profiles.User")
 
+
 class Chapter(models.Model):
     """Chapter database model."""
+
     class Meta:
-        ordering = ['published', 'id']
+        ordering = ["published", "id"]
 
     fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)

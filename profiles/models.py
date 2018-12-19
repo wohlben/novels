@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-
     @property
     def watching(self):
-        return Fiction.objects.filter(watching=self).order_by('title')
+        return Fiction.objects.filter(watching=self).order_by("title")

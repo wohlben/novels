@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('novels', '0003_remove_fiction_monitored'),
-    ]
+    dependencies = [("novels", "0003_remove_fiction_monitored")]
 
     operations = [
         migrations.AddField(
-            model_name='chapter',
-            name='updated',
+            model_name="chapter",
+            name="updated",
             field=models.DateTimeField(auto_now=True),
-        ),
+        )
     ]
