@@ -7,8 +7,6 @@ import logging
 from django.utils import timezone
 from datetime import datetime
 import re
-from html import unescape
-import tomd
 from lxml.etree import tostring
 
 __all__ = ["chapter_extractor"]
@@ -50,11 +48,8 @@ def chapter_extractor(parser_id):
 
 
 def _clean_chapter_content(content):
-    # content = content.decode("unicode_escape").strip()
     content = content.decode('unicode_escape').encode('raw_unicode_escape').decode('utf-8')
     removedScripts = re.sub(r"<script.*?</script>", "", str(content))
-    #removeHtmlEscapes = unescape(removedScripts)
-    #content = tomd.convert(removeHtmlEscapes.replace("<br/>", "\n"))
     return removedScripts
 
 
