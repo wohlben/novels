@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from scrapes.models import Parser, ParseLog
 from django.db.models import Count, F
+from scrapes.fetch_generators import scrape_queue
 
 
 class ParseLogListView(TemplateView):
@@ -23,7 +24,7 @@ class QueueView(TemplateView):
     template_name = "scrapes/lists/queue.html"
 
     def get_context_data(self, **kwargs):
-        context = {"parsers": Parser.objects.all()}
+        context = {"queue": scrape_queue().prefetch_related('parser_type')}
         return context
 
 

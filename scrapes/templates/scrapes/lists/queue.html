@@ -3,15 +3,16 @@
 Queue
 {% endblock %}
 {% block content %}
-{% for parser in parsers %}
-  {% with queue=parser.pending %}
   <table class="table">
-    <thead>
+    <!--<thead>
       <th colspan=2>{{ parser.name }} ({{ queue|length }})</th>
-    </thead>
+    </thead>-->
     <tbody>
       {% for scrape in queue %}
       <tr>
+        <td>
+          {{ scrape.parser_type.name }}
+        </td>
         <td>
           {{ scrape.id }}
         </td>
@@ -25,6 +26,4 @@ Queue
       {% endfor %}
     </tbody>
   </table>
-  {% endwith %}
-{% endfor %}
 {% endblock %}

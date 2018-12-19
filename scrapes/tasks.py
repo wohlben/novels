@@ -4,10 +4,11 @@ from scrapes.fetch_generators import (
     rrl_latest_generator,
     rrl_chapter_generator,
     rrl_novel_generator,
+    scrape_queue,
 )
 from scrapes.parsers import rrl_chapter_parser, rrl_novel_parser, rrl_latest_parser
 import logging
-from scrapes.models import Scrapes, Parser
+from scrapes.models import Parser
 
 logger = logging.getLogger("scrapes.tasks")
 
@@ -20,7 +21,7 @@ rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
 def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""
     try:
-        instance = Scrapes.objects.filter(http_code=None, content=None).first()
+        instance = scrape_queue().first()
         if not instance:
             logger.info("no pending scrapes")
             return True
@@ -38,14 +39,25 @@ def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Sc
     except Exception:
         logger.exception(f"failed to fetch content for {instance.url}")
 
-
 @shared_task
 def generators():
-    """Periodic task to conditionally enqueue new fetches."""
-    rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
-    rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
-    rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
+    rrl_latest_generator_task()
+    rrl_novel_generator_task()
+    rrl_chapter_generator_task()
     return True
+
+
+@shared_task
+def rrl_latest_generator_task():
+    return rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
+
+@shared_task
+def rrl_chapter_generator_task():
+    return rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
+
+@shared_task
+def rrl_novel_generator_task():
+    return rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
 
 
 @shared_task

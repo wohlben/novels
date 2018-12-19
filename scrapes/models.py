@@ -26,6 +26,7 @@ class Parser(models.Model):
 
     name = models.TextField()
     added = models.DateTimeField(auto_now_add=True)
+    weight = models.IntegerField(default=50)
 
     @property
     def pending(self):
