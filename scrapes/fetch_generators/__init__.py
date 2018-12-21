@@ -12,6 +12,7 @@ __all__ = [
 
 PARSERS = {parser.name: parser.id for parser in _parsers}
 
+
 def scrape_queue():
     return Scrapes.objects.filter(http_code=None, content=None).order_by(
         "parser_type__weight", "id"

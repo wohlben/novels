@@ -2,11 +2,13 @@
 
 from django.db import migrations, models
 
+
 def set_weights(apps, schema_editor):
     Parser = apps.get_model("scrapes", "Parser")
     parsers = {"rrl latest": 10, "rrl chapter": 30, "rrl novel": 20}
     for parser, weight in parsers.items():
         Parser.objects.filter(name=parser).update(weight=weight)
+
 
 def reset_weights(apps, schema_editor):
     Parser = apps.get_model("scrapes", "Parser")
@@ -17,15 +19,11 @@ def reset_weights(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('scrapes', '0006_auto_20181217_1959'),
-    ]
+    dependencies = [("scrapes", "0006_auto_20181217_1959")]
 
     operations = [
         migrations.AddField(
-            model_name='parser',
-            name='weight',
-            field=models.IntegerField(default=50),
+            model_name="parser", name="weight", field=models.IntegerField(default=50)
         ),
         migrations.RunPython(set_weights, reverse_code=reset_weights),
     ]

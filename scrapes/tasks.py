@@ -28,6 +28,7 @@ def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another S
     except Exception:
         logger.exception(f"failed to fetch content for {instance.url}")
 
+
 @shared_task
 def generators_task():
     fetch_generators.rrl_latest_generator.add_queue_event()
