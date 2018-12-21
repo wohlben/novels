@@ -5,6 +5,7 @@ from django.utils import timezone
 
 PARSER_TYPE = "rrl latest"
 
+
 class RRLLatestGeneratorMixin(object):
     def pending_fetches(self):
         """Return quantity of pending fetches relating to this module."""
@@ -12,11 +13,9 @@ class RRLLatestGeneratorMixin(object):
             http_code=None, content=None, parser_type_id=self.parser_id
         ).count()
 
-
     def last_fetch(self):
         """Return the last fetch object for modifications."""
         return Scrapes.objects.filter(parser_type_id=self.parser_id).last()
-
 
     def add_queue_event(self):
         """Conditionally add a new pending fetch."""

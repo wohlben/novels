@@ -40,15 +40,15 @@ class RRLChapterParserMixin(object):
 
         return True
 
-
     @staticmethod
     def _clean_chapter_content(content):
         content = (
-            content.decode("unicode_escape").encode("raw_unicode_escape").decode("utf-8")
+            content.decode("unicode_escape")
+            .encode("raw_unicode_escape")
+            .decode("utf-8")
         )
         removedScripts = re.sub(r"<script.*?</script>", "", str(content))
         return removedScripts
-
 
     def _parse_chapter_page(self, element, url):
         try:
@@ -64,7 +64,9 @@ class RRLChapterParserMixin(object):
                     "unexpected remote_id. not updating content on possible parsing error!"
                 )
                 return False
-            timestamp = int(element.xpath('//i[@title="Published"]/../time/@unixtime')[0])
+            timestamp = int(
+                element.xpath('//i[@title="Published"]/../time/@unixtime')[0]
+            )
             chap.published = timezone.make_aware(
                 datetime.utcfromtimestamp(timestamp), timezone.utc
             )

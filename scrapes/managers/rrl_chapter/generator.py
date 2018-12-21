@@ -13,30 +13,26 @@ class RRLChapterGeneratorMixin(object):
             last_change__gt=timezone.now() - timedelta(days=1),
         ).values("url")
 
-
     def missing_chapters(self):
         """Return all chapters of monitored novels without content."""
         return Chapter.objects.filter(
             content=None, fiction__in=self.monitored_novels()
-        ).exclude(url__in=self.pending_fetches().values('url'))
-
+        ).exclude(url__in=self.pending_fetches().values("url"))
 
     @staticmethod
     def monitored_novels():
         """Return IDs of all monitored Fiction objects."""
         return Fiction.objects.exclude(watching=None).values("id")
 
-
     def refetch_chapter(self, chapter_id):
         chapter = Chapter.objects.get(id=chapter_id)
-        if self.pending_fetches().count()> 0:
+        if self.pending_fetches().count() > 0:
             self.logger.info(f"{chapter.title} is already queued, skipping")
             return False
         else:
             Scrapes.objects.create(url=chapter.url, parser_type_id=self.parser_id)
             self.logger.info(f"added {chapter.title} to the queue")
             return True
-
 
     def add_queue_events(self):
         """Conditionally add a new pending fetch."""

@@ -2,22 +2,19 @@
 from scrapes.models import Scrapes
 from novels.models import Fiction
 
+
 class RRLNovelGeneratorMixin(object):
     def pending_fetches(self):
         """Return Scrape urls of parser_type_id."""
-        return Scrapes.objects.filter(
-            parser_type_id=self.parser_id, content=None
-        )
-
+        return Scrapes.objects.filter(parser_type_id=self.parser_id, content=None)
 
     def missing_novels(self):
         """Return monitored Fiction objects that should to be fetched."""
         return (
             Fiction.objects.exclude(watching=None)
-            .exclude(url__in=self.pending_fetches().values('url'))
+            .exclude(url__in=self.pending_fetches().values("url"))
             .filter(author=None)
         )
-
 
     def refetch_novel(self, novel_id):
         fic = Fiction.objects.get(id=novel_id)
@@ -28,7 +25,6 @@ class RRLNovelGeneratorMixin(object):
             self.logger.info(f"added {fic.title} to the queue")
             Scrapes.objects.create(url=fic.url, parser_type_id=self.parser_id)
             return True
-
 
     def add_queue_events(self):
         """Conditionally add a new pending fetch."""

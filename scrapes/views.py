@@ -5,6 +5,7 @@ from scrapes import managers
 from scrapes.forms import RequeueNovelForm, RequeueChapterForm
 from django.http import HttpResponseRedirect
 
+
 class ParseLogListView(TemplateView):
     template_name = "scrapes/lists/log.html"
 
@@ -21,25 +22,24 @@ class ParseLogListView(TemplateView):
         return context
 
 
-
 class RequeueNovelComponent(FormView):
     form_class = RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
 
     def get_context_data(self):
-        return {'novel_id': self.kwargs.get('novel_id') }
+        return {"novel_id": self.kwargs.get("novel_id")}
 
     def post(self, request, novel_id, *args, **kwargs):
         managers.rrl_novel.refetch_novel(novel_id)
         return HttpResponseRedirect("#")
+
 
 class RequeueChapterComponent(FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
 
     def get_context_data(self):
-        return {'chapter_id': self.kwargs.get('chapter_id') }
-
+        return {"chapter_id": self.kwargs.get("chapter_id")}
 
     def post(self, request, chapter_id, *args, **kwargs):
         managers.rrl_chapter.refetch_chapter(chapter_id)
@@ -50,7 +50,9 @@ class QueueView(TemplateView):
     template_name = "scrapes/lists/queue.html"
 
     def get_context_data(self, **kwargs):
-        context = {"queue": managers.manager.scrape_queue().prefetch_related("parser_type")}
+        context = {
+            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
+        }
         return context
 
 

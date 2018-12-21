@@ -9,6 +9,7 @@ from django.utils import timezone
 class RRLNovelParserMixin(object):
 
     BASE_URL = "https://www.royalroad.com"
+
     def novel_extractor(self):
         """Return False if no Parses were necessary. True if the parsind was successful."""
         pending_parses = self.all_pending_parses()
@@ -37,7 +38,6 @@ class RRLNovelParserMixin(object):
                 success_monitor = False  # pragma: no cover
             parse_log.save()
         return success_monitor
-
 
     def _parse_fiction_page(self, element, url):
         try:
@@ -73,7 +73,9 @@ class RRLNovelParserMixin(object):
 
             fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
             fic.save()
-            self.logger.info(f'updated content of "{fic.title}" and added {created_chapters}')
+            self.logger.info(
+                f'updated content of "{fic.title}" and added {created_chapters}'
+            )
             return True
         except Exception:  # pragma: no cover
             logging.exception("failed to parse chapter")

@@ -7,6 +7,7 @@ from django.utils import timezone
 
 class RRLLatestParserMixin(object):
     BASE_URL = "https://www.royalroad.com"
+
     def latest_extractor(self):
         """Return False if no Parses were necessary, True the parsing was successful."""
         pending_parses = self.all_pending_parses()
@@ -36,7 +37,6 @@ class RRLLatestParserMixin(object):
         parse_log.save()
 
         return True
-
 
     def _parse_chapters(self, element, fiction):
         added_chapters = 0
@@ -73,7 +73,6 @@ class RRLLatestParserMixin(object):
             )
         return True
 
-
     def _parse_fictions(self, tree):
         created_fictions = 0
         updated_fictions = 0
@@ -83,9 +82,9 @@ class RRLLatestParserMixin(object):
             try:
                 fiction = {}
                 fiction["pic_url"] = element.xpath("./figure/img/@src")[0]
-                fiction["title"] = element.xpath('.//h2[@class="fiction-title"]/a/text()')[
-                    0
-                ]
+                fiction["title"] = element.xpath(
+                    './/h2[@class="fiction-title"]/a/text()'
+                )[0]
                 path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
                 fiction["url"] = f"{self.BASE_URL}{path}"
                 fiction["remote_id"] = int(path.split("/")[2])

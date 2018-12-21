@@ -1,6 +1,7 @@
 from scrapes.models import Scrapes
 import logging
 
+
 class ScrapeManager(object):
     logger = logging.getLogger("scrapes.tasks")
 
@@ -15,4 +16,3 @@ class ScrapeManager(object):
         return Scrapes.objects.filter(http_code=None, content=None).order_by(
             "parser_type__weight", "id"
         )
-        
