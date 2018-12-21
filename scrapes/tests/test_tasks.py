@@ -11,7 +11,7 @@ class TasksTestCase(TestCase):
         logging.disable(logging.CRITICAL)
 
     def test_generators(self):
-        self.assertEquals(tasks.generators(), True)
+        self.assertEquals(tasks.generators_task(), True)
 
     def test_parsers(self):
-        self.assertEquals(tasks.parsers(), True)
+        self.assertEquals(tasks.parsers_task(), True)

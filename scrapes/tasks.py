@@ -1,27 +1,16 @@
 from celery import shared_task
 from requests import get
-from scrapes.fetch_generators import (
-    rrl_latest_generator,
-    rrl_chapter_generator,
-    rrl_novel_generator,
-    scrape_queue,
-)
-from scrapes.parsers import rrl_chapter_parser, rrl_novel_parser, rrl_latest_parser
+from scrapes import fetch_generators, parsers
 import logging
-from scrapes.models import Parser
 
 logger = logging.getLogger("scrapes.tasks")
 
-rrl_latest_parser_id = Parser.objects.get(name="rrl latest").id
-rrl_chapter_parser_id = Parser.objects.get(name="rrl chapter").id
-rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
-
 
 @shared_task
-def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Scrape < 15 min was done to the same url
+def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""
     try:
-        instance = scrape_queue().first()
+        instance = fetch_generators.scrape_queue().first()
         if not instance:
             logger.info("no pending scrapes")
             return True
@@ -40,30 +29,17 @@ def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Sc
         logger.exception(f"failed to fetch content for {instance.url}")
 
 @shared_task
-def generators():
-    rrl_latest_generator_task()
-    rrl_novel_generator_task()
-    rrl_chapter_generator_task()
+def generators_task():
+    fetch_generators.rrl_latest_generator.add_queue_event()
+    fetch_generators.rrl_novel_generator.add_queue_events()
+    fetch_generators.rrl_chapter_generator.add_queue_events()
     return True
 
 
 @shared_task
-def rrl_latest_generator_task():
-    return rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
-
-@shared_task
-def rrl_chapter_generator_task():
-    return rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
-
-@shared_task
-def rrl_novel_generator_task():
-    return rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
-
-
-@shared_task
-def parsers():
+def parsers_task():
     """Periodic task to parse all available rrl fetches."""
-    rrl_latest_parser.latest_extractor(rrl_latest_parser_id)
-    rrl_chapter_parser.chapter_extractor(rrl_chapter_parser_id)
-    rrl_novel_parser.novel_extractor(rrl_novel_parser_id)
+    parsers.rrl_latest_parser.latest_extractor()
+    parsers.rrl_chapter_parser.chapter_extractor()
+    parsers.rrl_novel_parser.novel_extractor()
     return True

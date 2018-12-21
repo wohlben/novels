@@ -8,15 +8,18 @@ from django.utils import timezone
 from datetime import datetime
 import re
 from lxml.etree import tostring
+from . import PARSERS
 
 __all__ = ["chapter_extractor"]
 
 logger = logging.getLogger("scrapes.tasks")
 BASE_URL = "https://www.royalroad.com"
+PARSER_TYPE = "rrl chapter"
 
 
-def chapter_extractor(parser_id):
+def chapter_extractor(*args):
     """Return False if no Parses were necessary. True if the parsind was successful."""
+    parser_id = PARSERS[PARSER_TYPE]
     pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:

@@ -1,13 +1,17 @@
 """Extraction of Data from basic scrapes."""
-from scrapes.models import Scrapes
+from scrapes.models import Scrapes, Parser
+
+_parser_names = ["rrl latest", "rrl chapter", "rrl novel"]
+_parsers = Parser.objects.filter(name__in=_parser_names)
 
 __all__ = [
-    "rrl_latest_parser",
-    "rrl_novel_parser",
-    "rrl_chapter_parser",
+    *[f"{pn} parser".replace(" ", "_") for pn in _parser_names],
     "all_pending_parses",
     "available_chapter_urls",
+    "PARSERS",
 ]
+
+PARSERS = {parser.name: parser.id for parser in _parsers}
 
 
 def all_pending_parses(parser_id):

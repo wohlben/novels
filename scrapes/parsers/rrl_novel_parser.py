@@ -4,16 +4,18 @@ from scrapes.models import ParseLog
 from novels.models import Fiction, Chapter
 import logging
 from django.utils import timezone
-from . import all_pending_parses
+from . import all_pending_parses, PARSERS
 
 __all__ = ["novel_extractor"]
 
 logger = logging.getLogger("scrapes.tasks")
 BASE_URL = "https://www.royalroad.com"
+PARSER_TYPE = "rrl novel"
 
 
-def novel_extractor(parser_id):
+def novel_extractor(*args):
     """Return False if no Parses were necessary. True if the parsind was successful."""
+    parser_id = PARSERS[PARSER_TYPE]
     pending_parses = all_pending_parses(parser_id)
 
     if pending_parses.count() == 0:
