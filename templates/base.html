@@ -21,27 +21,28 @@
         <p>Hello, {{ user.username }}</p>
       {% endblock %}
     </div>
-    {% block footer %}
+
+  {% else %}
+    {% block login %}
+    <script>
+      window.location = {% url "login" %};
+    </script>
+    {% endblock %}
+  {% endif %}
+  {% block footer %}
     <!--<footer class="footer">
        <div class="container">
            <div class="content has-text-centered">
            </div>
        </div>
     </footer>-->
-    {% endblock %}
-  {% else %}
-    <a href="{% url 'social:begin' 'github' %}">
-      <h4>Login with GitHub</h4>
-      <br />
-      <img src="{% static "img/Octocat.jpg" %}" />
-    </a>
-  {% endif %}
-    <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
-    <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
-    <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
-    <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
-    <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
-    <script src="{% static "js/base.js" %}"></script>
+  {% endblock %}
+  <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
+  <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
+  <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
+  <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
+  <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
+  <script src="{% static "js/base.js" %}"></script>
 </body>
 
 </html>

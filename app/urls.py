@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import path, include
 from django.views.generic.base import RedirectView
-from django.shortcuts import redirect
+from profiles.views import LoginView
 
 urlpatterns = [path("admin/", admin.site.urls)]
 
@@ -26,7 +26,12 @@ urlpatterns += [
     path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
     path("api/", include("api.urls", namespace="api")),
-    path("login/", views.LoginView.as_view(template_name="login.html"), name="login"),
+    path(
+        "admin-login/",
+        views.LoginView.as_view(template_name="login.html"),
+        name="admin-login",
+    ),
+    path("login/", LoginView.as_view(), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("auth/", include("social_django.urls", namespace="social")),
     path("api-auth/", include("rest_framework.urls")),
