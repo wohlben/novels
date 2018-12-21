@@ -1,6 +1,6 @@
 from celery import shared_task
 from requests import get
-from scrapes import fetch_generators, parsers
+from scrapes import managers
 import logging
 
 logger = logging.getLogger("scrapes.tasks")
@@ -10,7 +10,7 @@ logger = logging.getLogger("scrapes.tasks")
 def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""
     try:
-        instance = fetch_generators.scrape_queue().first()
+        instance = managers.manager.scrape_queue().first()
         if not instance:
             logger.info("no pending scrapes")
             return True
@@ -31,16 +31,16 @@ def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another S
 
 @shared_task
 def generators_task():
-    fetch_generators.rrl_latest_generator.add_queue_event()
-    fetch_generators.rrl_novel_generator.add_queue_events()
-    fetch_generators.rrl_chapter_generator.add_queue_events()
+    managers.rrl_latest.add_queue_event()
+    managers.rrl_novel.add_queue_events()
+    managers.rrl_chapter.add_queue_events()
     return True
 
 
 @shared_task
 def parsers_task():
     """Periodic task to parse all available rrl fetches."""
-    parsers.rrl_latest_parser.latest_extractor()
-    parsers.rrl_chapter_parser.chapter_extractor()
-    parsers.rrl_novel_parser.novel_extractor()
+    managers.rrl_latest.latest_extractor()
+    managers.rrl_chapter.chapter_extractor()
+    managers.rrl_novel.novel_extractor()
     return True

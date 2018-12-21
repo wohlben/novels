@@ -2,7 +2,7 @@ from django.test import TestCase
 from scrapes.models import Parser
 from novels.models import Fiction, Chapter
 from profiles.models import User
-from scrapes.fetch_generators import rrl_chapter_generator
+from scrapes.managers import rrl_chapter
 import logging
 
 
@@ -35,16 +35,16 @@ class GenerateChapterTestCase(TestCase):
         [Chapter.objects.create(**chap) for chap in chapters]
 
     def add_queue_events(self):
-        return rrl_chapter_generator.add_queue_events(self.parser_id)
+        return rrl_chapter.add_queue_events()
 
     def monitored_novels(self):
-        return len(rrl_chapter_generator.monitored_novels(self.parser_id))
+        return len(rrl_chapter.monitored_novels())
 
     def missing_chapters(self):
-        return rrl_chapter_generator.missing_chapters(self.parser_id).count()
+        return rrl_chapter.missing_chapters().count()
 
     def pending_fetches(self):
-        return rrl_chapter_generator.pending_fetches(self.parser_id).count()
+        return rrl_chapter.pending_fetches().count()
 
     def test_starting_data(self):
         self.assertGreater(

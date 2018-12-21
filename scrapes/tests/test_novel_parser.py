@@ -1,6 +1,6 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.parsers import rrl_novel_parser
+from scrapes.managers import rrl_novel
 from novels import models as novel_models
 from profiles.models import User
 import logging
@@ -18,7 +18,7 @@ class ParseNovelTestCase(TestCase):
         novel_models.Fiction.objects.all()[0].watching.add(user)
 
     def pending_parses(self):
-        return rrl_novel_parser.all_pending_parses(self.parser_id).count()
+        return rrl_novel.all_pending_parses().count()
 
     def available_scrapes(self):
         return models.Scrapes.objects.filter(parser_type_id=self.parser_id).count()
@@ -28,7 +28,7 @@ class ParseNovelTestCase(TestCase):
         return novel_models.Chapter.objects.all().count()
 
     def novel_extractor(self):
-        return rrl_novel_parser.novel_extractor(self.parser_id)
+        return rrl_novel.novel_extractor()
 
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()

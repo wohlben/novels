@@ -1,6 +1,6 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.fetch_generators import rrl_latest_generator
+from scrapes.managers import rrl_latest
 import logging
 
 
@@ -13,13 +13,13 @@ class FetchLatestTestCase(TestCase):
         cls.rrl_latest_parser_id = models.Parser.objects.get(name="rrl latest").id
 
     def pending_fetches(self):
-        return rrl_latest_generator.pending_fetches(self.rrl_latest_parser_id)
+        return rrl_latest.pending_fetches()
 
     def last_fetch(self):
-        return rrl_latest_generator.last_fetch(self.rrl_latest_parser_id)
+        return rrl_latest.last_fetch()
 
     def latest_add_queue_event(self):
-        return rrl_latest_generator.add_queue_event(self.rrl_latest_parser_id)
+        return rrl_latest.add_queue_event()
 
     def test_starting_data(self):
         pending_fetches = self.pending_fetches()

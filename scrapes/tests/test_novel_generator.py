@@ -2,8 +2,7 @@ from django.test import TestCase
 from scrapes.models import Parser
 from novels.models import Fiction
 from profiles.models import User
-from scrapes.fetch_generators import rrl_novel_generator
-import logging
+from scrapes.managers import rrl_novel
 
 
 class GenerateNovelTestCase(TestCase):
@@ -37,13 +36,13 @@ class GenerateNovelTestCase(TestCase):
         fics[1].watching.add(user)
 
     def add_queue_events(self):
-        return rrl_novel_generator.add_queue_events(self.parser_id)
+        return rrl_novel.add_queue_events()
 
     def missing_novels(self):
-        return rrl_novel_generator.missing_novels(self.parser_id).count()
+        return rrl_novel.missing_novels().count()
 
     def pending_fetches(self):
-        return len(rrl_novel_generator.pending_fetches(self.parser_id))
+        return len(rrl_novel.pending_fetches())
 
     def test_starting_data(self):
         self.assertGreater(
