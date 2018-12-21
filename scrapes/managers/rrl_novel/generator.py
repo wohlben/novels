@@ -7,21 +7,21 @@ class RRLNovelGeneratorMixin(object):
         """Return Scrape urls of parser_type_id."""
         return Scrapes.objects.filter(
             parser_type_id=self.parser_id, content=None
-        ).values("url")
+        )
 
 
     def missing_novels(self):
         """Return monitored Fiction objects that should to be fetched."""
         return (
             Fiction.objects.exclude(watching=None)
-            .exclude(url__in=self.pending_fetches())
+            .exclude(url__in=self.pending_fetches().values('url'))
             .filter(author=None)
         )
 
 
     def refetch_novel(self, novel_id):
         fic = Fiction.objects.get(id=novel_id)
-        if fic.url in self.pending_fetches():
+        if self.pending_fetches().filter(url=fic.url).count() > 0:
             self.logger.info(f"{fic.title} is already queued, skipping")
             return False
         else:
@@ -39,4 +39,4 @@ class RRLNovelGeneratorMixin(object):
 
             return True
         except Exception:  # pragma: no cover
-            self.logger.exception(f"failed to add {novel.title} to scraping queue")
+            self.logger.exception(f"failed to add a novel to scraping queue")

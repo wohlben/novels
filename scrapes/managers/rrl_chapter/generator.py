@@ -18,7 +18,7 @@ class RRLChapterGeneratorMixin(object):
         """Return all chapters of monitored novels without content."""
         return Chapter.objects.filter(
             content=None, fiction__in=self.monitored_novels()
-        ).exclude(url__in=self.pending_fetches())
+        ).exclude(url__in=self.pending_fetches().values('url'))
 
 
     @staticmethod
@@ -29,7 +29,7 @@ class RRLChapterGeneratorMixin(object):
 
     def refetch_chapter(self, chapter_id):
         chapter = Chapter.objects.get(id=chapter_id)
-        if chapter.url in self.pending_fetches():
+        if self.pending_fetches().count()> 0:
             self.logger.info(f"{chapter.title} is already queued, skipping")
             return False
         else:
