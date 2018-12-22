@@ -160,6 +160,8 @@ if SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+STATIC_ROOT = "/var/www/html/static"
+
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
