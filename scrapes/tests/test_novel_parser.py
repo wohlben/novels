@@ -1,10 +1,11 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.managers import rrl_novel
+from scrapes.managers.rrl_novel import RRLNovelScraper
 from novels import models as novel_models
 from profiles.models import User
 import logging
 
+rrl_novel = RRLNovelScraper()
 
 class ParseNovelTestCase(TestCase):
     fixtures = ["2018-10-17.json"]

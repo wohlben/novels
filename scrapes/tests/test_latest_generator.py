@@ -1,8 +1,9 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.managers import rrl_latest
+from scrapes.managers.rrl_latest import RRLLatestScraper
 import logging
 
+rrl_latest = RRLLatestScraper()
 
 class FetchLatestTestCase(TestCase):
     rrl_latest_parser_id = int

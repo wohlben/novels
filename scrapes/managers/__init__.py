@@ -5,7 +5,9 @@ from .ScrapeManager import ScrapeManager
 
 __all__ = ["rrl_latest", "rrl_novel", "rrl_chapter"]
 
-manager = ScrapeManager()
-rrl_latest = RRLLatestScraper()
-rrl_novel = RRLNovelScraper()
-rrl_chapter = RRLChapterScraper()
+class Managers(object):
+    def __init__(self, *args, **kwargs):
+        self.manager = ScrapeManager()
+        self.rrl_latest = RRLLatestScraper()
+        self.rrl_novel = RRLNovelScraper()
+        self.rrl_chapter = RRLChapterScraper()

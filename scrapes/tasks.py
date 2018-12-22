@@ -1,9 +1,11 @@
 from celery import shared_task
 from requests import get
-from scrapes import managers
+from scrapes.managers import Managers
 import logging
 
 logger = logging.getLogger("scrapes.tasks")
+
+managers = Managers()
 
 
 @shared_task

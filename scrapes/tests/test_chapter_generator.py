@@ -2,9 +2,10 @@ from django.test import TestCase
 from scrapes.models import Parser
 from novels.models import Fiction, Chapter
 from profiles.models import User
-from scrapes.managers import rrl_chapter
+from scrapes.managers.rrl_chapter import RRLChapterScraper
 import logging
 
+rrl_chapter = RRLChapterScraper()
 
 class GenerateChapterTestCase(TestCase):
     parser_id = int

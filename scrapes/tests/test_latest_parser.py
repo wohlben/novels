@@ -1,9 +1,10 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.managers import rrl_latest
+from scrapes.managers.rrl_latest import RRLLatestScraper
 from novels import models as novel_models
 import logging
 
+rrl_latest = RRLLatestScraper()
 
 class ParseLatestTestCase(TestCase):
     fixtures = ["2018_10_14_scrapes.json"]
