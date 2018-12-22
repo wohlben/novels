@@ -6,7 +6,7 @@ from novels.models import Fiction
 class RRLNovelGeneratorMixin(object):
     def pending_fetches(self):
         """Return Scrape urls of parser_type_id."""
-        return Scrapes.objects.filter(parser_type_id=self.parser_id, content=None)
+        return Scrapes.objects.filter(parser_type_id=self.get_parser_id(), content=None)
 
     def missing_novels(self):
         """Return monitored Fiction objects that should to be fetched."""
@@ -23,7 +23,7 @@ class RRLNovelGeneratorMixin(object):
             return False
         else:
             self.logger.info(f"added {fic.title} to the queue")
-            Scrapes.objects.create(url=fic.url, parser_type_id=self.parser_id)
+            Scrapes.objects.create(url=fic.url, parser_type_id=self.get_parser_id())
             return True
 
     def add_queue_events(self):
@@ -31,7 +31,7 @@ class RRLNovelGeneratorMixin(object):
         try:
             for novel in self.missing_novels():
                 self.logger.info(f"adding '{novel.title}' to the pending fetches")
-                Scrapes.objects.create(url=novel.url, parser_type_id=self.parser_id)
+                Scrapes.objects.create(url=novel.url, parser_type_id=self.get_parser_id())
 
             return True
         except Exception:  # pragma: no cover

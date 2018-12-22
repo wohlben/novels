@@ -27,7 +27,7 @@ class RRLChapterParserMixin(object):
             tree = html.fromstring(scrape.content)
 
             parse_log = ParseLog.objects.create(
-                scrape=scrape, parser_id=self.parser_id, started=timezone.now()
+                scrape=scrape, parser_id=self.get_parser_id(), started=timezone.now()
             )
 
             data_extracted = self._parse_chapter_page(tree, scrape.url)

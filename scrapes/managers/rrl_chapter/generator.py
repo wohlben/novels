@@ -9,7 +9,7 @@ class RRLChapterGeneratorMixin(object):
     def pending_fetches(self):
         """Return Query Set of Scrapes within the last day."""
         return Scrapes.objects.filter(
-            parser_type_id=self.parser_id,
+            parser_type_id=self.get_parser_id(),
             last_change__gt=timezone.now() - timedelta(days=1),
         ).values("url")
 
@@ -30,7 +30,7 @@ class RRLChapterGeneratorMixin(object):
             self.logger.info(f"{chapter.title} is already queued, skipping")
             return False
         else:
-            Scrapes.objects.create(url=chapter.url, parser_type_id=self.parser_id)
+            Scrapes.objects.create(url=chapter.url, parser_type_id=self.get_parser_id())
             self.logger.info(f"added {chapter.title} to the queue")
             return True
 
@@ -44,7 +44,7 @@ class RRLChapterGeneratorMixin(object):
                 self.logger.info(
                     f"adding '{chapter.title}' chapter from '{chapter.fiction.title}' to the pending fetches"
                 )
-                Scrapes.objects.create(url=chapter.url, parser_type_id=self.parser_id)
+                Scrapes.objects.create(url=chapter.url, parser_type_id=self.get_parser_id())
 
             return True
         except Exception:  # pragma: no cover

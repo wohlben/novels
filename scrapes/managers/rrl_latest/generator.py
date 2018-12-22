@@ -10,12 +10,12 @@ class RRLLatestGeneratorMixin(object):
     def pending_fetches(self):
         """Return quantity of pending fetches relating to this module."""
         return Scrapes.objects.filter(
-            http_code=None, content=None, parser_type_id=self.parser_id
+            http_code=None, content=None, parser_type_id=self.get_parser_id()
         ).count()
 
     def last_fetch(self):
         """Return the last fetch object for modifications."""
-        return Scrapes.objects.filter(parser_type_id=self.parser_id).last()
+        return Scrapes.objects.filter(parser_type_id=self.get_parser_id()).last()
 
     def add_queue_event(self):
         """Conditionally add a new pending fetch."""
@@ -42,7 +42,7 @@ class RRLLatestGeneratorMixin(object):
 
             Scrapes.objects.create(
                 url="https://www.royalroad.com/fictions/latest-updates",
-                parser_type_id=self.parser_id,
+                parser_type_id=self.get_parser_id(),
             )
             return True
         except Exception:  # pragma: no cover
