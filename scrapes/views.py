@@ -1,11 +1,10 @@
 from django.views.generic import TemplateView, FormView
 from scrapes.models import ParseLog
 from django.db.models import Count, F
-from scrapes.managers import Managers
+from scrapes.managers import ScrapeManager, RRLNovelScraper, RRLChapterScraper
 from scrapes.forms import RequeueNovelForm, RequeueChapterForm
 from django.http import HttpResponseRedirect
 
-managers = Managers()
 
 class ParseLogListView(TemplateView):
     template_name = "scrapes/lists/log.html"
@@ -31,7 +30,7 @@ class RequeueNovelComponent(FormView):
         return {"novel_id": self.kwargs.get("novel_id")}
 
     def post(self, request, novel_id, *args, **kwargs):
-        managers.rrl_novel.refetch_novel(novel_id)
+        RRLNovelScraper().refetch_novel(novel_id)
         return HttpResponseRedirect("#")
 
 
@@ -43,7 +42,7 @@ class RequeueChapterComponent(FormView):
         return {"chapter_id": self.kwargs.get("chapter_id")}
 
     def post(self, request, chapter_id, *args, **kwargs):
-        managers.rrl_chapter.refetch_chapter(chapter_id)
+        RRLChapterScraper().refetch_chapter(chapter_id)
         return HttpResponseRedirect("#")
 
 
@@ -52,7 +51,7 @@ class QueueView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = {
-            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
+            "queue": ScrapeManager().scrape_queue().prefetch_related("parser_type")
         }
         return context
 

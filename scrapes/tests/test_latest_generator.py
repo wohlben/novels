@@ -1,6 +1,6 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.managers.rrl_latest import RRLLatestScraper
+from scrapes.managers import RRLLatestScraper
 import logging
 
 rrl_latest = RRLLatestScraper()

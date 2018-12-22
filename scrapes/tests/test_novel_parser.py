@@ -1,6 +1,6 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.managers.rrl_novel import RRLNovelScraper
+from scrapes.managers import RRLNovelScraper
 from novels import models as novel_models
 from profiles.models import User
 import logging
