@@ -1,10 +1,11 @@
 from django.views.generic import TemplateView, FormView
 from scrapes.models import ParseLog
 from django.db.models import Count, F
-from scrapes import managers
+from scrapes.managers import Managers
 from scrapes.forms import RequeueNovelForm, RequeueChapterForm
 from django.http import HttpResponseRedirect
 
+managers = Managers()
 
 class ParseLogListView(TemplateView):
     template_name = "scrapes/lists/log.html"

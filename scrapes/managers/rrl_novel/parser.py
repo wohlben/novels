@@ -11,14 +11,14 @@ class RRLNovelParserMixin(object):
     BASE_URL = "https://www.royalroad.com"
 
     def novel_extractor(self):
-        """Return False if no Parses were necessary. True if the parsind was successful."""
+        """Return False if no Parses were necessary. True if the parsing was successful."""
         pending_parses = self.all_pending_parses()
 
         if pending_parses.count() == 0:
             self.logger.info("no rrl novel page to parse")
             return False
 
-        self.logger.info(f"found {pending_parses.count()} chapter scrapes to parse!")
+        self.logger.info(f"found {pending_parses.count()} novel scrapes to parse!")
 
         success_monitor = True
 
