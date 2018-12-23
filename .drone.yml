@@ -3,10 +3,9 @@ pipeline:
     image: python:3.6
     commands:
       - pip install pipenv
-      - pipenv install
-      - pipenv run pip freeze > requirements.txt
       - pipenv install --dev
-      - pipenv run pip freeze > development.requirements
+      - pipenv lock -r > requirements.txt
+      - pipenv lock -r --dev > development.requirements
       - pipenv run python manage.py migrate
       - pipenv run coverage run manage.py test
       - pipenv run coverage report -m
