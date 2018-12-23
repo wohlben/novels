@@ -22,6 +22,19 @@ class ParseLogListView(TemplateView):
         }
         return context
 
+class QueueView(TemplateView):
+    template_name = "scrapes/lists/queue.html"
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
+        }
+        return context
+
+
+class HistoryView(TemplateView):
+    template_name = "scrapes/lists/history.html"
+
 
 class RequeueNovelComponent(FormView):
     form_class = RequeueNovelForm
@@ -45,20 +58,6 @@ class RequeueChapterComponent(FormView):
     def post(self, request, chapter_id, *args, **kwargs):
         managers.rrl_chapter.refetch_chapter(chapter_id)
         return HttpResponseRedirect("#")
-
-
-class QueueView(TemplateView):
-    template_name = "scrapes/lists/queue.html"
-
-    def get_context_data(self, **kwargs):
-        context = {
-            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
-        }
-        return context
-
-
-class HistoryView(TemplateView):
-    template_name = "scrapes/lists/history.html"
 
 
 class TestView(TemplateView):
