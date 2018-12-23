@@ -13,15 +13,6 @@ pipeline:
     environment:
       - PIPENV_VENV_IN_PROJECT=true
 
-  collect_static_files:
-    image: python:3.6
-    commands:
-      - rm -R static_root/*
-      - pipenv run python manage.py collectstatic
-    environment:
-      - PIPENV_VENV_IN_PROJECT=true
-
-
   # publish_requirements:
   #   image: alpine/git
   #   commands:
