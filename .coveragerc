@@ -9,6 +9,7 @@ omit =
     app/wsgi.py
     app/celery.py
     node_modules/*
+    .venv/*
 
 [report]
 exclude_lines =
