@@ -13,7 +13,6 @@ class GenerateNovelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # logging.disable(logging.CRITICAL)
         cls.parser_id = Parser.objects.get(name="rrl novel").id
         cls.starting_missing_novels = cls.missing_novels(cls)
 
@@ -32,10 +31,10 @@ class GenerateNovelTestCase(TestCase):
                 "author": "some-author",
             },
         ]
-        fics = [Fiction.objects.create(**fic) for fic in fictions]
+        self.fics = [Fiction.objects.create(**fic) for fic in fictions]
         user = User.objects.create(username="testuser")
-        fics[0].watching.add(user)
-        fics[1].watching.add(user)
+        self.fics[0].watching.add(user)
+        self.fics[1].watching.add(user)
 
     def add_queue_events(self):
         return rrl_novel.add_queue_events()
@@ -45,6 +44,9 @@ class GenerateNovelTestCase(TestCase):
 
     def pending_fetches(self):
         return len(rrl_novel.pending_fetches())
+
+    def refetch_novel(self, novel_id):
+        return rrl_novel.refetch_novel(novel_id)
 
     def test_starting_data(self):
         self.assertGreater(
@@ -59,7 +61,20 @@ class GenerateNovelTestCase(TestCase):
             self.missing_novels(), 0, "we're still finding chapters to queue..."
         )
 
-    def test_correct_amount_added(self):
+    def test_requeue_novel(self):
+        pending_fetches = self.pending_fetches()
+        self.refetch_novel(self.fics[1].id)
+        self.assertEqual(pending_fetches + 1, self.pending_fetches())
+
+    def test_skip_requeue_if_queued(self):
+        pending_fetches = self.pending_fetches()
+        self.refetch_novel(self.fics[1].id)
+        self.refetch_novel(self.fics[1].id)
+        self.assertEqual(pending_fetches + 1, self.pending_fetches())
+
+
+    def test_queue_only_fictions_without_authors(self):
+        # the others should already be fetched after all
         pending = self.pending_fetches()
         self.add_queue_events()
         self.assertEquals(

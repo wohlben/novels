@@ -19,8 +19,11 @@ class FetchLatestTestCase(TestCase):
     def last_fetch(self):
         return rrl_latest.last_fetch()
 
-    def latest_add_queue_event(self):
+    def add_queue_event(self):
         return rrl_latest.add_queue_event()
+
+    def scrape_queue(self):
+        return rrl_latest.scrape_queue()
 
     def test_starting_data(self):
         pending_fetches = self.pending_fetches()
@@ -29,16 +32,16 @@ class FetchLatestTestCase(TestCase):
         )
 
     def test_fetch_latest_add_to_queue(self):
-        self.latest_add_queue_event()
+        self.add_queue_event()
         pending_fetches = self.pending_fetches()
         self.assertEqual(
             pending_fetches, 1, f"found {pending_fetches} in the queue, expected one"
         )
 
     def test_fetch_latest_repeated_add(self):
-        self.latest_add_queue_event()
-        self.latest_add_queue_event()
-        self.latest_add_queue_event()
+        self.add_queue_event()
+        self.add_queue_event()
+        self.add_queue_event()
 
         pending_fetches = self.pending_fetches()
         self.assertEqual(
@@ -48,14 +51,14 @@ class FetchLatestTestCase(TestCase):
         )
 
     def test_fetch_latest_recent_fetch(self):
-        self.latest_add_queue_event()
+        self.add_queue_event()
 
         last_fetch = self.last_fetch()
         last_fetch.content = "dummycontent"
         last_fetch.http_code = "200"
         last_fetch.save()
 
-        self.latest_add_queue_event()
+        self.add_queue_event()
 
         pending_fetches = self.pending_fetches()
         self.assertEqual(

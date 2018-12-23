@@ -8,6 +8,7 @@ omit =
     coverage/*
     app/wsgi.py
     app/celery.py
+    node_modules/*
 
 [report]
 exclude_lines =

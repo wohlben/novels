@@ -67,7 +67,7 @@ class RRLLatestParserMixin(object):
             self.logger.info(
                 f"added {added_chapters} and updated {updated_chapters} for {fiction.title}"
             )
-        else:
+        else:  # pragma: no cover
             self.logger.warning(
                 f"expected {len(chapters)}, but only got {added_chapters} adds and {updated_chapters} updates for {fiction.title}"
             )

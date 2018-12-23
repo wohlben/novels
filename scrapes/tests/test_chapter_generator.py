@@ -33,7 +33,7 @@ class GenerateChapterTestCase(TestCase):
             {"fiction": fics[1], "url": "someurl/chapter/3/chapter"},
             {"fiction": fics[1], "url": "someurl/chapter/4/chapter"},
         ]
-        [Chapter.objects.create(**chap) for chap in chapters]
+        self.chaps = [Chapter.objects.create(**chap) for chap in chapters]
 
     def add_queue_events(self):
         return rrl_chapter.add_queue_events()
@@ -46,6 +46,9 @@ class GenerateChapterTestCase(TestCase):
 
     def pending_fetches(self):
         return rrl_chapter.pending_fetches().count()
+
+    def refetch_chapter(self, chapter_id):
+        return rrl_chapter.refetch_chapter(chapter_id)
 
     def test_starting_data(self):
         self.assertGreater(
@@ -67,3 +70,14 @@ class GenerateChapterTestCase(TestCase):
         pending = self.pending_fetches()
         self.add_queue_events()
         self.assertEquals(pending + 1, self.pending_fetches())
+
+    def test_requeue_chapter(self):
+        pending_fetches = self.pending_fetches()
+        self.refetch_chapter(self.chaps[0].id)
+        self.assertEqual(pending_fetches + 1, self.pending_fetches())
+
+    def test_skip_requeue_if_already_queued(self):
+        pending_fetches = self.pending_fetches()
+        self.refetch_chapter(self.chaps[1].id)
+        self.refetch_chapter(self.chaps[1].id)
+        self.assertEqual(pending_fetches + 1, self.pending_fetches())
