@@ -38,6 +38,6 @@ services:
 
   database:
     image: postgres
-    environment:
-      - POSTGRES_DB=django
-      - POSTGRES_USER=django
+    # environment:
+    #   - POSTGRES_DB=django
+    #   - POSTGRES_USER=django
