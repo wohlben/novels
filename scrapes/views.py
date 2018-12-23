@@ -3,7 +3,8 @@ from scrapes.models import ParseLog
 from django.db.models import Count, F
 from scrapes.managers import Managers
 from scrapes.forms import RequeueNovelForm, RequeueChapterForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 managers = Managers()
 
@@ -36,7 +37,7 @@ class HistoryView(TemplateView):
     template_name = "scrapes/lists/history.html"
 
 
-class RequeueNovelComponent(FormView):
+class RequeueNovelComponent(LoginRequiredMixin, FormView):
     form_class = RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
 
@@ -45,19 +46,20 @@ class RequeueNovelComponent(FormView):
 
     def post(self, request, novel_id, *args, **kwargs):
         managers.rrl_novel.refetch_novel(novel_id)
-        return HttpResponseRedirect("#")
+        return HttpResponse(status=201)
 
 
-class RequeueChapterComponent(FormView):
+class RequeueChapterComponent(LoginRequiredMixin, FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
+
 
     def get_context_data(self):
         return {"chapter_id": self.kwargs.get("chapter_id")}
 
     def post(self, request, chapter_id, *args, **kwargs):
         managers.rrl_chapter.refetch_chapter(chapter_id)
-        return HttpResponseRedirect("#")
+        return HttpResponse(status=201)
 
 
 class TestView(TemplateView):
