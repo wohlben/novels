@@ -23,7 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
-DEBUG = env_variable("django_debug", False)
+
+if env_variable('CI', False):
+    DEBUG = True
+else:
+    DEBUG = env_variable("django_debug", False)
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
 INTERNAL_IPS = ("127.0.0.1", "192.168.1.26")
@@ -74,7 +78,7 @@ TEMPLATES = [
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
             ],
-            "debug": env_variable("django_debug", False),
+            "debug": DEBUG,
         },
     }
 ]
