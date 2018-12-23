@@ -9,3 +9,4 @@ requirements.txt
 .env
 .ropeproject
 node_modules
+static_root/*

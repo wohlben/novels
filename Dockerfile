@@ -17,6 +17,8 @@ COPY startup.sh startup.sh
 COPY app app
 COPY novels novels
 COPY scrapes scrapes
+COPY static static
+COPY templates templates
 COPY manage.py manage.py
 
 CMD bash startup.sh django

@@ -26,8 +26,10 @@ SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
 if env_variable('CI', False):
     DEBUG = True
+    print("forcing debug mode for CI")
 else:
-    DEBUG = env_variable("django_debug", False)
+    DEBUG = env_variable("django_debug", False) == "True"
+    print(f"starting with DEBUG {DEBUG}")
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
 INTERNAL_IPS = ("127.0.0.1", "192.168.1.26")
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "debug_toolbar",
     "corsheaders",
     "rest_framework",
     "django_filters",
@@ -49,9 +50,10 @@ INSTALLED_APPS = [
     "novels",
     "scrapes",
 ]
+if DEBUG:
+    INSTALLED_APPS.insert(6, "debug_toolbar")
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -62,6 +64,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+if DEBUG:
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
 ROOT_URLCONF = "app.urls"
 
 TEMPLATES = [
@@ -71,7 +76,6 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -82,6 +86,9 @@ TEMPLATES = [
         },
     }
 ]
+
+if DEBUG:
+    TEMPLATES[0]['OPTIONS']['context_processors'].insert(0, "django.template.context_processors.debug")
 
 WSGI_APPLICATION = "app.wsgi.application"
 
@@ -166,7 +173,7 @@ if (
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_ROOT = "/var/www/html/static"
+STATIC_ROOT = "static_root/"
 
 STATIC_URL = "/static/"
 
