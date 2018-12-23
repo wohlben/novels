@@ -2,8 +2,8 @@ from django.test import TestCase
 from scrapes.managers import Managers
 from novels.models import Fiction, Chapter
 
-class ScrapeManagersTestCase(TestCase):
 
+class ScrapeManagersTestCase(TestCase):
     def setUp(self, *args, **kwargs):
         self.managers = Managers()
 
@@ -25,14 +25,22 @@ class ScrapeManagersTestCase(TestCase):
         self.chaps = [Chapter.objects.create(**chap) for chap in chapters]
 
     def test_starting_data(self):
-        self.assertEqual(self.managers.manager.scrape_queue().count(), 0, "The scrape queue is expected to be empty")
+        self.assertEqual(
+            self.managers.manager.scrape_queue().count(),
+            0,
+            "The scrape queue is expected to be empty",
+        )
 
     def test_scrape_queue_contents(self):
         self.managers.rrl_chapter.refetch_chapter(self.chaps[0].id)
         self.managers.rrl_latest.add_queue_event()
         self.managers.rrl_novel.refetch_novel(self.fics[0].id)
         scrape_queue = self.managers.manager.scrape_queue()
-        self.assertEqual(scrape_queue.count(), 3, f"There should be three queued fetches, found {scrape_queue}")
+        self.assertEqual(
+            scrape_queue.count(),
+            3,
+            f"There should be three queued fetches, found {scrape_queue}",
+        )
 
     def test_scrape_queue_order(self):
         self.managers.rrl_chapter.refetch_chapter(self.chaps[0].id)

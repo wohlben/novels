@@ -72,7 +72,6 @@ class GenerateNovelTestCase(TestCase):
         self.refetch_novel(self.fics[1].id)
         self.assertEqual(pending_fetches + 1, self.pending_fetches())
 
-
     def test_queue_only_fictions_without_authors(self):
         # the others should already be fetched after all
         pending = self.pending_fetches()

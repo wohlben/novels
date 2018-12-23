@@ -44,7 +44,9 @@ class RRLChapterGeneratorMixin(object):
                 self.logger.info(
                     f"adding '{chapter.title}' chapter from '{chapter.fiction.title}' to the pending fetches"
                 )
-                Scrapes.objects.create(url=chapter.url, parser_type_id=self.get_parser_id())
+                Scrapes.objects.create(
+                    url=chapter.url, parser_type_id=self.get_parser_id()
+                )
 
             return True
         except Exception:  # pragma: no cover

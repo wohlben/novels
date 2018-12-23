@@ -1,6 +1,7 @@
 from scrapes.models import Scrapes, Parser
 import logging
 
+
 class ScrapeManager(object):
     logger = logging.getLogger("scrapes.tasks")
     parser_name = None
@@ -11,9 +12,8 @@ class ScrapeManager(object):
             self.parser_id = Parser.objects.get(name=self.parser_name).id
         return self.parser_id
 
-    def __init__(self, *args,**kwargs):
+    def __init__(self, *args, **kwargs):
         return super().__init__(*args, **kwargs)
-
 
     def all_pending_parses(self):
         """Return the pending parses that this parser can handle."""

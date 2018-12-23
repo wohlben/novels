@@ -1,6 +1,14 @@
 from .ScrapeManager import ScrapeManager
 from .RRL import RRLLatestScraper, RRLNovelScraper, RRLChapterScraper
-__all__ = ["Managers", "RRLNovelScraper", "RRLLatestScraper", "RRLChapterScraper", "ScrapeManager"]
+
+__all__ = [
+    "Managers",
+    "RRLNovelScraper",
+    "RRLLatestScraper",
+    "RRLChapterScraper",
+    "ScrapeManager",
+]
+
 
 class Managers(object):
     def __init__(self, *args, **kwargs):

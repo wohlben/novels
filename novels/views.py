@@ -3,17 +3,18 @@ from novels.models import Fiction, Chapter
 from novels.forms import WatchingForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class WatchComponent(FormView):
+class WatchComponent(LoginRequiredMixin, FormView):
     form_class = WatchingForm
     template_name = "novels/components/watch.html"
 
     def get_context_data(self):
-        novel_id = self.kwargs.get('novel_id')
+        novel_id = self.kwargs.get("novel_id")
         context = {"novel": Fiction.objects.get(id=novel_id), "watching": False}
         if self.request.user.fiction_set.filter(id=novel_id).count() > 0:
-            context['watching'] = True
+            context["watching"] = True
         return context
 
     def post(self, request, *args, **kwargs):
@@ -78,15 +79,5 @@ class ChapterDetailView(TemplateView):
     def get_context_data(self, chapter_id):
         context = {
             "chapter": Chapter.objects.prefetch_related("fiction").get(id=chapter_id)
-        }
-        return context
-
-
-class SearchComponent(TemplateView):
-    template_name = "novels/components/search.html"
-
-    def get_context_data(self, **kwargs):
-        context = {
-            "novels": Fiction.objects.all().order_by("title").values("id", "title")
         }
         return context

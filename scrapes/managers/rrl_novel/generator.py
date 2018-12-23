@@ -31,7 +31,9 @@ class RRLNovelGeneratorMixin(object):
         try:
             for novel in self.missing_novels():
                 self.logger.info(f"adding '{novel.title}' to the pending fetches")
-                Scrapes.objects.create(url=novel.url, parser_type_id=self.get_parser_id())
+                Scrapes.objects.create(
+                    url=novel.url, parser_type_id=self.get_parser_id()
+                )
 
             return True
         except Exception:  # pragma: no cover

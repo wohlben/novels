@@ -7,6 +7,7 @@ import logging
 
 rrl_novel = RRLNovelScraper()
 
+
 class ParseNovelTestCase(TestCase):
     fixtures = ["2018-10-17.json"]
     parser_id = int

@@ -6,6 +6,7 @@ import logging
 
 rrl_latest = RRLLatestScraper()
 
+
 class ParseLatestTestCase(TestCase):
     fixtures = ["2018_10_14_scrapes.json"]
     parser_id = int

@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 managers = Managers()
 
+
 class ParseLogListView(TemplateView):
     template_name = "scrapes/lists/log.html"
 
@@ -22,6 +23,7 @@ class ParseLogListView(TemplateView):
             )
         }
         return context
+
 
 class QueueView(TemplateView):
     template_name = "scrapes/lists/queue.html"
@@ -52,7 +54,6 @@ class RequeueNovelComponent(LoginRequiredMixin, FormView):
 class RequeueChapterComponent(LoginRequiredMixin, FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
-
 
     def get_context_data(self):
         return {"chapter_id": self.kwargs.get("chapter_id")}

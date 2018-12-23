@@ -154,7 +154,9 @@ SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
 SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
-if SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown":
+if (
+    SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown"
+):  # pragma: no cover
     print("logging in won't be possible without github auth")
 
 # Static files (CSS, JavaScript, Images)

@@ -5,6 +5,7 @@ import logging
 
 rrl_latest = RRLLatestScraper()
 
+
 class FetchLatestTestCase(TestCase):
     rrl_latest_parser_id = int
 

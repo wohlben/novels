@@ -7,6 +7,7 @@ import logging
 
 rrl_chapter = RRLChapterScraper()
 
+
 class GenerateChapterTestCase(TestCase):
     parser_id = int
 

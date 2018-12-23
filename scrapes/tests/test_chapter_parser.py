@@ -6,6 +6,7 @@ import logging
 
 rrl_chapter = RRLChapterScraper()
 
+
 class ParseChapterTestCase(TestCase):
     fixtures = ["2018-10-17.json"]
     parser_id = int
