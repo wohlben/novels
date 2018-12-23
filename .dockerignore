@@ -1,0 +1,10 @@
+.*
+!.ci/*
+node_modules/*
+static_root/*
+celerybeat-schedule
+db.sqlite3
+development.requirements
+docker-compose.yml
+nohub.out
+coverage

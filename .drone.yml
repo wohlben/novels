@@ -1,15 +1,24 @@
 pipeline:
-  django_tests:
+
+  install_python_dependencies:
     image: python:3.6
     commands:
       - pip install pipenv
       - pipenv install --dev
       - pipenv lock -r > requirements.txt
       - pipenv lock -r --dev > development.requirements
+    environment:
+      - PIPENV_VENV_IN_PROJECT=true
+
+  run_python_tests:
+    image: python:3.6
+    commands:
       - pipenv run python manage.py migrate
       - pipenv run coverage run manage.py test
       - pipenv run coverage report -m
       - pipenv run coverage html
+    environment:
+      - PIPENV_VENV_IN_PROJECT=true
 
   # publish_requirements:
   #   image: alpine/git

@@ -17,6 +17,7 @@ django-filter = "*"
 djangorestframework = "*"
 markdown = "*"
 django-cors-headers = "*"
+gunicorn = "*"
 
 [dev-packages]
 pycodestyle = "*"

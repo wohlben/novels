@@ -25,14 +25,15 @@ SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
 
 if env_variable('CI', False):
-    DEBUG = True
     print("forcing debug mode for CI")
+    DEBUG = True
 else:
     DEBUG = env_variable("django_debug", False) == "True"
-    print(f"starting with DEBUG {DEBUG}")
 
-ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
-INTERNAL_IPS = ("127.0.0.1", "192.168.1.26")
+print(f"starting with debug: {DEBUG}")
+
+ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
+INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()
 
 INSTALLED_APPS = [
     "django.contrib.admin",
