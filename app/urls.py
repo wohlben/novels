@@ -18,6 +18,7 @@ from django.contrib.auth import views
 from django.urls import path, include
 from django.views.generic.base import RedirectView
 from profiles.views import LoginView
+from django.conf import settings
 
 urlpatterns = [path("admin/", admin.site.urls)]
 
@@ -36,9 +37,6 @@ urlpatterns += [
     path("auth/", include("social_django.urls", namespace="social")),
     path("api-auth/", include("rest_framework.urls")),
 ]
-
-from django.conf import settings
-from django.urls import include, path  # For django versions from 2.0 and up
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
