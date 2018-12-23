@@ -10,3 +10,4 @@ requirements.txt
 .ropeproject
 node_modules
 static_root/*
+.venv/*
