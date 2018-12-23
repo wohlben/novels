@@ -1,1 +1,1 @@
-APP_NAME = 'api'
+APP_NAME = "api"

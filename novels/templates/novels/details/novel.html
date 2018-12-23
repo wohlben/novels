@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">{{ novel.title }}</h1>
+    <div class="row">
+      <div class="col" id="watch-component"   ic-src="{% url "novels:watch-component" novel_id=novel.id %}" ic-trigger-on="load"></div>
+      <div class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"  ic-trigger-on="load"></div>
+    </div>
+    {% if novel.author %}
+      <p class="lead">a novel by {{ novel.author }}</p>
+    {% endif %}
+    <ul class="list-group">
+      {% for chapter in novel.chapter_set.all %}
+
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {% if chapter.published %}
+          <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>
+          <span class="badge badge-primary badge-pill">{{ chapter.published }}</span>
+        {% else %}
+        <span class="container-fluid">{{ chapter.title }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+"""discovery for pending rrl latest parses and parsing them into fictions and novels."""
+from lxml import html
+from scrapes.models import ParseLog
+from novels.models import Chapter
+from django.utils import timezone
+from datetime import datetime
+import re
+from lxml.etree import tostring
+
+
+class RRLChapterParserMixin(object):
+    def chapter_extractor(self):
+        """Return False if no Parses were necessary. True if the parsind was successful."""
+        pending_parses = self.all_pending_parses()
+
+        if pending_parses.count() == 0:
+            self.logger.info("no rrl chapter page to parse")
+            return False
+
+        self.logger.info(f"found {pending_parses.count()} chapter scrapes to parse!")
+
+        success_monitor = True
+
+        for scrape in pending_parses:
+            self.logger.info(f"parsing {scrape.id}")
+
+            tree = html.fromstring(scrape.content)
+
+            parse_log = ParseLog.objects.create(
+                scrape=scrape, parser_id=self.get_parser_id(), started=timezone.now()
+            )
+
+            data_extracted = self._parse_chapter_page(tree, scrape.url)
+            parse_log.finished = timezone.now()
+            if data_extracted:
+                parse_log.success = success_monitor
+            else:
+                success_monitor = False  # pragma: no cover
+            parse_log.save()
+
+        return True
+
+    @staticmethod
+    def _clean_chapter_content(content):
+        content = (
+            content.decode("unicode_escape")
+            .encode("raw_unicode_escape")
+            .decode("utf-8")
+        )
+        removedScripts = re.sub(r"<script.*?</script>", "", str(content))
+        return removedScripts
+
+    def _parse_chapter_page(self, element, url):
+        try:
+            remote_id = url.split("/")[-2]
+            chap = Chapter.objects.get(url=url)
+            chap.content = self._clean_chapter_content(
+                tostring(element.cssselect(".chapter-content")[0])
+            )
+            if chap.remote_id is None:
+                chap.remote_id = remote_id  # pragma: no cover
+            if chap.remote_id != remote_id:  # pragma: no cover
+                self.logger.error(
+                    "unexpected remote_id. not updating content on possible parsing error!"
+                )
+                return False
+            timestamp = int(
+                element.xpath('//i[@title="Published"]/../time/@unixtime')[0]
+            )
+            chap.published = timezone.make_aware(
+                datetime.utcfromtimestamp(timestamp), timezone.utc
+            )
+            chap.save()
+            self.logger.info(f'updated content of "{chap.title}"')
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.exception(f"failed to parse chapter from {url}")

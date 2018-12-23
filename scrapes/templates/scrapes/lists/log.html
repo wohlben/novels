@@ -1,0 +1,26 @@
+{% extends "base.html"%}
+{% block title %}
+Log
+{% endblock %}
+{% block content %}
+  <table class="table">
+    <thead>
+      <th colspan=2>Entries: {{ parses|length }}</th>
+    </thead>
+    <tbody>
+      {% for entry in parses %}
+        <tr>
+          <td>
+            {{ entry.parser.name }}
+          </td>
+          <td>
+            {{ entry.scrape_last_change }}
+          </td>
+          <td>
+            {{ entry.added_count }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

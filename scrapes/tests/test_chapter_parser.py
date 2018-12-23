@@ -1,8 +1,10 @@
 from django.test import TestCase
 from scrapes import models
-from scrapes.parsers import rrl_chapter_parser
+from scrapes.managers import RRLChapterScraper
 from novels import models as novel_models
 import logging
+
+rrl_chapter = RRLChapterScraper()
 
 
 class ParseChapterTestCase(TestCase):
@@ -15,7 +17,7 @@ class ParseChapterTestCase(TestCase):
         cls.parser_id = models.Parser.objects.get(name="rrl chapter").id
 
     def pending_parses(self):
-        return rrl_chapter_parser.all_pending_parses(self.parser_id).count()
+        return rrl_chapter.all_pending_parses().count()
 
     def available_scrapes(self):
         return models.Scrapes.objects.filter(parser_type_id=self.parser_id).count()
@@ -29,7 +31,7 @@ class ParseChapterTestCase(TestCase):
         return novel_models.Chapter.objects.all().count()
 
     def chapter_extractor(self):
-        return rrl_chapter_parser.chapter_extractor(self.parser_id)
+        return rrl_chapter.chapter_extractor()
 
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()

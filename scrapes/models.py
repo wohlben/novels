@@ -11,6 +11,14 @@ class Scrapes(models.Model):
     content = models.TextField(blank=True, null=True)
     http_code = models.IntegerField(blank=True, null=True)
     parser_type = models.ForeignKey("Parser", on_delete=models.CASCADE)
+    added_by = models.ForeignKey(
+        "ParseLog",
+        null=True,
+        blank=True,
+        related_name="added_by",
+        on_delete=models.SET_NULL,
+    )
+    added_reason = models.TextField(blank=True, null=True)
 
 
 class Parser(models.Model):
@@ -18,6 +26,11 @@ class Parser(models.Model):
 
     name = models.TextField()
     added = models.DateTimeField(auto_now_add=True)
+    weight = models.IntegerField(default=50)
+
+    @property
+    def pending(self):
+        return Scrapes.objects.filter(parser_type=self, http_code=None)
 
 
 class ParseLog(models.Model):

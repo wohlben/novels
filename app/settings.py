@@ -23,9 +23,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
-DEBUG = env_variable("django_debug", False)
 
-ALLOWED_HOSTS = env_variable("allowed_hosts", "").split()
+if env_variable('CI', False):
+    print("forcing debug mode for CI")
+    DEBUG = True
+else:
+    DEBUG = env_variable("django_debug", False) == "True"
+
+print(f"starting with debug: {DEBUG}")
+
+ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
+INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -34,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'corsheaders',
+    "corsheaders",
     "rest_framework",
     "django_filters",
     "django_celery_results",
@@ -43,9 +51,11 @@ INSTALLED_APPS = [
     "novels",
     "scrapes",
 ]
+if DEBUG:
+    INSTALLED_APPS.insert(6, "debug_toolbar")
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -54,6 +64,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "app.urls"
 
@@ -64,17 +77,19 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
             ],
-            "debug": env_variable("django_debug", False),
+            "debug": DEBUG,
         },
     }
 ]
+
+if DEBUG:
+    TEMPLATES[0]['OPTIONS']['context_processors'].insert(0, "django.template.context_processors.debug")
 
 WSGI_APPLICATION = "app.wsgi.application"
 
@@ -146,15 +161,20 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "scrapes:home"
 SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
 SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
-if SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown":
+if (
+    SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown"
+):  # pragma: no cover
     print("logging in won't be possible without github auth")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
+
+STATIC_ROOT = "static_root/"
 
 STATIC_URL = "/static/"
 
@@ -172,30 +192,28 @@ CELERY_BEAT_SCHEDULE = {
     "minutely_fetch": {
         "task": "scrapes.tasks.fetch_content",
         "schedule": crontab(minute="*"),
-        # 'args': (*args)
     },
     "generators": {
-        "task": "scrapes.tasks.generators",
-        "schedule": crontab(minute="*/25"),
+        "task": "scrapes.tasks.generators_task",
+        "schedule": crontab(minute="*/5"),
     },
-    "parsers": {"task": "scrapes.tasks.parsers", "schedule": crontab(minute="*/5")},
+    "parsers": {
+        "task": "scrapes.tasks.parsers_task",
+        "schedule": crontab(minute="*/5"),
+    },
 }
 
-GRAPHENE = {
-    'SCHEMA': 'app.schema.schema' # Where your Graphene schema lives
-}
+GRAPHENE = {"SCHEMA": "app.schema.schema"}  # Where your Graphene schema lives
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100,
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 100,
 }
 
-CORS_ORIGIN_WHITELIST = (
-        env_variable("cors_whitelist", "").split()
-)
+CORS_ORIGIN_WHITELIST = env_variable("cors_whitelist", "").split()

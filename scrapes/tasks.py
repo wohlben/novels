@@ -1,26 +1,18 @@
 from celery import shared_task
 from requests import get
-from scrapes.fetch_generators import (
-    rrl_latest_generator,
-    rrl_chapter_generator,
-    rrl_novel_generator,
-)
-from scrapes.parsers import rrl_chapter_parser, rrl_novel_parser, rrl_latest_parser
+from scrapes.managers import Managers
 import logging
-from scrapes.models import Scrapes, Parser
 
 logger = logging.getLogger("scrapes.tasks")
 
-rrl_latest_parser_id = Parser.objects.get(name="rrl latest").id
-rrl_chapter_parser_id = Parser.objects.get(name="rrl chapter").id
-rrl_novel_parser_id = Parser.objects.get(name="rrl novel").id
+managers = Managers()
 
 
 @shared_task
-def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Scrape < 15 min was done to the same url
+def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""
     try:
-        instance = Scrapes.objects.filter(http_code=None, content=None).first()
+        instance = managers.manager.scrape_queue().first()
         if not instance:
             logger.info("no pending scrapes")
             return True
@@ -40,18 +32,17 @@ def fetch_content():  # TODO: mock response..... #TODO: dont fetch if another Sc
 
 
 @shared_task
-def generators():
-    """Periodic task to conditionally enqueue new fetches."""
-    rrl_latest_generator.add_queue_event(rrl_latest_parser_id)
-    rrl_chapter_generator.add_queue_events(rrl_chapter_parser_id)
-    rrl_novel_generator.add_queue_events(rrl_novel_parser_id)
+def generators_task():
+    managers.rrl_latest.add_queue_event()
+    managers.rrl_novel.add_queue_events()
+    managers.rrl_chapter.add_queue_events()
     return True
 
 
 @shared_task
-def parsers():
+def parsers_task():
     """Periodic task to parse all available rrl fetches."""
-    rrl_latest_parser.latest_extractor(rrl_latest_parser_id)
-    rrl_chapter_parser.chapter_extractor(rrl_chapter_parser_id)
-    rrl_novel_parser.novel_extractor(rrl_novel_parser_id)
+    managers.rrl_latest.latest_extractor()
+    managers.rrl_chapter.chapter_extractor()
+    managers.rrl_novel.novel_extractor()
     return True

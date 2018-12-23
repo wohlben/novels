@@ -1,0 +1,29 @@
+{% extends "base.html"%}
+{% block title %}
+Queue
+{% endblock %}
+{% block content %}
+  <table class="table">
+    <!--<thead>
+      <th colspan=2>{{ parser.name }} ({{ queue|length }})</th>
+    </thead>-->
+    <tbody>
+      {% for scrape in queue %}
+      <tr>
+        <td>
+          {{ scrape.parser_type.name }}
+        </td>
+        <td>
+          {{ scrape.id }}
+        </td>
+        <td>
+          {{ scrape.timestamp}}
+        </td>
+        <td>
+          {{ scrape.url }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

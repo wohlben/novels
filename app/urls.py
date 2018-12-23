@@ -16,13 +16,30 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import path, include
+from django.views.generic.base import RedirectView
+from profiles.views import LoginView
+from django.conf import settings
 
 urlpatterns = [path("admin/", admin.site.urls)]
 
 urlpatterns += [
+    path("", RedirectView.as_view(pattern_name="scrapes:home", permanent=False)),
+    path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
     path("api/", include("api.urls", namespace="api")),
-    path("login/", views.LoginView.as_view(template_name="login.html"), name="login"),
+    path(
+        "admin-login/",
+        views.LoginView.as_view(template_name="login.html"),
+        name="admin-login",
+    ),
+    path("login/", LoginView.as_view(), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
-    path('api-auth/', include('rest_framework.urls')),
+    path("auth/", include("social_django.urls", namespace="social")),
+    path("api-auth/", include("rest_framework.urls")),
 ]
+
+if settings.DEBUG:  # pragma: no cover
+    print("importing debug toolbar")
+    import debug_toolbar
+
+    urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns

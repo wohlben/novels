@@ -11,13 +11,15 @@ class Fiction(models.Model):
     url = models.TextField()
     remote_id = models.TextField(blank=True, null=True)
     author = models.TextField(blank=True, null=True)
-    monitored = models.BooleanField(default=False)
+
+    watching = models.ManyToManyField("profiles.User")
 
 
 class Chapter(models.Model):
     """Chapter database model."""
+
     class Meta:
-        ordering = ['published', 'id']
+        ordering = ["published", "id"]
 
     fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)
@@ -25,5 +27,6 @@ class Chapter(models.Model):
     content = models.TextField(blank=True, null=True)
     published = models.DateTimeField(blank=True, null=True)
     published_relative = models.TextField(blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
     discovered = models.DateTimeField(auto_now_add=True)
     url = models.TextField()

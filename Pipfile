@@ -11,13 +11,13 @@ requests = "*"
 redis = "*"
 "psycopg2-binary" = "*"
 lxml = "*"
-tomd = "*"
 cssselect = "*"
 social-auth-app-django = "*"
 django-filter = "*"
 djangorestframework = "*"
 markdown = "*"
 django-cors-headers = "*"
+gunicorn = "*"
 
 [dev-packages]
 pycodestyle = "*"
@@ -26,6 +26,7 @@ pyyaml = "*"
 coverage = "*"
 python-language-server = {extras = ["all"]}
 django-coverage-plugin = "*"
+django-debug-toolbar = "*"
 
 [requires]
 python_version = "3.6"

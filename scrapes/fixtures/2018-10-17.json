@@ -9,6 +9,7 @@
         "published": "2016-06-20T20:47:42Z",
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.187Z",
+        "updated": "2018-10-16T18:31:08.187Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/77287/chapter-27-down-to-the-grind"
     }
 }, {
@@ -22,6 +23,7 @@
         "published": "2016-06-17T18:21:38Z",
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.171Z",
+        "updated": "2018-10-16T18:31:08.171Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/76720/chapter-25-meeting-the-king"
     }
 }, {
@@ -35,6 +37,7 @@
         "published": "2016-09-25T17:33:58Z",
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.363Z",
+        "updated": "2018-10-16T18:31:08.363Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/94799/chapter-45-demons-duel"
     }
 }, {
@@ -48,6 +51,7 @@
         "published": "2016-08-08T06:13:04Z",
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.305Z",
+        "updated": "2018-10-16T18:31:08.305Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/85983/chapter-40-ullelone-village"
     }
 }, {
@@ -61,6 +65,7 @@
         "published": "2018-09-09T02:00:14Z",
         "published_relative": null,
         "discovered": "2018-10-16T18:31:09.886Z",
+        "updated": "2018-10-16T18:31:09.886Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/288780/chapter-193-shudderwall"
     }
 },
@@ -75,6 +80,7 @@
         "published": null,
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.109Z",
+        "updated": "2018-10-16T18:31:08.109Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/75056/chapter-19-preparing-for-a-journey"
     }
 }, {
@@ -88,6 +94,7 @@
         "published": null,
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.090Z",
+        "updated": "2018-10-16T18:31:08.090Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/74530/chapter-18-guild-card-and-second-night"
     }
 }, {
@@ -101,6 +108,7 @@
         "published": null,
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.079Z",
+        "updated": "2018-10-16T18:31:08.079Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/74308/chapter-17-slave-market"
     }
 }, {
@@ -114,6 +122,7 @@
         "published": null,
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.058Z",
+        "updated": "2018-10-16T18:31:08.058Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/73838/chapter-15-class-change"
     }
 }, {
@@ -127,6 +136,7 @@
         "published": null,
         "published_relative": null,
         "discovered": "2018-10-16T18:31:08.039Z",
+        "updated": "2018-10-16T18:31:08.039Z",
         "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life/chapter/73404/chapter-13-first-night-in-fathon"
     }
 },
@@ -151,8 +161,7 @@
             "title": "Phantasmal Party",
             "url": "https://www.royalroad.com/fiction/20971/phantasmal-party",
             "remote_id": "20971",
-            "author": null,
-            "monitored": false
+            "author": null
         }
     },
     {
@@ -164,8 +173,7 @@
             "title": "A Glimmer in the Dark",
             "url": "https://www.royalroad.com/fiction/15519/a-glimmer-in-the-dark",
             "remote_id": "15519",
-            "author": null,
-            "monitored": false
+            "author": null
         }
     },
     {
@@ -177,8 +185,7 @@
             "title": "Rules-Free VRMMO Life",
             "url": "https://www.royalroad.com/fiction/6618/rules-free-vrmmo-life",
             "remote_id": "6618",
-            "author": "Mirikon",
-            "monitored": true
+            "author": "Mirikon"
         }
     },
     {
@@ -190,8 +197,7 @@
             "title": "Azarinth Healer",
             "url": "https://www.royalroad.com/fiction/16946/azarinth-healer",
             "remote_id": "16946",
-            "author": null,
-            "monitored": true
+            "author": null
         }
     },
     {

@@ -1,28 +1,28 @@
 pipeline:
+
   django_tests:
     image: python:3.6
     commands:
-      - pip install -i $PIPENV_PYPI_MIRROR --trusted-host $PIP_TRUST_MIRROR pipenv
-      - pipenv install
-      - pipenv run pip freeze > requirements.txt
+      - pip install pipenv
       - pipenv install --dev
-      - pipenv run pip freeze > development.requirements
+      - pipenv lock -r > requirements.txt
+      - pipenv lock -r --dev > development.requirements
       - pipenv run python manage.py migrate
       - pipenv run coverage run manage.py test
       - pipenv run coverage report -m
-      - pipenv run coverage html
     environment:
-      - PIPENV_PYPI_MIRROR=http://192.168.10.11:3141/root/pypi/+simple/
-      - PIP_TRUST_MIRROR=192.168.10.11
+      - PIPENV_VENV_IN_PROJECT=true
 
-  publish_requirements:
-    image: alpine/git
-    commands:
-      - sh .ci/add_requirements.sh
-      - sh .ci/move_coverage.sh
-    volumes:
-      - /root/.ssh:/root/.ssh
-      - /srv/coverage/novels:/coverage
+  # publish_requirements:
+  #   image: alpine/git
+  #   commands:
+  #     - sh .ci/add_requirements.sh
+  #     - sh .ci/move_coverage.sh
+  #   when:
+  #     branch: [master, develop, release/*]
+  #   volumes:
+  #     - /root/.ssh:/root/.ssh
+  #     - /srv/coverage/novels:/coverage
 
 services:
   database:

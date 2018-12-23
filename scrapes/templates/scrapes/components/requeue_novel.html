@@ -1,0 +1,5 @@
+  <form>
+  {% csrf_token %}
+  <input hidden type="checkbox" checked />
+  <i ic-post-to="{% url "scrapes:requeue-novel" novel_id=novel_id %}" class="fa fa-refresh" />
+  </form>
