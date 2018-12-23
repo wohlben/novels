@@ -10,7 +10,7 @@ def set_weights(apps, schema_editor):
         Parser.objects.filter(name=parser).update(weight=weight)
 
 
-def reset_weights(apps, schema_editor):
+def reset_weights(apps, schema_editor):  # pragma: no cover
     Parser = apps.get_model("scrapes", "Parser")
     parsers = {"rrl latest": 50, "rrl chapter": 50, "rrl novel": 50}
     for parser, weight in parsers.items():

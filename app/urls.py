@@ -40,7 +40,7 @@ urlpatterns += [
 from django.conf import settings
 from django.urls import include, path  # For django versions from 2.0 and up
 
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
 
     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
