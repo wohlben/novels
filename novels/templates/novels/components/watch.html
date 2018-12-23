@@ -1,5 +1,9 @@
 <form>
-  <input style="display: none" name="novel_id" value="{{ novel.id }}" readonly />
+  <input style="display: none" type="checkbox" name="watch" {% if watching %}checked {% endif %} readonly/>
   {% csrf_token %}
-  <i ic-post-to="{% url "novels:watch" %}" class="fa {{ icon }}" ic-target="#watch-component"></i>
+  {% if watching %}
+    <i ic-post-to="{% url "novels:watch-component" novel_id=novel.id %}" class="fa fa-eye-slash" ic-target="#watch-component"></i>
+  {% else %}
+    <i ic-post-to="{% url "novels:watch-component" novel_id=novel.id %}" class="fa fa-eye" ic-target="#watch-component"></i>
+  {% endif %}
 </form>

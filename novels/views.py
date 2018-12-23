@@ -5,30 +5,27 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 
 
-class WatchComponent(TemplateView):
+class WatchComponent(FormView):
+    form_class = WatchingForm
     template_name = "novels/components/watch.html"
 
-    def get_context_data(self, novel_id, **kwargs):
-        # dependency: font-awesome
-        context = {"novel": Fiction.objects.get(id=novel_id), "icon": "fa-eye"}
+    def get_context_data(self):
+        novel_id = self.kwargs.get('novel_id')
+        context = {"novel": Fiction.objects.get(id=novel_id), "watching": False}
         if self.request.user.fiction_set.filter(id=novel_id).count() > 0:
-            context["icon"] = "fa-eye-slash"
+            context['watching'] = True
         return context
-
-
-class ToggleFictionWatch(FormView):
-    form_class = WatchingForm
-    template_name = "generic_form.html"
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            novel_id = form.data.get("novel_id")
+            novel_id = kwargs.get("novel_id")
             fiction = Fiction.objects.get(id=novel_id)
-            if request.user.fiction_set.filter(id=fiction.id).count() > 0:
-                fiction.watching.remove(request.user)
-            else:
+            if request.user.fiction_set.filter(id=fiction.id).count() == 0:
                 fiction.watching.add(request.user)
+            else:
+                fiction.watching.remove(request.user)
+
         return HttpResponseRedirect(
             reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id})
         )
