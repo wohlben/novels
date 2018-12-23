@@ -31,11 +31,13 @@ class WatchComponent(FormView):
         )
 
 
-class WatchingListView(TemplateView):
-    template_name = "novels/lists/novels.html"
+class SearchComponent(LoginRequiredMixin, TemplateView):
+    template_name = "novels/components/search.html"
 
     def get_context_data(self, **kwargs):
-        context = {"novels": self.request.user.watching.values("id", "title", "author")}
+        context = {
+            "novels": Fiction.objects.all().order_by("title").values("id", "title")
+        }
         return context
 
 
@@ -47,10 +49,12 @@ class FictionListView(TemplateView):
         if self.request.GET.get("populated"):
             context["novels"] = (
                 Fiction.objects.order_by("title")
-                .filter(
-                    id__in=Chapter.objects.exclude(published=None).values("fiction")
-                )
+                .filter(id__in=Chapter.objects.exclude(content=None).values("fiction"))
                 .values("id", "title", "author")
+            )
+        elif self.request.GET.get("watching"):
+            context["novels"] = self.request.user.watching.values(
+                "id", "title", "author"
             )
         else:
             context["novels"] = (
