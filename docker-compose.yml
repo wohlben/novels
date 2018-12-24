@@ -7,7 +7,8 @@ services:
       dockerfile: .ci/Dockerfile
       target: static_server
     ports:
-      - 8080:80
+      - 80:80
+      - 443:443
 
   migrations:
     build:
