@@ -5,6 +5,9 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .filters import FictionFilter
+from scrapes.managers import RRLNovelScraper
+
+rrl_novel = RRLNovelScraper()
 
 
 class WatchComponent(LoginRequiredMixin, FormView):
@@ -27,7 +30,7 @@ class WatchComponent(LoginRequiredMixin, FormView):
                 fiction.watching.add(request.user)
             else:
                 fiction.watching.remove(request.user)
-
+        rrl_novel.add_queue_events(user=request.user)
         return HttpResponseRedirect(
             reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id})
         )

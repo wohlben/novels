@@ -26,3 +26,7 @@ class ScrapeManager(object):
         return Scrapes.objects.filter(http_code=None, content=None).order_by(
             "parser_type__weight", "id"
         )
+
+    @staticmethod
+    def last_scrapes():
+        return Scrapes.objects.exclude(http_code=None).order_by('-last_change')[:5]

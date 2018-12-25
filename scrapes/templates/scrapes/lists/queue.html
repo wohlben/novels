@@ -4,14 +4,30 @@ Queue
 {% endblock %}
 {% block content %}
   <table class="table">
-    <!--<thead>
-      <th colspan=2>{{ parser.name }} ({{ queue|length }})</th>
-    </thead>-->
+    <thead>
+      <th>Parser Type</th>
+      <th>HTTP Code</th>
+      <th>Scrape ID</th>
+      <th>Last Change</th>
+      <th>url</th>
+    </thead>
     <tbody>
+      {% for scrape in last_scrapes %}
+      <tr class="text-muted">
+        <td>{{ scrape.parser_type.name }}</td>
+        <td>{{ scrape.http_code }}</td>
+        <td>{{ scrape.id }}</td>
+        <td>{{ scrape.last_change }}</td>
+        <td>{{ scrape.url }}</td>
+      </tr>
+      {% endfor %}
       {% for scrape in queue %}
       <tr>
         <td>
           {{ scrape.parser_type.name }}
+        </td>
+        <td>
+          pending
         </td>
         <td>
           {{ scrape.id }}

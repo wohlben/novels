@@ -30,7 +30,8 @@ class QueueView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = {
-            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
+            "queue": managers.manager.scrape_queue().prefetch_related("parser_type"),
+            "last_scrapes": managers.manager.last_scrapes().prefetch_related("parser_type"),
         }
         return context
 
