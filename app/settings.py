@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-
 import os
 
 from celery.schedules import crontab
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_results",
     "social_django",
+    "utils",
     "profiles",
     "novels",
     "scrapes",

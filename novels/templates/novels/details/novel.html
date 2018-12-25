@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load values %}
 
 {% block content %}
 <div class="jumbotron jumbotron-fluid">
@@ -13,8 +14,7 @@
       <p class="lead">a novel by {{ novel.author }}</p>
     {% endif %}
     <ul class="list-group">
-      {% for chapter in novel.chapter_set.all %}
-
+      {% for chapter in novel.chapter_set.all|values:"id title published" %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         {% if chapter.published %}
           <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>

@@ -61,8 +61,7 @@ class FictionDetailView(TemplateView):
     template_name = "novels/details/novel.html"
 
     def get_context_data(self, novel_id):
-        context = {"novel": Fiction.objects.get(id=novel_id)}
-        return context
+        return {"novel": Fiction.objects.get(id=novel_id)}
 
 
 class ChapterDetailView(TemplateView):
