@@ -47,21 +47,15 @@ class FictionListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = {}
+        qs = Fiction.objects.order_by("title").values("id", "title", "author")
         if self.request.GET.get("populated"):
-            context["novels"] = (
-                Fiction.objects.order_by("title")
-                .filter(id__in=Chapter.objects.exclude(content=None).values("fiction"))
-                .values("id", "title", "author")
+            context["novels"] = qs.filter(
+                id__in=Chapter.objects.exclude(content=None).values("fiction")
             )
         elif self.request.GET.get("watching"):
-            context["novels"] = self.request.user.watching.values(
-                "id", "title", "author"
-            )
+            context["novels"] = qs.filter(watching=self.request.user)
         else:
-            context["novels"] = (
-                Fiction.objects.all().order_by("title").values("id", "title", "author")
-            )
-
+            context["novels"] = qs
         return context
 
 
