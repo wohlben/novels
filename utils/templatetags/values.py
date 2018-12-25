@@ -1,8 +1,6 @@
-from django import template
+from django import template  # pragma: no cover
+register = template.Library()  # pragma: no cover
 
-register = template.Library()
-
-
-@register.filter(name="values")
+@register.filter(name="values")  # pragma: no cover
 def values(qs, values):
     return qs.values(*values.split())
