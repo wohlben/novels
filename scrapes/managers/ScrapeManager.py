@@ -29,4 +29,4 @@ class ScrapeManager(object):
 
     @staticmethod
     def last_scrapes():
-        return Scrapes.objects.exclude(http_code=None).order_by('-last_change')[:5]
+        return Scrapes.objects.exclude(http_code=None).order_by("-last_change")[:5]

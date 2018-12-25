@@ -10,9 +10,13 @@ class RRLNovelGeneratorMixin(object):
 
     def missing_novels(self, *args, **kwargs):
         """Return monitored Fiction objects that should to be fetched."""
-        qs = Fiction.objects.exclude(watching=None).exclude(url__in=self.pending_fetches().values("url")).filter(author=None)
-        if kwargs.get('user'):
-            qs.filter(watching=kwargs['user'])
+        qs = (
+            Fiction.objects.exclude(watching=None)
+            .exclude(url__in=self.pending_fetches().values("url"))
+            .filter(author=None)
+        )
+        if kwargs.get("user"):
+            qs.filter(watching=kwargs["user"])
         return qs
 
     def refetch_novel(self, novel_id):
@@ -28,7 +32,7 @@ class RRLNovelGeneratorMixin(object):
     def add_queue_events(self, *args, **kwargs):
         """Conditionally add a new pending fetch."""
         try:
-            for novel in self.missing_novels(*args,**kwargs):
+            for novel in self.missing_novels(*args, **kwargs):
                 self.logger.info(f"adding '{novel.title}' to the pending fetches")
                 Scrapes.objects.create(
                     url=novel.url, parser_type_id=self.get_parser_id()

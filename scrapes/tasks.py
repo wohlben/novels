@@ -7,6 +7,7 @@ logger = logging.getLogger("scrapes.tasks")
 
 managers = Managers()
 
+
 @shared_task
 def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another Scrape < 15 min was done to the same url
     """Fetch an URL from a remote server."""

@@ -9,6 +9,7 @@ class LoginViewTests(TestCase):
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(response.status_code, 200)
 
+
 class ProfileViewTests(TestCase):
     def test_authenticated_get(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
