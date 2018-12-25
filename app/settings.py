@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
 
-if env_variable('CI', False):
+if env_variable("CI", False):
     print("forcing debug mode for CI")
     DEBUG = True
 else:
@@ -36,7 +36,6 @@ ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
 INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -89,7 +88,9 @@ TEMPLATES = [
 ]
 
 if DEBUG:
-    TEMPLATES[0]['OPTIONS']['context_processors'].insert(0, "django.template.context_processors.debug")
+    TEMPLATES[0]["OPTIONS"]["context_processors"].insert(
+        0, "django.template.context_processors.debug"
+    )
 
 WSGI_APPLICATION = "app.wsgi.application"
 
