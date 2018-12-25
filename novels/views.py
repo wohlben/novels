@@ -43,6 +43,8 @@ class SearchComponent(LoginRequiredMixin, TemplateView):
         context = {
             "novels": Fiction.objects.all().order_by("title").values("id", "title")
         }
+        if self.request.GET.get('ic-request') != "true":
+            context['debug_search'] = True
         return context
 
 
