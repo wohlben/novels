@@ -4,6 +4,7 @@ from novels.forms import WatchingForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .filters import FictionFilter
 
 
 class WatchComponent(LoginRequiredMixin, FormView):
@@ -46,17 +47,11 @@ class FictionListView(TemplateView):
     template_name = "novels/lists/novels.html"
 
     def get_context_data(self, **kwargs):
-        context = {}
         qs = Fiction.objects.order_by("title").values("id", "title", "author")
-        if self.request.GET.get("populated"):
-            context["novels"] = qs.filter(
-                id__in=Chapter.objects.exclude(content=None).values("fiction")
-            )
-        elif self.request.GET.get("watching"):
-            context["novels"] = qs.filter(watching=self.request.user)
-        else:
-            context["novels"] = qs
-        return context
+        novels = FictionFilter(
+            {"user": self.request.user, **self.request.GET}, queryset=qs
+        )
+        return {"novels": novels.qs}
 
 
 class FictionDetailView(TemplateView):
