@@ -82,17 +82,14 @@ class SearchComponentTests(TestCase):
             title="test fiction", url="https://some.fq.dn/with/uri"
         )
 
-    def test_unauthenticated_get(self):
+    def test_simple_get(self):
         response = self.client.get(reverse("novels:search"))
-        self.assertEqual(response.status_code, 302)
+        self.assertContains(response, "test fiction")
+        self.assertEqual(response.status_code, 200)
 
     def test_get_context(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
-        response = self.client.get(reverse("novels:search"))
-        self.assertContains(
-            response, "test fiction"
-        )  # the added fiction should be available in the search
-        self.assertEqual(response.status_code, 200)
+        self.test_simple_get()
 
 
 class NovelListTests(TestCase):
@@ -110,13 +107,11 @@ class NovelListTests(TestCase):
         )
         self.user = User.objects.get_or_create(username="testuser")[0]
 
-    def test_unauthenticated_get(self):
-        response = self.client.get(reverse("novels:novels"))
-        self.assertContains(response, "login with GitHub")
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_context(self):
+    def test_authenticated_get(self):
         self.client.force_login(self.user)
+        self.test_simple_get()
+
+    def test_simple_get(self):
         response = self.client.get(reverse("novels:novels"))
         self.assertEqual(response.status_code, 200)
 
@@ -148,15 +143,12 @@ class NovelViewTests(TestCase):
         self.scraped_fic = Fiction.objects.exclude(author=None).first()
         self.unscraped_fic = Fiction.objects.filter(author=None).first()
 
-    def test_unauthenticated_get(self):
-        response = self.client.get(
-            reverse("novels:novel", kwargs={"novel_id": self.scraped_fic.id})
-        )
-        self.assertContains(response, "login with GitHub")
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_context(self):
+    def test_authenticated_get(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.test_simple_get()
+
+
+    def test_simple_get(self):
         response = self.client.get(
             reverse("novels:novel", kwargs={"novel_id": self.scraped_fic.id})
         )
@@ -184,12 +176,8 @@ class ChapterViewTests(TestCase):
         response = self.client.get(
             reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
         )
-        self.assertContains(response, "login with GitHub")
         self.assertEqual(response.status_code, 200)
 
-    def test_get_context(self):
+    def test_authenticated_get(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
-        response = self.client.get(
-            reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
-        )
-        self.assertEqual(response.status_code, 200)
+        self.test_unauthenticated_get()

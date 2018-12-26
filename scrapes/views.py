@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 managers = Managers()
 
 
-class ParseLogListView(TemplateView):
+class ParseLogListView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/log.html"
 
     def get_context_data(self, **kwargs):
@@ -25,7 +25,7 @@ class ParseLogListView(TemplateView):
         return context
 
 
-class QueueView(TemplateView):
+class QueueView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/queue.html"
 
     def get_context_data(self, **kwargs):
@@ -38,7 +38,7 @@ class QueueView(TemplateView):
         return context
 
 
-class HistoryView(TemplateView):
+class HistoryView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/history.html"
 
 
