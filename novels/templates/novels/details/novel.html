@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 {% load values %}
 
 {% block content %}
@@ -7,20 +6,26 @@
   <div class="container">
     <h1 class="display-4">{{ novel.title }}</h1>
     <div class="row">
+      {% if user.is_authenticated %}
       <div class="col" id="watch-component"   ic-src="{% url "novels:watch-component" novel_id=novel.id %}" ic-trigger-on="load"></div>
       <div class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"  ic-trigger-on="load"></div>
+      {% endif %}
     </div>
     {% if novel.author %}
       <p class="lead">a novel by {{ novel.author }}</p>
     {% endif %}
     <ul class="list-group">
-      {% for chapter in novel.chapter_set.all|values:"id title published" %}
+      {% for chapter in novel.chapter_set.all|values:"id title published url" %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        {% if chapter.published %}
+        {% if user.is_authenticated and user.interal_links %}
           <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>
+        {% else %}
+          <a class="container-fluid" href="{{ chapter.url }}">{{ chapter.title }}</a>
+        {% endif %}
+        {% if chapter.published %}
           <span class="badge badge-primary badge-pill">{{ chapter.published }}</span>
         {% else %}
-        <span class="container-fluid">{{ chapter.title }}</span>
+          <span class="badge badge-primary badge-pill">unknown</span>
         {% endif %}
       </li>
       {% endfor %}

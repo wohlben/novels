@@ -36,15 +36,15 @@ class WatchComponent(LoginRequiredMixin, FormView):
         )
 
 
-class SearchComponent(LoginRequiredMixin, TemplateView):
+class SearchComponent(TemplateView):
     template_name = "novels/components/search.html"
 
     def get_context_data(self, **kwargs):
         context = {
             "novels": Fiction.objects.all().order_by("title").values("id", "title")
         }
-        if self.request.GET.get('ic-request') != "true":
-            context['debug_search'] = True
+        if self.request.GET.get("ic-request") != "true":
+            context["debug_search"] = True
         return context
 
 

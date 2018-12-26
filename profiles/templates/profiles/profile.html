@@ -3,4 +3,12 @@
 Profile: {{ request.user.username }}
 {% endblock %}
 {% block content %}
+<a href="{% url 'logout' %}">Logout</a>
+<form class="" action="{% url "profile" %}" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="save" />
+</form>
+
+
 {% endblock %}

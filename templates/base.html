@@ -6,30 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}base template{% endblock %}</title>
-    <link rel="stylesheet" href="{% static "font-awesome/css/font-awesome.min.css" %}">
-    <link rel="stylesheet" href="{% static "awesomplete/awesomplete.css" %}">
-    <link rel="stylesheet" href="{% static "bootswatch/dist/darkly/bootstrap.css" %}">
-    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+    <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'awesomplete/awesomplete.css' %}">
+    {% if user.is_authenticated %}
+      <link rel="stylesheet" href="{% static 'bootswatch/dist' %}/{{ user.color_theme }}/bootstrap.css" >
+    {% else %}
+      <link rel="stylesheet" href="{% static 'bootswatch/dist/darkly/bootstrap.css' %}">
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     {% block additional_css_opts %}
     {% endblock %}
 </head>
 <body>
-  {% if user.is_authenticated %}
-    {% include "navbar.html" %}
-    <div class="content">
-      {% block content %}
-        <p>Hello, {{ user.username }}</p>
-      {% endblock %}
-    </div>
-
-  {% else %}
-    {% block login %}
-    <a href="{% url "login" %}">login with GitHub</a>
-    <script>
-      window.location = {% url "login" %};
-    </script>
+  {% include "navbar.html" %}
+  <div class="content">
+    {% block content %}
+      <p>Hello, {{ user.username }}</p>
     {% endblock %}
-  {% endif %}
+  </div>
   {% block footer %}
     <!--<footer class="footer">
        <div class="container">
