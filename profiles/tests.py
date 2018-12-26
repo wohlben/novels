@@ -30,9 +30,31 @@ class LoginViewTests(TestCase):
             msg_prefix="sucessfull login should redirect to home",
         )
 
+    def test_disabled_login_token_login(self):
+        self.user.enable_login_token = False
+        self.user.save()
+        response = self.client.get(
+            f"{reverse('login')}?login_token={self.user.login_token}"
+        )
+        self.assertContains(response, "Login with GitHub")
+        self.assertEqual(
+            response.status_code, 200, "response should be a simple http ok"
+        )
+
 
 class ProfileViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.get_or_create(
+            username="testuser", defaults={"enable_login_token": False}
+        )[0]
+        self.client.force_login(self.user)
+
     def test_authenticated_get(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
         response = self.client.get(reverse("profile"))
         self.assertEqual(response.status_code, 200)
+
+    def test_login_token_visible(self):
+        self.user.enable_login_token = True
+        self.user.save()
+        response = self.client.get(reverse("profile"))
+        self.assertContains(response, self.user.login_token)

@@ -19,6 +19,5 @@ class TokenAuthBackend(ModelBackend):
             return None
         user = user.first()
         if not user.enable_login_token:
-            print("disabled token")
             return None
         return user
