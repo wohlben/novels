@@ -185,6 +185,23 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "node_modules"),
 ]
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://cache:6379/3',
+        'KEY_PREFIX': "django_"
+    },
+    "pages": {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://cache:6379/3',
+        'KEY_PREFIX': "pages_"
+    }
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+
 CELERY_BROKER_URL = env_variable("cache", "redis://cache:6379") + "/1"
 CELERY_RESULTS_BACKEND = env_variable("results", "django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]

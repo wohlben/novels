@@ -18,6 +18,7 @@ djangorestframework = "*"
 markdown = "*"
 django-cors-headers = "*"
 gunicorn = "*"
+django-redis-cache = "*"
 
 [dev-packages]
 pycodestyle = "*"
