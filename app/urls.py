@@ -19,7 +19,11 @@ from profiles.views import LoginView, ProfileView, LogoutView
 from django.conf import settings
 
 urlpatterns = [
-    path("", RedirectView.as_view(pattern_name="scrapes:home", permanent=False)),
+    path(
+        "",
+        RedirectView.as_view(pattern_name="scrapes:home", permanent=False),
+        name="home",
+    ),
     path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
     path("api/", include("api.urls", namespace="api")),

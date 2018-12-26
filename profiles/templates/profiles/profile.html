@@ -10,5 +10,10 @@ Profile: {{ request.user.username }}
   <input type="submit" value="save" />
 </form>
 
+{% if user.enable_login_token %}
+<a href="{% url 'login' %}?login_token={{ user.login_token }}"><div class="primary-text">
+  {{ user.login_token }}
+</div></a>
+{% endif %}
 
 {% endblock %}

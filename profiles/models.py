@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from uuid import uuid4
 
 
 class User(AbstractUser):
@@ -28,6 +29,8 @@ class User(AbstractUser):
         ("yeti", "yeti"),
     )
 
+    login_token = models.UUIDField(default=uuid4, blank=True, null=True, editable=False)
+    enable_login_token = models.BooleanField(default=False)
     internal_links = models.BooleanField(default=False)
     color_theme = models.CharField(
         default="darkly", choices=COLOR_CHOICES, max_length=50

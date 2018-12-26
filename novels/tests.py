@@ -147,7 +147,6 @@ class NovelViewTests(TestCase):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
         self.test_simple_get()
 
-
     def test_simple_get(self):
         response = self.client.get(
             reverse("novels:novel", kwargs={"novel_id": self.scraped_fic.id})

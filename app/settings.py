@@ -160,6 +160,7 @@ LOGGING = {
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.github.GithubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
+    "profiles.backends.TokenAuthBackend",
 )
 
 LOGIN_URL = "login"
@@ -187,19 +188,19 @@ STATICFILES_DIRS = [
 
 
 CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis://cache:6379/3',
-        'KEY_PREFIX': "django_"
+    "default": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": "redis://cache:6379/3",
+        "KEY_PREFIX": "django_",
     },
     "pages": {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis://cache:6379/3',
-        'KEY_PREFIX': "pages_"
-    }
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": "redis://cache:6379/3",
+        "KEY_PREFIX": "pages_",
+    },
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 
 CELERY_BROKER_URL = env_variable("cache", "redis://cache:6379") + "/1"
