@@ -10,7 +10,9 @@
       <div class="col">
         <p class="lead">last fetch: {{ chapter.updated }}</p>
       </div>
-      <div class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-chapter" chapter_id=chapter.id %}"  ic-trigger-on="load"></div>
+      {% if user.is_authenticated and user.internal_links %}
+      <div title="refetch the chapter" class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-chapter" chapter_id=chapter.id %}"  ic-trigger-on="load"></div>
+      {% endif %}
     </div>
     <hr />
     <span class="chapter">

@@ -25,21 +25,22 @@
       </li>
 
       {% if user.is_authenticated %}
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          System
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url "scrapes:queue" %}">Queue</a>
-          <a class="dropdown-item" href="{% url "scrapes:history" %}">History</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="{% url "scrapes:log" %}">Log</a>
-        </div>
-      </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            System
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url "scrapes:queue" %}">Queue</a>
+            <a class="dropdown-item" href="{% url "scrapes:history" %}">History</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url "scrapes:log" %}">Log</a>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link disabled" href="{% url 'logout' %}">Logout</a>
+        </li>
       {% endif %}
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
-      </li>
     </ul>
     <input ic-replace-target=true ic-src="{% url "novels:search" %}" ic-trigger-on="scrolled-into-view">
   </div>
