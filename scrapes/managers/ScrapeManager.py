@@ -1,5 +1,7 @@
 from scrapes.models import Scrapes, Parser
 import logging
+from django.utils import timezone
+from datetime import timedelta
 
 
 class ScrapeManager(object):
@@ -29,4 +31,4 @@ class ScrapeManager(object):
 
     @staticmethod
     def last_scrapes():
-        return Scrapes.objects.exclude(http_code=None).order_by("-last_change")[:5]
+        return Scrapes.objects.exclude(http_code=None).filter(last_change__gt=timezone.now()-timedelta(hours=1)).order_by("-last_change")[:5]

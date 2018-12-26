@@ -3,6 +3,7 @@ from scrapes.models import Scrapes
 from novels.models import Chapter, Fiction
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Subquery
 
 
 class RRLChapterGeneratorMixin(object):
@@ -16,13 +17,13 @@ class RRLChapterGeneratorMixin(object):
     def missing_chapters(self):
         """Return all chapters of monitored novels without content."""
         return Chapter.objects.filter(
-            content=None, fiction__in=self.monitored_novels()
-        ).exclude(url__in=self.pending_fetches().values("url"))
+            content=None, fiction__in=Subquery(self.monitored_novels().values("id"))
+        ).exclude(url__in=Subquery(self.pending_fetches().values("url")))
 
     @staticmethod
     def monitored_novels():
         """Return IDs of all monitored Fiction objects."""
-        return Fiction.objects.exclude(watching=None).values("id")
+        return Fiction.objects.exclude(watching=None)
 
     def refetch_chapter(self, chapter_id):
         chapter = Chapter.objects.get(id=chapter_id)

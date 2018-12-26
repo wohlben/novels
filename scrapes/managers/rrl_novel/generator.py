@@ -1,6 +1,7 @@
 """Conditionally creates pending fetches for new monitored novels ."""
 from scrapes.models import Scrapes
 from novels.models import Fiction
+from django.db.models import Subquery
 
 
 class RRLNovelGeneratorMixin(object):
@@ -12,7 +13,7 @@ class RRLNovelGeneratorMixin(object):
         """Return monitored Fiction objects that should to be fetched."""
         qs = (
             Fiction.objects.exclude(watching=None)
-            .exclude(url__in=self.pending_fetches().values("url"))
+            .exclude(url__in=Subquery(self.pending_fetches().values("url")))
             .filter(author=None)
         )
         if kwargs.get("user"):
