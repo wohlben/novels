@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ chapter.title }}{% endblock %}
+{% block title %}{{chapter.fiction.title }}: {{ chapter.title }}{% endblock %}
 {% block content %}
 <div class="jumbotron jumbotron-fluid">
   <div class="container">

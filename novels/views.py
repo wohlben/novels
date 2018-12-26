@@ -1,10 +1,11 @@
 from django.views.generic import TemplateView, FormView
+from django.db.models import Prefetch
 from novels.models import Fiction, Chapter
 from novels.forms import WatchingForm
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .filters import FictionFilter
+from .filters import FictionFilter, ChapterFilter
 from scrapes.managers import RRLNovelScraper
 
 rrl_novel = RRLNovelScraper()
@@ -46,6 +47,24 @@ class SearchComponent(TemplateView):
         if self.request.GET.get("ic-request") != "true":
             context["debug_search"] = True
         return context
+
+
+class ChaptersListView(TemplateView):
+    template_name = "novels/lists/chapters.html"
+
+    def get_context_data(self, **kwargs):
+        prefetch = Prefetch("fiction", queryset=Fiction.objects.only("title", "author"))
+        qs = (
+            Chapter.objects.order_by("-published")
+            .prefetch_related(prefetch)
+            .only("id", "title", "published", "fiction", "url", "discovered")
+        )
+        if self.request.user.internal_links:
+            qs = qs.exclude(published=None)
+        chapters = ChapterFilter(
+            {"user": self.request.user, **self.request.GET}, queryset=qs
+        )
+        return {"chapters": chapters.qs[:50]}
 
 
 class FictionListView(TemplateView):

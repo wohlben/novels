@@ -1,11 +1,12 @@
-import django_filters
+from django_filters import FilterSet, Filter
+from django.db.models import Subquery
 from .models import Fiction, Chapter
 
 
-class FictionFilter(django_filters.FilterSet):
-    watching = django_filters.Filter(method="watching_filter")
-    populated = django_filters.Filter(method="populated_filter")
-    updated = django_filters.Filter(method="updated_filter")
+class FictionFilter(FilterSet):
+    watching = Filter(method="watching_filter")
+    populated = Filter(method="populated_filter")
+    updated = Filter(method="updated_filter")
 
     class Meta:
         model = Fiction
@@ -25,3 +26,17 @@ class FictionFilter(django_filters.FilterSet):
         return queryset.filter(
             id__in=Chapter.objects.order_by("-updated").values("fiction_id")[:50]
         )
+
+
+class ChapterFilter(FilterSet):
+    watching = Filter(method="watching_filter")
+
+    def watching_filter(self, queryset, name, value):
+        if self.data["user"].is_authenticated:
+            return queryset.filter(
+                fiction_id__in=Subquery(
+                    Fiction.objects.filter(watching=self.data["user"]).values("id")
+                )
+            )
+        else:
+            return queryset.exclude()

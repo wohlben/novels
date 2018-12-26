@@ -17,7 +17,8 @@ class LogoutViewTests(TestCase):
             response.status_code, 200, "response should be a simple http ok"
         )
         self.assertContains(response, "logged out")
-        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertFalse(response.context["user"].is_authenticated)
+
 
 class LoginViewTests(TestCase):
     def setUp(self):
@@ -29,7 +30,7 @@ class LoginViewTests(TestCase):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(
-            response.status_code, 200, "response should be a simple http ok"
+            response.status_code, 200, "response should be a login prompt"
         )
 
     def test_login_token_login(self):
@@ -54,17 +55,16 @@ class LoginViewTests(TestCase):
         )
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(
-            response.status_code, 200, "response should be a simple http ok"
+            response.status_code, 200, "response should be a login prompt"
         )
 
     def test_invalid_login_token_login(self):
-        response = self.client.get(
-            f"{reverse('login')}?login_token={uuid4()}"
-        )
+        response = self.client.get(f"{reverse('login')}?login_token={uuid4()}")
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(
-            response.status_code, 200, "response should be a simple http ok"
+            response.status_code, 200, "response should be a login prompt"
         )
+
 
 class ProfileViewTests(TestCase):
     def setUp(self):
