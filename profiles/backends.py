@@ -7,7 +7,7 @@ UserModel = get_user_model()
 
 class TokenAuthBackend(ModelBackend):
     def get_user(self, user_id):
-        try:
+        try:  # pragma: no cover
             return UserModel.objects.get(pk=user_id)
         except UserModel.DoesNotExist:
             return None
@@ -15,7 +15,6 @@ class TokenAuthBackend(ModelBackend):
     def authenticate(self, login_token=None):
         user = UserModel.objects.filter(login_token=login_token)
         if user.count() != 1:
-            print("unexpected count " + str(user.count()))
             return None
         user = user.first()
         if not user.enable_login_token:

@@ -1,7 +1,23 @@
 from django.test import TestCase
 from django.urls import reverse
 from .models import User
+from uuid import uuid4
 
+
+class LogoutViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.get_or_create(
+            username="testuser", defaults={"enable_login_token": True}
+        )[0]
+        self.client.force_login(self.user)
+
+    def test_logout_view(self):
+        response = self.client.get(reverse("logout"))
+        self.assertEqual(
+            response.status_code, 200, "response should be a simple http ok"
+        )
+        self.assertContains(response, "logged out")
+        self.assertFalse(response.context['user'].is_authenticated)
 
 class LoginViewTests(TestCase):
     def setUp(self):
@@ -41,6 +57,14 @@ class LoginViewTests(TestCase):
             response.status_code, 200, "response should be a simple http ok"
         )
 
+    def test_invalid_login_token_login(self):
+        response = self.client.get(
+            f"{reverse('login')}?login_token={uuid4()}"
+        )
+        self.assertContains(response, "Login with GitHub")
+        self.assertEqual(
+            response.status_code, 200, "response should be a simple http ok"
+        )
 
 class ProfileViewTests(TestCase):
     def setUp(self):
