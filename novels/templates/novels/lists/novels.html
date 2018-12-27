@@ -2,10 +2,11 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col hero" onclick="setUrlGetParam('populated=true');">show only novels with chapters</div>
-    <div class="col hero" onclick="setUrlGetParam('');"> show all novels </div>
+    <div class="col hero" onclick="setGetParam('populated', true);">show only novels with chapters</div>
+    <div class="col hero" onclick="deleteGetParam('populated');"> show all novels </div>
   </div>
 </div>
+<hr />
 <ul class="list-group">
   {% for novel in novels %}
     <li class="list-group-item container-fluid">
@@ -15,4 +16,8 @@
     </li>
   {% endfor %}
 </ul>
+
+{% with object=novels %}
+{% include "pagination.html" %}
+{% endwith %}
 {% endblock %}

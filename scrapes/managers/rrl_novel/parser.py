@@ -75,6 +75,7 @@ class RRLNovelParserMixin(object):
                 created_chapters += 1
 
             fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
+            fic.title = element.xpath('//h1[@property="name"]/text()')[0]
             fic.save()
             self.logger.info(
                 f'updated content of "{fic.title}" and added {created_chapters}'

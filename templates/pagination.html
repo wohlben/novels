@@ -1,0 +1,28 @@
+{% load buildin_range %}
+<nav aria-label="navigation">
+  <ul class="pagination justify-content-center">
+    {% if object.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?{% param_replace page=object.previous_page_number %}%" tabindex="-1">Previous</a>
+    </li>
+    {% else %}
+    <li class="page-item">
+      <a class="page-link" href="#" tabindex="-1">Previous</a>
+    </li>
+    {% endif %}
+    {% with pages=object.paginator.num_pages|range:1 %} 
+    {% for page in pages %}
+    <li class="page-item"><a class="page-link" title="go to page {{ page }}" href="#" onclick="setGetParam('page', {{ page }})">{{ page }}</a></li> 
+    {% endfor%}
+    {% endwith %}
+    {% if object.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?{% param_replace page=object.next_page_number %}" tabindex="-1">Next</a>
+    </li>
+    {% else %}
+    <li class="page-item">
+      <a class="page-link" href="#" tabindex="-1">Next</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>

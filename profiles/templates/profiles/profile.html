@@ -5,7 +5,7 @@ Profile: {{ request.user.username }}
 {% block content %}
 <div class="container">
   <br />
-  <form class="" action="{% url "profile" %}" method="post">
+  <form class="" action="{% url "profiles:profile" %}" method="post">
     {% csrf_token %}
     <table>
     {{ form.as_table }}
@@ -41,6 +41,20 @@ Profile: {{ request.user.username }}
     <br />
     you may choose any you'd like, though they'll probably look quite strange as i've created this with darkly
   </p>
+
+  <hr />
+  <h4>Bulk add Novels to the watching list</h4>
+  <p>
+    If you'd like to add lots of novels to your watching list, you can provide me with a whitespace separated list
+    of URLs
+    <br />
+    <a ic-replace-target=true href="#" title="get the bulk watch input field" ic-get-from="{% url 'profiles:bulk-watch-component' %}">click here for input field</a>
+  </p>
+  <ul>
+    {% for job in user.bulkwatchjob_set.all %}
+    <li><a href="{{ job.get_absolute_url }}">bulk add job number {{ job.id }}</a>
+    {% endfor %}
+  </ul>
 </div>
 
 {% endblock %}

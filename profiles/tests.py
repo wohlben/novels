@@ -68,11 +68,11 @@ class ProfileViewTests(TestCase):
         self.client.force_login(self.user)
 
     def test_authenticated_get(self):
-        response = self.client.get(reverse("profile"))
+        response = self.client.get(reverse("profiles:profile"))
         self.assertEqual(response.status_code, 200)
 
     def test_login_token_visible(self):
         self.user.enable_login_token = True
         self.user.save()
-        response = self.client.get(reverse("profile"))
+        response = self.client.get(reverse("profiles:profile"))
         self.assertContains(response, self.user.login_token)

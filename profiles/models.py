@@ -1,6 +1,30 @@
+from django.shortcuts import reverse
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from uuid import uuid4
+
+
+class ProvidedUrl(models.Model):
+    url = models.CharField(max_length=200)
+    success = models.BooleanField(null=True, blank=True)
+    scrape = models.ForeignKey(
+        "scrapes.Scrapes", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    parser = models.ForeignKey(
+        "scrapes.Parser", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    fiction = models.ForeignKey(
+        "novels.Fiction", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    job = models.ForeignKey("BulkWatchJob", on_delete=models.CASCADE)
+
+
+class BulkWatchJob(models.Model):
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+
+    @property
+    def get_absolute_url(self):
+        return reverse("profiles:bulk-watch-progress", kwargs={"job_id": self.pk})
 
 
 class User(AbstractUser):

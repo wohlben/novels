@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+{% load values %}
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col hero" onclick="setUrlGetParam('watching');">show only chapters of watched novels</div>
-    <div class="col hero" onclick="setUrlGetParam('');"> show all new chapters</div>
+    <div class="col hero" onclick="setGetParam('watching', true);">show only chapters of watched novels</div>
+    <div class="col hero" onclick="deleteGetParam('watching');"> show all new chapters</div>
   </div>
 </div>
+<hr />
 <div class="d-table table container">
     <div class="d-table-row lead">
       <div class="d-table-cell">
@@ -31,4 +33,11 @@
     </a>
   {% endfor %}
 </div>
+
+
+  {% with object=chapters %}
+    {% include "pagination.html" %}
+  {% endwith %}
+
+
 {% endblock %}

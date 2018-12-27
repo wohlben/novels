@@ -122,7 +122,9 @@ class NovelListTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.fic.title)
         self.assertEqual(
-            response.context["novels"].count(), 1, "only one fiction has chapters"
+            response.context["novels"].paginator.count,
+            1,
+            "only one fiction has chapters",
         )
 
     def test_watching_toggle(self):
@@ -132,7 +134,7 @@ class NovelListTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.watched_fic.title)
         self.assertEqual(
-            response.context["novels"].count(), 1, "only one fiction is watched"
+            response.context["novels"].paginator.count, 1, "only one fiction is watched"
         )
 
 

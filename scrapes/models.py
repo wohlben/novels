@@ -26,6 +26,7 @@ class Parser(models.Model):
 
     name = models.TextField()
     added = models.DateTimeField(auto_now_add=True)
+    url_scheme = models.TextField(blank=True)
     weight = models.IntegerField(default=50)
 
     @property

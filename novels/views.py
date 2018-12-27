@@ -1,12 +1,15 @@
 from django.views.generic import TemplateView, FormView
 from django.db.models import Prefetch
+from scrapes.models import Parser, Scrapes
 from novels.models import Fiction, Chapter
 from novels.forms import WatchingForm
+from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .filters import FictionFilter, ChapterFilter
 from scrapes.managers import RRLNovelScraper
+import re as __re
 
 rrl_novel = RRLNovelScraper()
 
@@ -53,6 +56,7 @@ class ChaptersListView(TemplateView):
     template_name = "novels/lists/chapters.html"
 
     def get_context_data(self, **kwargs):
+
         prefetch = Prefetch("fiction", queryset=Fiction.objects.only("title", "author"))
         qs = (
             Chapter.objects.order_by("-published")
@@ -63,8 +67,11 @@ class ChaptersListView(TemplateView):
             qs = qs.exclude(published=None)
         chapters = ChapterFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
-        )
-        return {"chapters": chapters.qs[:50]}
+        ).qs
+        page = self.request.GET.get("page")
+        paginator = Paginator(chapters, 50)
+        chapters = paginator.get_page(page)
+        return {"chapters": chapters}
 
 
 class FictionListView(TemplateView):
@@ -74,8 +81,11 @@ class FictionListView(TemplateView):
         qs = Fiction.objects.order_by("title").values("id", "title", "author")
         novels = FictionFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
-        )
-        return {"novels": novels.qs}
+        ).qs
+        page = self.request.GET.get("page")
+        paginator = Paginator(novels, 50)
+        novels = paginator.get_page(page)
+        return {"novels": novels}
 
 
 class FictionDetailView(TemplateView):

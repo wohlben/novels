@@ -29,7 +29,7 @@ urlpatterns = [
     path("api/", include("api.urls", namespace="api")),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("profile", ProfileView.as_view(), name="profile"),
+    path("profile/", include("profiles.urls")),
     path("auth/", include("social_django.urls", namespace="social")),
     path("api-auth/", include("rest_framework.urls")),
 ]
