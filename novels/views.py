@@ -59,7 +59,7 @@ class ChaptersListView(TemplateView):
             .prefetch_related(prefetch)
             .only("id", "title", "published", "fiction", "url", "discovered")
         )
-        if self.request.user.internal_links:
+        if self.request.user.is_authenticated and self.request.user.internal_links:
             qs = qs.exclude(published=None)
         chapters = ChapterFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
