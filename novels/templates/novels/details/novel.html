@@ -15,18 +15,14 @@
       <p class="lead">a novel by {{ novel.author }}</p>
     {% endif %}
     <ul class="list-group">
-      {% for chapter in novel.chapter_set.all|values:"id title published url" %}
+      {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         {% if user.is_authenticated and user.internal_links %}
           <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>
         {% else %}
           <a class="container-fluid" href="{{ chapter.url }}">{{ chapter.title }}</a>
         {% endif %}
-        {% if chapter.published %}
-          <span class="badge badge-primary badge-pill">{{ chapter.published }}</span>
-        {% else %}
-          <span class="badge badge-primary badge-pill">unknown</span>
-        {% endif %}
+          <span class="badge badge-primary badge-pill">{% firstof chapter.published chapter.discovered %}</span>
       </li>
       {% endfor %}
     </ul>
