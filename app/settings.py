@@ -200,6 +200,17 @@ CACHES = {
     },
 }
 
+GENERIC_CACHE_TIME = 60 * 15
+if DEBUG:
+    GENERIC_CACHE_TIME = 5
+
+if GENERIC_CACHE_TIME > 60:
+    cache_msg=f"{GENERIC_CACHE_TIME/60}m"
+else:
+    cache_msg=f"{GENERIC_CACHE_TIME}s"
+print(f"caching for {cache_msg} where applicable")
+
+
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 
