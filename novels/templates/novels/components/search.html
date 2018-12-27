@@ -10,6 +10,7 @@
     {% endfor %}
 </datalist>
 <script>
+  var awesome = new Awesomplete("#novel-select");
   Awesomplete.$("#novel-select").addEventListener('awesomplete-selectcomplete', evnt  => {
     location.href = evnt.text.value;
   });
