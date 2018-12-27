@@ -10,6 +10,9 @@ class RRLNovelParserMixin(object):
 
     BASE_URL = "https://www.royalroad.com"
 
+    def parse(self):
+        return self.novel_extractor()
+
     def novel_extractor(self):
         """Return False if no Parses were necessary. True if the parsing was successful."""
         pending_parses = self.all_pending_parses()

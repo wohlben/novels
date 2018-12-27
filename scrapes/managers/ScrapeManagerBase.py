@@ -3,11 +3,20 @@ import logging
 from django.utils import timezone
 from datetime import timedelta
 
+from abc import ABC, abstractmethod
 
-class ScrapeManager(object):
+class ScrapeManagerBase(ABC):
     logger = logging.getLogger("scrapes.tasks")
-    parser_name = None
     parser_id = None
+
+    @property
+    @abstractmethod
+    def parser_name(self):
+        pass
+
+    @abstractmethod
+    def parse(self):
+        pass
 
     def get_parser_id(self):
         if self.parser_id == None:

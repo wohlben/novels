@@ -26,6 +26,7 @@ def fetch_content():  # TODO: mock response..... # TODO: dont fetch if another S
 
             logger.info(f"finished {instance.id} with https_code {instance.http_code}")
 
+        getattr(managers, instance.parser_type.name.replace(' ', '_')).parse()
         return True
     except Exception:
         logger.exception(f"failed to fetch content for {instance.url}")

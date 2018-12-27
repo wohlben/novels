@@ -9,6 +9,9 @@ from lxml.etree import tostring
 
 
 class RRLChapterParserMixin(object):
+    def parse(self):
+        return chapter_extractor()
+
     def chapter_extractor(self):
         """Return False if no Parses were necessary. True if the parsind was successful."""
         pending_parses = self.all_pending_parses()

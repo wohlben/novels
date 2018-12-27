@@ -8,6 +8,9 @@ from django.utils import timezone
 class RRLLatestParserMixin(object):
     BASE_URL = "https://www.royalroad.com"
 
+    def parse(self):
+        return self.latest_extractor()
+
     def latest_extractor(self):
         """Return False if no Parses were necessary, True the parsing was successful."""
         pending_parses = self.all_pending_parses()
