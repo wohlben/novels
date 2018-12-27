@@ -17,12 +17,14 @@
     <ul class="list-group">
       {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
-        {% if user.is_authenticated and user.internal_links %}
-          <a class="container-fluid" href="{% url "novels:chapter" chapter_id=chapter.id %}">{{ chapter.title }}</a>
-        {% else %}
-          <a class="container-fluid" href="{{ chapter.url }}">{{ chapter.title }}</a>
-        {% endif %}
-          <span class="badge badge-primary badge-pill">{% firstof chapter.published chapter.discovered %}</span>
+        <a class="container-fluid"
+          {% if user.is_authenticated and user.internal_links %}
+            href="{% url "novels:chapter" chapter_id=chapter.id %}"
+          {% else %}
+            href="{{ chapter.url }}"
+          {% endif %}
+          title="open {{ chapter.title }} from {{ novel.title }}">{{ chapter.title }}</a>
+        <time title="time of publishing or discovered timestamp" class="badge badge-primary badge-pill">{% firstof chapter.published chapter.discovered %}</time>
       </li>
       {% endfor %}
     </ul>
