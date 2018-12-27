@@ -15,16 +15,32 @@ Profile: {{ request.user.username }}
   </form>
 
   <hr />
+
   <h4>Login Token</h4>
   <p>
     The following url can be used to skip authentication entirely if the access token has been enabled.
     <br />
     Just bookmark the link to login.
   </p>
-  <a href="{% url 'login' %}?login_token={{ user.login_token }}"><div class="primary-text">
-    {{ user.login_token }}
-  </div></a>
-
+  <a href="{% url 'login' %}?login_token={{ user.login_token }}">
+    <div class="primary-text">
+      {{ user.login_token }}
+    </div>
+  </a>
+  <hr />
+  <h4>Internal Links</h4>
+  <p>
+    enabling this option will replace the origin Links with internally served ones.
+    <br />
+    The chapter content won't be up to date and no comments are visible.
+  </p>
+  <hr />
+  <h4>Color Theme</h4>
+  <p>
+    currently, all free <a href="https://bootswatch.com/" title="visit bootswatch themes preview">bootswatch themes</a> are supported.
+    <br />
+    you may choose any you'd like, though they'll probably look quite strange as i've created this with darkly
+  </p>
 </div>
 
 {% endblock %}
