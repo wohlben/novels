@@ -8,6 +8,7 @@
     <title>{% block title %}base template{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'awesomplete/awesomplete.css' %}">
+    <link rel="stylesheet" href="{% static 'paginationjs/dist/pagination.css' %}">
     {% if user.is_authenticated %}
       <link rel="stylesheet" href="{% static 'bootswatch/dist' %}/{{ user.color_theme }}/bootstrap.css" >
     {% else %}
@@ -15,11 +16,12 @@
     {% endif %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
     <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
-    <script src="{% static "twbs-pagination/jquery.twbsPagination.min.js" %}"></script>
+    <script src="{% static "paginationjs/dist/pagination.min.js" %}"></script>
     <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
     <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
     <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
     <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
+    <script src="{% static "js/base.js" %}"></script>
     {% block additional_css_opts %}
     {% endblock %}
 </head>
@@ -38,8 +40,6 @@
        </div>
     </footer>-->
   {% endblock %}
-
-  <script src="{% static "js/base.js" %}"></script>
 </body>
 
 </html>

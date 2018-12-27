@@ -19,36 +19,37 @@
     </a>
   </div>
   <hr />
-  <div class="d-table table container">
-      <div class="d-table-row lead">
-        <div class="d-table-cell">
-          Release Date
-        </div>
-        <div class="d-table-cell">
-          Fiction
-        </div>
-        <div class="d-table-cell">
-          Chapter
-        </div>
-      </div>
+  <table class="table">
+    <thead>
+        <th>Releas Date</th>
+        <th>Fiction</th>
+        <th>Chapter</th>
+    </thead>
+    <tbody>
     {% for chapter in chapters %}
-      <a class="d-table-row" {% if request.user.is_authenticated and request.user.internal_links %}
-          href="{% url "novels:chapter" chapter_id=chapter.id %}"
+      <tr>
+        <td>
+          {% firstof chapter.published chapter.discovered %}
+        </div>
+        <td>
+          <a href="{{ chapter.fiction.get_absolute_url }}">{{ chapter.fiction.title }}</a>
+        </td>
+        <td title="Visit {{ chapter.fiction.title }}: {{ chapter.title }}">
+        {% if request.user.is_authenticated and request.user.internal_links %}
+          <a href="{{ chapter.get_absolute_url }}">{{ chapter.title }}</a>
         {% else %}
-          href="{{ chapter.url }}"
+          <a href="{{ chapter.url }}">{{ chapter.title }}</a>
         {% endif %}
-      title="Visit {{ chapter.fiction.title }}: {{ chapter.title }}">
-        <div class="d-table-cell">{% firstof chapter.published chapter.discovered %}</div>
-        <div class="d-table-cell">{{ chapter.fiction.title }}</div>
-        <div class="d-table-cell">{{ chapter.title }}</div>
-      </a>
+        </td>
+    </tr>
     {% endfor %}
-  </div>
+    </tbody>
+</table>
 </div>
 
-  {% with object=chapters %}
-    {% include "pagination.html" %}
-  {% endwith %}
+<hr />
 
-
+{% with object=chapters paginate_id="paginate2" %}
+{% include "pagination.html" %}
+{% endwith %}
 {% endblock %}

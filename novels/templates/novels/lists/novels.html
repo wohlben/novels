@@ -2,22 +2,21 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <a class="col text-center" onclick="setGetParam('populated', true);">
+    <a class="col text-center" onclick="setGetParam('populated', true);" title="show only novels with parsed chapters">
       {% if request.GET.populated %}
-        <div class="hero bg-light pb-2">show only novels with chapters</div>
+        <div class="hero bg-light pb-2">populated</div>
       {% else %}
-        <div class="hero pb-2">show only novels with chapters</div>
+        <div class="hero pb-2">populated</div>
       {% endif %}
     </a>
-    <a class="col text-center" onclick="setGetParam('populated');">
+    <a class="col text-center" onclick="setGetParam('populated');" title="show all novels">
       {% if request.GET.populated %}
-        <div class="hero pb-2"> show all novels </div>
+        <div class="hero pb-2">all</div>
       {% else %}
-        <div class="hero bg-light pb-2"> show all novels </div>
+        <div class="hero bg-light pb-2">all</div>
       {% endif %}
     </a>
   </div>
-  <hr />
   <ul class="list-group">
     {% for novel in novels %}
       <li class="list-group-item">
@@ -29,7 +28,7 @@
   </ul>
 </div>
 
-{% with object=novels %}
+{% with object=novels paginate_id="paginate1" %}
 {% include "pagination.html" %}
 {% endwith %}
 {% endblock %}

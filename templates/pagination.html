@@ -1,15 +1,41 @@
-{% load buildin_range %}
 <hr />
-
-<ul id="pagination" class="pagination justify-content-center"></ul>
-
+<div id="pagination" class="pagination justify-content-center"></div>
 <script>
-  $('#pagination').twbsPagination({
-      totalPages: {{ object.paginator.num_pages }},
-      startPage: {{ object.number }},
-      visiblePages: 7,
-      onPageClick: function (event, page) {
-        setGetParam('page', page);
+  $('#pagination').pagination({
+      dataSource: function(done){
+        var result = [];
+        for (var i = 1; i <= {{ object.paginator.num_pages }}; i++){
+          result.push(i);
+        }
+        done(result);
+      },
+      pageSize: 1,
+      pageNumber: {{ object.number }},
+      showPrevious: false,
+      showNext: false,
+      triggerPagingOnInit: false,
+      callback: function(data, page) {
+          setGetParam('page', data['0']);
       }
-  });
-</script>
+  })</script>
+{% comment %}
+<!--
+<ul id="{{ paginate_id }}" class="pagination justify-content-center"></ul>
+<script>
+$('#{{ paginate_id }}').twbsPagination({
+    totalPages: {{ object.paginator.num_pages }},
+    startPage: {{ object.number }},
+    hideOnlyOnePage: true,
+    href: true,
+    items: 10,
+    prev: '<',
+    next: '>',
+    first: '&laquo;',
+    last: '&raquo;',
+    initiateStartPageClick: false,
+    onPageClick: function (event, page) {
+      setGetParam('page', page);
+    }
+});
+</script>-->
+{% endcomment %}
