@@ -2,20 +2,32 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col hero" onclick="setGetParam('populated', true);">show only novels with chapters</div>
-    <div class="col hero" onclick="setGetParam('populated');"> show all novels </div>
+    <a class="col text-center" onclick="setGetParam('populated', true);">
+      {% if request.GET.populated %}
+        <div class="hero bg-light pb-3">show only novels with chapters</div>
+      {% else %}
+        <div class="hero pb-3">show only novels with chapters</div>
+      {% endif %}
+    </a>
+    <a class="col text-center" onclick="setGetParam('populated');">
+      {% if request.GET.populated %}
+        <div class="hero pb-3"> show all novels </div>
+      {% else %}
+        <div class="hero bg-light pb-3"> show all novels </div>
+      {% endif %}
+    </a>
   </div>
+  <hr />
+  <ul class="list-group">
+    {% for novel in novels %}
+      <li class="list-group-item">
+        <a href="{% url "novels:novel" novel_id=novel.id %}" class="d-flex justify-content-between align-items-center">
+          {{ novel.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
 </div>
-<hr />
-<ul class="list-group">
-  {% for novel in novels %}
-    <li class="list-group-item container-fluid">
-      <a href="{% url "novels:novel" novel_id=novel.id %}" class="d-flex justify-content-between align-items-center">
-        {{ novel.title }}
-      </a>
-    </li>
-  {% endfor %}
-</ul>
 
 {% with object=novels %}
 {% include "pagination.html" %}
