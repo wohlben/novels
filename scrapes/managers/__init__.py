@@ -9,6 +9,7 @@ __all__ = [
     "ScrapeManager",
 ]
 
+
 class ScrapeManager(ScrapeManagerBase):
     parser_name = "generic"
 

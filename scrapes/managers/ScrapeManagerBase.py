@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from abc import ABC, abstractmethod
 
+
 class ScrapeManagerBase(ABC):
     logger = logging.getLogger("scrapes.tasks")
     parser_id = None

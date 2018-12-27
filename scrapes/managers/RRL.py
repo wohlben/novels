@@ -8,9 +8,13 @@ class RRLNovelScraper(RRLNovelGeneratorMixin, RRLNovelParserMixin, ScrapeManager
     parser_name = "rrl novel"
 
 
-class RRLLatestScraper(RRLLatestGeneratorMixin, RRLLatestParserMixin, ScrapeManagerBase):
+class RRLLatestScraper(
+    RRLLatestGeneratorMixin, RRLLatestParserMixin, ScrapeManagerBase
+):
     parser_name = "rrl latest"
 
 
-class RRLChapterScraper(RRLChapterGeneratorMixin, RRLChapterParserMixin, ScrapeManagerBase):
+class RRLChapterScraper(
+    RRLChapterGeneratorMixin, RRLChapterParserMixin, ScrapeManagerBase
+):
     parser_name = "rrl chapter"

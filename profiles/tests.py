@@ -29,9 +29,7 @@ class LoginViewTests(TestCase):
     def test_unauthenticated_get(self):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Login with GitHub")
-        self.assertEqual(
-            response.status_code, 200, "response should be a login prompt"
-        )
+        self.assertEqual(response.status_code, 200, "response should be a login prompt")
 
     def test_login_token_login(self):
         response = self.client.get(
@@ -54,16 +52,12 @@ class LoginViewTests(TestCase):
             f"{reverse('login')}?login_token={self.user.login_token}"
         )
         self.assertContains(response, "Login with GitHub")
-        self.assertEqual(
-            response.status_code, 200, "response should be a login prompt"
-        )
+        self.assertEqual(response.status_code, 200, "response should be a login prompt")
 
     def test_invalid_login_token_login(self):
         response = self.client.get(f"{reverse('login')}?login_token={uuid4()}")
         self.assertContains(response, "Login with GitHub")
-        self.assertEqual(
-            response.status_code, 200, "response should be a login prompt"
-        )
+        self.assertEqual(response.status_code, 200, "response should be a login prompt")
 
 
 class ProfileViewTests(TestCase):

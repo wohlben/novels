@@ -15,7 +15,9 @@ urlpatterns = [
     path("chapter/<chapter_id>", views.ChapterDetailView.as_view(), name="chapter"),
     path(
         "search",
-        cache_page(settings.GENERIC_CACHE_TIME, cache="pages")(views.SearchComponent.as_view()),
+        cache_page(settings.GENERIC_CACHE_TIME, cache="pages")(
+            views.SearchComponent.as_view()
+        ),
         name="search",
     ),
 ]
