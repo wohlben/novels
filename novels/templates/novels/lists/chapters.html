@@ -3,37 +3,48 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col hero" onclick="setGetParam('watching', true);">show only chapters of watched novels</div>
-    <div class="col hero" onclick="setGetParam('watching');"> show all new chapters</div>
+    <a class="col text-center" onclick="setGetParam('watching', true);" title="only show watched novels">
+    {% if request.GET.watching %}
+      <div class="bg-light pb-2 active">show only chapters of watched novels</div>
+    {% else %}
+      <div class="pb-2">show only chapters of watched novels</div>
+    {% endif %}
+    </a>
+    <a class="col text-center" onclick="setGetParam('watching');" title="show all updates">
+    {% if request.GET.watching %}
+      <div class="pb-2"> show all new chapters</div>
+    {% else %}
+      <div class="pb-2 bg-light active"> show all new chapters</div>
+    {% endif %}
+    </a>
+  </div>
+  <hr />
+  <div class="d-table table container">
+      <div class="d-table-row lead">
+        <div class="d-table-cell">
+          Release Date
+        </div>
+        <div class="d-table-cell">
+          Fiction
+        </div>
+        <div class="d-table-cell">
+          Chapter
+        </div>
+      </div>
+    {% for chapter in chapters %}
+      <a class="d-table-row" {% if request.user.is_authenticated and request.user.internal_links %}
+          href="{% url "novels:chapter" chapter_id=chapter.id %}"
+        {% else %}
+          href="{{ chapter.url }}"
+        {% endif %}
+      title="Visit {{ chapter.fiction.title }}: {{ chapter.title }}">
+        <div class="d-table-cell">{% firstof chapter.published chapter.discovered %}</div>
+        <div class="d-table-cell">{{ chapter.fiction.title }}</div>
+        <div class="d-table-cell">{{ chapter.title }}</div>
+      </a>
+    {% endfor %}
   </div>
 </div>
-<hr />
-<div class="d-table table container">
-    <div class="d-table-row lead">
-      <div class="d-table-cell">
-        Release Date
-      </div>
-      <div class="d-table-cell">
-        Fiction
-      </div>
-      <div class="d-table-cell">
-        Chapter
-      </div>
-    </div>
-  {% for chapter in chapters %}
-    <a class="d-table-row" {% if request.user.is_authenticated and request.user.internal_links %}
-        href="{% url "novels:chapter" chapter_id=chapter.id %}"
-      {% else %}
-        href="{{ chapter.url }}"
-      {% endif %}
-    title="Visit {{ chapter.fiction.title }}: {{ chapter.title }}">
-      <div class="d-table-cell">{% firstof chapter.published chapter.discovered %}</div>
-      <div class="d-table-cell">{{ chapter.fiction.title }}</div>
-      <div class="d-table-cell">{{ chapter.title }}</div>
-    </a>
-  {% endfor %}
-</div>
-
 
   {% with object=chapters %}
     {% include "pagination.html" %}

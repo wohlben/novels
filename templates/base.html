@@ -14,6 +14,12 @@
       <link rel="stylesheet" href="{% static 'bootswatch/dist/darkly/bootstrap.css' %}">
     {% endif %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "twbs-pagination/jquery.twbsPagination.min.js" %}"></script>
+    <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
+    <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
+    <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
+    <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
     {% block additional_css_opts %}
     {% endblock %}
 </head>
@@ -32,11 +38,7 @@
        </div>
     </footer>-->
   {% endblock %}
-  <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
-  <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
-  <!--<script src="{% static "lunr/lunr.js" %}"></script>-->
-  <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
-  <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
+
   <script src="{% static "js/base.js" %}"></script>
 </body>
 

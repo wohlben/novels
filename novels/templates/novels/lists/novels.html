@@ -4,16 +4,16 @@
   <div class="row">
     <a class="col text-center" onclick="setGetParam('populated', true);">
       {% if request.GET.populated %}
-        <div class="hero bg-light pb-3">show only novels with chapters</div>
+        <div class="hero bg-light pb-2">show only novels with chapters</div>
       {% else %}
-        <div class="hero pb-3">show only novels with chapters</div>
+        <div class="hero pb-2">show only novels with chapters</div>
       {% endif %}
     </a>
     <a class="col text-center" onclick="setGetParam('populated');">
       {% if request.GET.populated %}
-        <div class="hero pb-3"> show all novels </div>
+        <div class="hero pb-2"> show all novels </div>
       {% else %}
-        <div class="hero bg-light pb-3"> show all novels </div>
+        <div class="hero bg-light pb-2"> show all novels </div>
       {% endif %}
     </a>
   </div>
