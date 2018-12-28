@@ -1,9 +1,25 @@
-<form>
-  <input style="display: none" type="checkbox" name="watch" {% if watching %}checked{% else %}unchecked{% endif %} readonly/>
-  {% csrf_token %}
-  {% if watching %}
-    <i ic-post-to="{% url "novels:watch-component" novel_id=novel.id %}" class="fa fa-eye-slash" ic-target="#watch-component"></i>
-  {% else %}
-    <i ic-post-to="{% url "novels:watch-component" novel_id=novel.id %}" class="fa fa-eye" ic-target="#watch-component"></i>
-  {% endif %}
+{% if user.is_authenticated %}
+<form id="watch-novel-form" class="watch-novel btn-group">
+    <button
+        {%  if watching %}
+            title="stop watching the novel for updates"
+        {%  else %}
+            title="watch the novel for updates"
+        {%  endif  %}
+            id="watch-novel"
+            type="submit"
+            class="btn btn-light"
+            ic-replace-target="true"
+            ic-target="#watch-novel-form"
+            ic-post-to="{% url "novels:watch-component" novel_id=novel.id %}">
+
+        {% if watching %}
+            <i class="fa fa-eye-slash"></i>
+        {% else %}
+            <i class="fa fa-eye"></i>
+        {% endif %}
+    </button>
+    <input hidden type="checkbox" name="watch" {% if watching %}checked{% else %}unchecked{% endif %} readonly/>
+    {% csrf_token %}
 </form>
+{% endif %}

@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 managers = Managers()
 
 
-class ParseLogListView(TemplateView):
+class ParseLogListView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/log.html"
 
     def get_context_data(self, **kwargs):
@@ -25,21 +25,24 @@ class ParseLogListView(TemplateView):
         return context
 
 
-class QueueView(TemplateView):
+class QueueView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/queue.html"
 
     def get_context_data(self, **kwargs):
         context = {
-            "queue": managers.manager.scrape_queue().prefetch_related("parser_type")
+            "queue": managers.manager.scrape_queue().prefetch_related("parser_type"),
+            "last_scrapes": reversed(
+                managers.manager.last_scrapes().prefetch_related("parser_type")
+            ),
         }
         return context
 
 
-class HistoryView(TemplateView):
+class HistoryView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/history.html"
 
 
-class RequeueNovelComponent(LoginRequiredMixin, FormView):
+class RequeueNovelComponent(FormView):
     form_class = RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
 
@@ -47,11 +50,13 @@ class RequeueNovelComponent(LoginRequiredMixin, FormView):
         return {"novel_id": self.kwargs.get("novel_id")}
 
     def post(self, request, novel_id, *args, **kwargs):
-        managers.rrl_novel.refetch_novel(novel_id)
-        return HttpResponse(status=201)
+        if request.user.is_authenticated:
+            managers.rrl_novel.refetch_novel(novel_id)
+            return HttpResponse(status=201)
+        return HttpResponse(status=403)
 
 
-class RequeueChapterComponent(LoginRequiredMixin, FormView):
+class RequeueChapterComponent(FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
 
@@ -59,8 +64,10 @@ class RequeueChapterComponent(LoginRequiredMixin, FormView):
         return {"chapter_id": self.kwargs.get("chapter_id")}
 
     def post(self, request, chapter_id, *args, **kwargs):
-        managers.rrl_chapter.refetch_chapter(chapter_id)
-        return HttpResponse(status=201)
+        if request.user.is_authenticated:
+            managers.rrl_chapter.refetch_chapter(chapter_id)
+            return HttpResponse(status=201)
+        return HttpResponse(status=403)
 
 
 class TestView(TemplateView):

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<table class="table container">
+    <thead>
+        <th>url</th>
+        <th>success</th>
+        <th>http code</th>
+        <th>parser name</th>
+        <th>fiction</th>
+    </thead>
+    <tbody>
+{% for entry in  job.providedurl_set.all %}
+        <tr>
+            <td>{{ entry.url }}</td>
+            <td>{{ entry.success }}</td>
+            <td>{{ entry.scrape.http_code }}</td>
+            <td>{{ entry.parser.name }}</td>
+            <td><a href="{{ entry.fiction.get_absolute_url }}">{{ entry.fiction.title }}</a></td>
+        </tr>
+    </tbody>
+
+{% endfor %}
+
+{% endblock %}

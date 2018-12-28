@@ -7,13 +7,16 @@ services:
       dockerfile: .ci/Dockerfile
       target: static_server
     ports:
-      - 8080:80
+      - 80:80
+      - 443:443
 
   migrations:
     build:
       context: .
       dockerfile: .ci/Dockerfile
       target: migrations_manager
+    env_file:
+      - .env
     environment:
       - variant=migrations
 
@@ -22,6 +25,8 @@ services:
       context: .
       dockerfile: .ci/Dockerfile
       target: django_base
+    env_file:
+      - .env
     environment:
       - variant=celery-worker
 
@@ -30,14 +35,25 @@ services:
       context: .
       dockerfile: .ci/Dockerfile
       target: django_base
+    env_file:
+      - .env
     environment:
       - variant=django
 
   cache:
     image: redis
+    volumes:
+      - type: bind
+        source: /srv/redis
+        target: /data
 
   database:
     image: postgres
-    environment:
-      - POSTGRES_DB=django
-      - POSTGRES_USER=django
+    volumes:
+      - type: bind
+        source: /srv/pgdata
+        target: /var/lib/postgresql/data/pgdata
+
+    # environment:
+    #   - POSTGRES_DB=django
+    #   - POSTGRES_USER=django

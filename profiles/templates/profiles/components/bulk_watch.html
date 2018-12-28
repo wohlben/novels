@@ -1,0 +1,5 @@
+<form action="{% url 'profiles:bulk-watch-component' %}" method="POST">
+  <textarea name="url_list" cols="40" rows="10" required="" id="id_url_list" placeholder="https://fq.dn/some/novel/244"></textarea>
+  {% csrf_token %}
+  <button type="submit">Add these to my watch list</button>
+</form>

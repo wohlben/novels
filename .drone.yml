@@ -13,17 +13,6 @@ pipeline:
     environment:
       - PIPENV_VENV_IN_PROJECT=true
 
-  # publish_requirements:
-  #   image: alpine/git
-  #   commands:
-  #     - sh .ci/add_requirements.sh
-  #     - sh .ci/move_coverage.sh
-  #   when:
-  #     branch: [master, develop, release/*]
-  #   volumes:
-  #     - /root/.ssh:/root/.ssh
-  #     - /srv/coverage/novels:/coverage
-
 services:
   database:
     image: postgres

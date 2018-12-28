@@ -1,12 +1,15 @@
 """discovery for pending rrl latest parses and parsing them into fictions and novels."""
 from lxml import html
-from scrapes.models import ParseLog
+from scrapes.models import ParseLog, Parser
 from novels.models import Fiction, Chapter
 from django.utils import timezone
 
 
 class RRLLatestParserMixin(object):
     BASE_URL = "https://www.royalroad.com"
+
+    def parse(self):
+        return self.latest_extractor()
 
     def latest_extractor(self):
         """Return False if no Parses were necessary, True the parsing was successful."""
@@ -88,6 +91,7 @@ class RRLLatestParserMixin(object):
                 path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
                 fiction["url"] = f"{self.BASE_URL}{path}"
                 fiction["remote_id"] = int(path.split("/")[2])
+                fiction["source"] = Parser.objects.get(name="rrl novel")
                 fic, created = Fiction.objects.get_or_create(
                     url=fiction["url"], defaults=fiction
                 )

@@ -5,6 +5,15 @@
 //   });
 // });
 
-function setUrlGetParam(uri_get) {
-  window.location = window.location.protocol + '//' + window.location.host + window.location.pathname + '?'+ uri_get;
-}
+function setGetParam(key, value = undefined){
+    var url = new URL(window.location);
+    var query_string = url.search;
+    var search_params = new URLSearchParams(query_string);
+    search_params.delete(key);
+    if(value !== undefined){
+      search_params.append(key, value);
+    };
+    url.search = search_params.toString();
+    var new_url = url.toString();
+    window.location.href = new_url;
+};

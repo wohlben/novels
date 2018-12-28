@@ -21,8 +21,7 @@ class ParseLogListViewTests(TestCase):
 
     def test_unauthenticated_get(self):
         response = self.client.get(reverse("scrapes:log"))
-        self.assertContains(response, "login with GitHub")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
@@ -48,8 +47,7 @@ class QueueViewTests(TestCase):
 
     def test_unauthenticated_get(self):
         response = self.client.get(reverse("scrapes:log"))
-        self.assertContains(response, "login with GitHub")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
@@ -68,8 +66,7 @@ class HistoryViewTests(TestCase):
 
     def test_unauthenticated_get(self):
         response = self.client.get(reverse("scrapes:history"))
-        self.assertContains(response, "login with GitHub")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])
@@ -94,8 +91,8 @@ class RequeueComponentTestsMixin(object):
         )
         self.assertEqual(
             response.status_code,
-            302,
-            f"unauthenticated users should receive a redirect for {self.component}",
+            403,
+            f"unauthenticated users should just get a forbidden for {self.component}",
         )
 
     def test_authenticated_post(self):
@@ -127,11 +124,17 @@ class RequeueComponentTestsMixin(object):
             )
         )
         self.assertEqual(
-            response.status_code, 302, "unauthenticated users should receive a redirect"
+            response.status_code,
+            200,
+            "unauthenticated users should receive a simple OK",
         )
 
     def test_authenticated_get(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.client.force_login(
+            User.objects.get_or_create(
+                username="testuser", defaults={"internal_links": True}
+            )[0]
+        )
         response = self.client.get(
             reverse(
                 f"scrapes:requeue-{self.component}",

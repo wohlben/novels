@@ -10,6 +10,9 @@ class RRLNovelParserMixin(object):
 
     BASE_URL = "https://www.royalroad.com"
 
+    def parse(self):
+        return self.novel_extractor()
+
     def novel_extractor(self):
         """Return False if no Parses were necessary. True if the parsing was successful."""
         pending_parses = self.all_pending_parses()
@@ -72,6 +75,7 @@ class RRLNovelParserMixin(object):
                 created_chapters += 1
 
             fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
+            fic.title = element.xpath('//h1[@property="name"]/text()')[0]
             fic.save()
             self.logger.info(
                 f'updated content of "{fic.title}" and added {created_chapters}'

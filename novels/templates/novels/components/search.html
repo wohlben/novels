@@ -1,6 +1,8 @@
+{% if debug_search %}
 {% load static %}
 <link rel="stylesheet" href="{% static "awesomplete/awesomplete.css" %}">
 <script src="{% static "awesomplete/awesomplete.min.js" %}"></script>
+{% endif %}
 <input id="novel-select" class="awesomplete" list="novel-list" class="form-control mr-sm-2" type="search" placeholder="Novel" aria-label="Search" autofocus />
 <datalist id="novel-list">
     {% for novel in novels %}
@@ -8,6 +10,7 @@
     {% endfor %}
 </datalist>
 <script>
+  var awesome = new Awesomplete("#novel-select");
   Awesomplete.$("#novel-select").addEventListener('awesomplete-selectcomplete', evnt  => {
     location.href = evnt.text.value;
   });

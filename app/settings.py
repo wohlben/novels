@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-
 import os
 
 from celery.schedules import crontab
@@ -24,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env_variable("secret_key", "REALLY-INSECURE-KEY-FOR-TESTS")
 
 
-if env_variable('CI', False):
+if env_variable("CI", False):
     print("forcing debug mode for CI")
     DEBUG = True
 else:
@@ -36,7 +35,6 @@ ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
 INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -47,6 +45,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_results",
     "social_django",
+    "utils",
     "profiles",
     "novels",
     "scrapes",
@@ -89,7 +88,9 @@ TEMPLATES = [
 ]
 
 if DEBUG:
-    TEMPLATES[0]['OPTIONS']['context_processors'].insert(0, "django.template.context_processors.debug")
+    TEMPLATES[0]["OPTIONS"]["context_processors"].insert(
+        0, "django.template.context_processors.debug"
+    )
 
 WSGI_APPLICATION = "app.wsgi.application"
 
@@ -102,6 +103,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env_variable("database_name", "django"),
         "USER": env_variable("database_user", "django"),
+        "PASSWORD": env_variable("database_pass", "django"),
         "HOST": env_variable("database_host", "database"),
     }
 }
@@ -158,6 +160,7 @@ LOGGING = {
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.github.GithubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
+    "profiles.backends.TokenAuthBackend",
 )
 
 LOGIN_URL = "login"
@@ -182,6 +185,34 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "node_modules"),
 ]
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": "redis://cache:6379/3",
+        "KEY_PREFIX": "django_",
+    },
+    "pages": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": "redis://cache:6379/3",
+        "KEY_PREFIX": "pages_",
+    },
+}
+
+GENERIC_CACHE_TIME = 60 * 15
+if DEBUG:
+    GENERIC_CACHE_TIME = 5
+
+if GENERIC_CACHE_TIME > 60:
+    cache_msg = f"{GENERIC_CACHE_TIME/60}m"
+else:
+    cache_msg = f"{GENERIC_CACHE_TIME}s"
+print(f"caching for {cache_msg} where applicable")
+
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
 
 CELERY_BROKER_URL = env_variable("cache", "redis://cache:6379") + "/1"
 CELERY_RESULTS_BACKEND = env_variable("results", "django-db")

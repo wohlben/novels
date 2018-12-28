@@ -1,11 +1,23 @@
 from scrapes.models import Scrapes, Parser
 import logging
+from django.utils import timezone
+from datetime import timedelta
+
+from abc import ABC, abstractmethod
 
 
-class ScrapeManager(object):
+class ScrapeManagerBase(ABC):
     logger = logging.getLogger("scrapes.tasks")
-    parser_name = None
     parser_id = None
+
+    @property
+    @abstractmethod
+    def parser_name(self):
+        pass
+
+    @abstractmethod
+    def parse(self):
+        pass
 
     def get_parser_id(self):
         if self.parser_id == None:
@@ -25,4 +37,12 @@ class ScrapeManager(object):
     def scrape_queue():
         return Scrapes.objects.filter(http_code=None, content=None).order_by(
             "parser_type__weight", "id"
+        )
+
+    @staticmethod
+    def last_scrapes():
+        return (
+            Scrapes.objects.exclude(http_code=None)
+            .filter(last_change__gt=timezone.now() - timedelta(hours=1))
+            .order_by("-last_change")[:5]
         )
