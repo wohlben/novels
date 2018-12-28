@@ -17,4 +17,25 @@
 <div id="chapter-content" class="pl-3 pr-3">
   {{ chapter.content|safe  }}
 </div>
+
+<script>
+    try {
+        var fontSize = parseInt(Cookies.get("font-size"));
+        if (isNaN(fontSize.isNaN)){
+            fontSize = 100;
+        }
+    } catch (e) { var fontSize = 100; }
+    document.getElementById("chapter-content").style.fontSize = fontSize + '%';
+    function resizeText (bigger) {
+        if (bigger === true) {
+            step = 1;
+        } else {
+            step = -1;
+        }
+        fontSize = fontSize * Math.pow(1.2, step);
+
+        document.getElementById("chapter-content").style.fontSize = fontSize + '%';
+        Cookies.set('font-size', fontSize);
+    };
+</script>
 {% endblock %}
