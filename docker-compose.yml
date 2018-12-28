@@ -36,9 +36,18 @@ services:
 
   cache:
     image: redis
+    volumes:
+      - type: bind
+        source: /srv/redis
+        target: /data
 
   database:
     image: postgres
+    volumes:
+      - type: bind
+        source: /srv/pgdata
+        target: /var/lib/postgresql/data/pgdata
+
     # environment:
     #   - POSTGRES_DB=django
     #   - POSTGRES_USER=django
