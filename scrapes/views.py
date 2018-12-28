@@ -42,34 +42,32 @@ class HistoryView(LoginRequiredMixin, TemplateView):
     template_name = "scrapes/lists/history.html"
 
 
-class RequeueNovelComponent(LoginRequiredMixin, FormView):
+class RequeueNovelComponent(FormView):
     form_class = RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
-
-    def handle_no_permission(self):
-        return HttpResponse(status=200)
 
     def get_context_data(self):
         return {"novel_id": self.kwargs.get("novel_id")}
 
     def post(self, request, novel_id, *args, **kwargs):
-        managers.rrl_novel.refetch_novel(novel_id)
-        return HttpResponse(status=201)
+        if request.user.is_authenticated:
+            managers.rrl_novel.refetch_novel(novel_id)
+            return HttpResponse(status=201)
+        return HttpResponse(status=403)
 
 
-class RequeueChapterComponent(LoginRequiredMixin, FormView):
+class RequeueChapterComponent(FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
-
-    def handle_no_permission(self):
-        return HttpResponse(status=200)
 
     def get_context_data(self):
         return {"chapter_id": self.kwargs.get("chapter_id")}
 
     def post(self, request, chapter_id, *args, **kwargs):
-        managers.rrl_chapter.refetch_chapter(chapter_id)
-        return HttpResponse(status=201)
+        if request.user.is_authenticated:
+            managers.rrl_chapter.refetch_chapter(chapter_id)
+            return HttpResponse(status=201)
+        return HttpResponse(status=403)
 
 
 class TestView(TemplateView):

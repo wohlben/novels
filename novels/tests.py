@@ -14,7 +14,7 @@ class WatchComponentTests(TestCase):
         response = self.client.get(
             reverse("novels:watch-component", kwargs={"novel_id": self.fic.id})
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200, "unauthenticated users should get an empty 200")
 
     def test_get_context(self):
         self.client.force_login(User.objects.get_or_create(username="testuser")[0])

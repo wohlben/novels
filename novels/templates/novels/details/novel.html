@@ -2,32 +2,43 @@
 {% load values %}
 
 {% block content %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1 class="display-4">{{ novel.title }}</h1>
-    <div class="row">
-      {% if user.is_authenticated and user.internal_links %}
-      <div title="watch the novel"   class="col" id="watch-component"   ic-src="{% url "novels:watch-component" novel_id=novel.id %}" ic-trigger-on="load"></div>
-      <div title="refetch the novel" class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"  ic-trigger-on="load"></div>
-      {% endif %}
-    </div>
-    {% if novel.author %}
-      <p class="lead">a novel by {{ novel.author }}</p>
-    {% endif %}
-    <ul class="list-group">
-      {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a class="container-fluid"
-          {% if user.is_authenticated and user.internal_links %}
-            href="{% url "novels:chapter" chapter_id=chapter.id %}"
-          {% else %}
-            href="{{ chapter.url }}"
-          {% endif %}
-          title="open {{ chapter.title }} from {{ novel.title }}">{{ chapter.title }}</a>
-        <time title="time of publishing or discovered timestamp" class="badge badge-primary badge-pill">{% firstof chapter.published chapter.discovered %}</time>
-      </li>
-      {% endfor %}
-    </ul>
+<h1 class="display-4 novel-title text-center">{{ novel.title }}</h1>
+{% if novel.author %}
+    <p class="lead text-center">a novel by <span class="novel-author">{{ novel.author }}</span></p>
+{% endif %}
+{% if user.is_authenticated and user.internal_links %}
+  <div class="d-flex justify-content-center">
+      <span title="watch the novel"
+            id="watch-component"
+            ic-replace-target="true"
+            ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
+            ic-trigger-on="load"></span>
+      <span title="refetch the novel"
+            id="requeue-component"
+            ic-replace-target="true"
+            ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"
+            ic-trigger-on="load"></span>
   </div>
-</div>
+{% endif %}
+<ul class="list-group">
+  {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
+  <li class="list-group-item">
+    <a class="row chapter"
+      {% if user.is_authenticated and user.internal_links %}
+        href="{% url "novels:chapter" chapter_id=chapter.id %}"
+      {% else %}
+        href="{{ chapter.url }}"
+      {% endif %}
+      title="open {{ chapter.title }} from {{ novel.title }}">
+        <time title="time of publishing or discovered timestamp"
+              class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
+            {% firstof chapter.published chapter.discovered %}
+        </time>
+        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead chapter-title">
+            {{ chapter.title }}
+        </div>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
 {% endblock %}

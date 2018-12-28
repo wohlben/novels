@@ -1,5 +1,16 @@
-  <form>
-  {% csrf_token %}
-  <input hidden type="checkbox" checked />
-  <i ic-post-to="{% url "scrapes:requeue-chapter" chapter_id=chapter_id %}" class="fa fa-refresh" />
+{% if user.is_authenticated and user.internal_links %}
+  <form id="refetch-chapter-form">
+      <button
+              title="trigger a refetch for this chapter on the server"
+              id="refetch-chapter"
+              type="submit"
+              class="btn btn-light"
+              ic-replace-target="true"
+              ic-target="#refetch-chapter-form"
+              ic-post-to="{% url "scrapes:requeue-chapter" chapter_id=chapter_id %}">
+          <i class="fa fa-refresh" />
+      </button>
+      <input hidden type="checkbox" checked />
+      {% csrf_token %}
   </form>
+{% endif %}

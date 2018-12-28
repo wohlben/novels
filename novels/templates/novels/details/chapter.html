@@ -2,22 +2,19 @@
 {% load static %}
 {% block title %}{{chapter.fiction.title }}: {{ chapter.title }}{% endblock %}
 {% block content %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h6 class="display-6">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}
-    <h1 class="display-4">{{ chapter.title }}</h1>
-    <div class="row">
-      <div class="col">
-        <p class="lead">last fetch: {{ chapter.updated }}</p>
-      </div>
-      {% if user.is_authenticated and user.internal_links %}
-      <div title="refetch the chapter" class="col" id="requeue-component" ic-src="{% url "scrapes:requeue-chapter" chapter_id=chapter.id %}"  ic-trigger-on="load"></div>
-      {% endif %}
-    </div>
-    <hr />
-    <span class="chapter">
-      {{ chapter.content|safe  }}
-    </span>
-  </div>
+<h6 class="text-center pt-1">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}</h6>
+<h2 class="text-center">{{ chapter.title }}</h2>
+<aside class="text-center">
+    last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time>
+    <span title="refetch the chapter"
+          id="requeue-component"
+          ic-replace-target="true"
+          ic-src="{% url "scrapes:requeue-chapter" chapter_id=chapter.id %}"
+          ic-trigger-on="load"></span>
+
+</aside>
+<hr />
+<div id="chapter-content" class="pl-3 pr-3">
+  {{ chapter.content|safe  }}
 </div>
 {% endblock %}

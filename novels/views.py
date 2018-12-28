@@ -14,30 +14,33 @@ import re as __re
 rrl_novel = RRLNovelScraper()
 
 
-class WatchComponent(LoginRequiredMixin, FormView):
+class WatchComponent(FormView):
     form_class = WatchingForm
     template_name = "novels/components/watch.html"
 
     def get_context_data(self):
         novel_id = self.kwargs.get("novel_id")
         context = {"novel": Fiction.objects.get(id=novel_id), "watching": False}
-        if self.request.user.fiction_set.filter(id=novel_id).count() > 0:
+        user = self.request.user
+        if user.is_authenticated and user.fiction_set.filter(id=novel_id).count() > 0:
             context["watching"] = True
         return context
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            novel_id = kwargs.get("novel_id")
-            fiction = Fiction.objects.get(id=novel_id)
-            if request.user.fiction_set.filter(id=fiction.id).count() == 0:
-                fiction.watching.add(request.user)
-            else:
-                fiction.watching.remove(request.user)
-        rrl_novel.add_queue_events(user=request.user)
-        return HttpResponseRedirect(
-            reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id})
-        )
+        if request.user.is_authenticated:
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                novel_id = kwargs.get("novel_id")
+                fiction = Fiction.objects.get(id=novel_id)
+                if request.user.fiction_set.filter(id=fiction.id).count() == 0:
+                    fiction.watching.add(request.user)
+                else:
+                    fiction.watching.remove(request.user)
+            rrl_novel.add_queue_events(user=request.user)
+            return HttpResponseRedirect(
+                reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id})
+            )
+        return HttpResponse(status=403)
 
 
 class SearchComponent(TemplateView):
