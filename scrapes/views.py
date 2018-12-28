@@ -46,6 +46,9 @@ class RequeueNovelComponent(LoginRequiredMixin, FormView):
     form_class = RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
 
+    def handle_no_permission(self):
+        return HttpResponse(status=200)
+
     def get_context_data(self):
         return {"novel_id": self.kwargs.get("novel_id")}
 
@@ -57,6 +60,9 @@ class RequeueNovelComponent(LoginRequiredMixin, FormView):
 class RequeueChapterComponent(LoginRequiredMixin, FormView):
     form_class = RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
+
+    def handle_no_permission(self):
+        return HttpResponse(status=200)
 
     def get_context_data(self):
         return {"chapter_id": self.kwargs.get("chapter_id")}
