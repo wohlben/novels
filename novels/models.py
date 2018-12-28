@@ -15,6 +15,10 @@ class Fiction(models.Model):
 
     watching = models.ManyToManyField("profiles.User")
 
+    source = models.ForeignKey(
+        "scrapes.Parser", on_delete=models.SET_NULL, blank=True, null=True
+    )
+
     def __str__(self):
         return self.title
 

@@ -1,5 +1,6 @@
 """Database definitions for the Scrapes app."""
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 
 class Scrapes(models.Model):
@@ -42,3 +43,4 @@ class ParseLog(models.Model):
     started = models.DateTimeField(blank=True, null=True)
     finished = models.DateTimeField(blank=True, null=True)
     success = models.BooleanField(default=False)
+    modified_object = JSONField(blank=True, null=True)
