@@ -4,16 +4,24 @@
 {% block content %}
 <h6 class="text-center pt-1">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}</h6>
 <h2 class="text-center">{{ chapter.title }}</h2>
-<aside class="text-center">
-    last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time>
+<p class="text-muted text-center">last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time></p>
+<aside class="d-flex justify-content-center text-center">
     <span title="refetch the chapter"
           id="requeue-component"
           ic-replace-target="true"
           ic-src="{% url "scrapes:requeue-chapter" chapter_id=chapter.id %}"
           ic-trigger-on="load"></span>
+    <button class="btn btn-light" title="increase Text size" onclick="resizeText(true)">
+        increase
+    </button>
+    <button class="btn btn-light" title="increase Text size" onclick="resizeText(false)">
+       decrease
+    </button>
 
 </aside>
+
 <hr />
+
 <div id="chapter-content" class="pl-3 pr-3">
   {{ chapter.content|safe  }}
 </div>

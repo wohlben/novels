@@ -1,7 +1,31 @@
 {% extends "base.html" %}
 {% load values %}
 {% block content %}
-<div class="container">
+
+<ul class="list-group">
+{% for chapter in chapters %}
+    <li class="list-group-item card">
+        <a href="{{  chapter.fiction.get_absolute_url }}">
+            <h6 class="card-header">{{  chapter.fiction.title }} <span class="text-muted">by {{ chapter.fiction.author }}</span></h6>
+        </a>
+        <a title="go to '{{  chapter.title }}' from '{{ chapter.fiction.title }}'"
+        {% if user.is_authenticated and user.internal_links %}
+            href="{% url "novels:chapter" chapter_id=chapter.id %}"
+        {% else %}
+            href="{{ chapter.url }}"
+        {% endif %}
+           class="card-body justify-content-between d-flex bg-light">
+
+            <span class="chapter-title">{{  chapter.title }}</span>
+            <time title="time of publishing or discovered timestamp" class="badge badge-info">
+                {% firstof chapter.published chapter.discovered %}
+            </time>
+        </a>
+    </li>
+{% endfor %}
+</ul>
+
+<!--<div class="container">
   <div class="row">
     <a class="col text-center" onclick="setGetParam('watching', true);" title="only show watched novels">
     {% if request.GET.watching %}
@@ -45,7 +69,7 @@
     {% endfor %}
     </tbody>
 </table>
-</div>
+</div>-->
 
 <hr />
 

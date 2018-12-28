@@ -124,11 +124,17 @@ class RequeueComponentTestsMixin(object):
             )
         )
         self.assertEqual(
-            response.status_code, 200, "unauthenticated users should receive a simple OK"
+            response.status_code,
+            200,
+            "unauthenticated users should receive a simple OK",
         )
 
     def test_authenticated_get(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser", defaults={'internal_links': True})[0])
+        self.client.force_login(
+            User.objects.get_or_create(
+                username="testuser", defaults={"internal_links": True}
+            )[0]
+        )
         response = self.client.get(
             reverse(
                 f"scrapes:requeue-{self.component}",
