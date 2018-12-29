@@ -1,15 +1,12 @@
 from django.views.generic import TemplateView, FormView
 from django.db.models import Prefetch
-from scrapes.models import Parser, Scrapes
 from novels.models import Fiction, Chapter
 from novels.forms import WatchingForm
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect, HttpResponse
 from .filters import FictionFilter, ChapterFilter
 from scrapes.managers import RRLNovelScraper
-import re as __re
 
 rrl_novel = RRLNovelScraper()
 
@@ -36,10 +33,12 @@ class WatchComponent(FormView):
                     fiction.watching.add(request.user)
                 else:
                     fiction.watching.remove(request.user)
-            rrl_novel.add_queue_events(user=request.user)
-            return HttpResponseRedirect(
-                reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id})
-            )
+                rrl_novel.add_queue_events(user=request.user)
+                return HttpResponseRedirect(
+                    reverse_lazy(
+                        "novels:watch-component", kwargs={"novel_id": fiction.id}
+                    )
+                )
         return HttpResponse(status=403)
 
 
