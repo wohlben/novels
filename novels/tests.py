@@ -2,12 +2,14 @@ from django.test import TestCase as _TestCase
 from django.urls import reverse as _reverse
 from profiles.models import User as _User
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
+from scrapes.models import Parser as _Parser
 
 
 class WatchComponentTests(_TestCase):
     def setUp(self):
+        parser = _Parser.objects.get(name="rrl novel")
         self.fic = _Fiction.objects.create(
-            title="test fiction", url="https://some.fq.dn/with/uri"
+            title="test fiction", url="https://some.fq.dn/with/uri", source=parser
         )
 
     def test_unauthenticated_get(self):
@@ -80,8 +82,9 @@ class WatchComponentTests(_TestCase):
 
 class SearchComponentTests(_TestCase):
     def setUp(self):
+        parser = _Parser.objects.get(name="rrl novel")
         self.fic = _Fiction.objects.create(
-            title="test fiction", url="https://some.fq.dn/with/uri"
+            title="test fiction", url="https://some.fq.dn/with/uri", source=parser
         )
 
     def test_simple_get(self):
@@ -96,8 +99,9 @@ class SearchComponentTests(_TestCase):
 
 class NovelListTests(_TestCase):
     def setUp(self):
+        parser = _Parser.objects.get(name="rrl novel")
         self.fic = _Fiction.objects.create(
-            title="test fiction", url="https://some.fq.dn/with/uri"
+            title="test fiction", url="https://some.fq.dn/with/uri", source=parser
         )
         self.chap = _Chapter.objects.create(
             fiction=self.fic,
@@ -105,7 +109,9 @@ class NovelListTests(_TestCase):
             content="some content",
         )
         self.watched_fic = _Fiction.objects.create(
-            title="another-test-fiction", url="https://some.fq.dn/with/another/uri"
+            title="another-test-fiction",
+            url="https://some.fq.dn/with/another/uri",
+            source=parser,
         )
         self.user = _User.objects.get_or_create(username="testuser")[0]
 
@@ -168,8 +174,9 @@ class NovelViewTests(_TestCase):
 
 class ChapterViewTests(_TestCase):
     def setUp(self):
+        parser = _Parser.objects.get(name="rrl novel")
         self.fic = _Fiction.objects.create(
-            title="test fiction", url="https://some.fq.dn/with/uri"
+            title="test fiction", url="https://some.fq.dn/with/uri", source=parser
         )
         self.chap = _Chapter.objects.create(
             fiction=self.fic, url="https://some.fq.dn/with/chap/uri"
