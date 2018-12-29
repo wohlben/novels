@@ -219,10 +219,14 @@ CELERY_RESULTS_BACKEND = env_variable("results", "django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 
+fetch_time = {'minute':"*"}
+if DEBUG:
+    fetch_time = {'minute': "15"}
+
 CELERY_BEAT_SCHEDULE = {
     "minutely_fetch": {
         "task": "scrapes.tasks.fetch_content",
-        "schedule": crontab(minute="*"),
+        "schedule": crontab(**fetch_time),
     },
     "generators": {
         "task": "scrapes.tasks.generators_task",
