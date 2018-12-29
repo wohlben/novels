@@ -32,7 +32,7 @@ else:
 
 print(f"starting with debug: {DEBUG}")
 
-TESTING = 'test' in sys.argv
+TESTING = "test" in sys.argv
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
 INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()

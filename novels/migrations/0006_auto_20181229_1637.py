@@ -5,13 +5,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('novels', '0005_fiction_source'),
-    ]
+    dependencies = [("novels", "0005_fiction_source")]
 
-    operations = [
-        migrations.AlterModelOptions(
-            name='chapter',
-            options={},
-        ),
-    ]
+    operations = [migrations.AlterModelOptions(name="chapter", options={})]

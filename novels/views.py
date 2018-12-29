@@ -108,11 +108,11 @@ class ChapterDetailView(_TemplateView):
 
     def get_context_data(self, chapter_id):
         chapter = _Chapter.objects.prefetch_related("fiction").get(id=chapter_id)
-        if chapter.content is None and self.request.user.has_perm('scrapes.force_fetch'):
+        if chapter.content is None and self.request.user.has_perm(
+            "scrapes.force_fetch"
+        ):
             scrape = _rrl_chapter.fetch_chapter(chapter_id, "forced user refresh")
             _rrl_chapter.parse(scrape_id=scrape)
         chapter.refresh_from_db()
-        context = {
-            "chapter": chapter
-        }
+        context = {"chapter": chapter}
         return context

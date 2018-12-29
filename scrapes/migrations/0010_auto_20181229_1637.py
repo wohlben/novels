@@ -5,13 +5,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('scrapes', '0009_parselog_modified_object'),
-    ]
+    dependencies = [("scrapes", "0009_parselog_modified_object")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='scrapes',
-            options={'permissions': (('force_fetch', 'Allows a User to force a fetch from the source'),)},
-        ),
+            name="scrapes",
+            options={
+                "permissions": (
+                    ("force_fetch", "Allows a User to force a fetch from the source"),
+                )
+            },
+        )
     ]
