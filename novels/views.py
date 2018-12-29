@@ -60,7 +60,7 @@ class ChaptersListView(TemplateView):
     def get_context_data(self, **kwargs):
         prefetch = Prefetch("fiction", queryset=Fiction.objects.only("title", "author"))
         qs = (
-            Chapter.objects.sorted_by_date()
+            Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
             .only("id", "title", "published", "fiction", "url", "discovered")
         )
