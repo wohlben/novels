@@ -3,6 +3,7 @@ from django.urls import reverse
 from profiles.models import User
 from scrapes.managers import Managers
 from novels.models import Fiction, Chapter
+from django.contrib.auth.models import Permission as _Permission
 
 
 class ParseLogListViewTests(TestCase):
@@ -10,6 +11,9 @@ class ParseLogListViewTests(TestCase):
 
     def setUp(self):
         self.managers = Managers()
+        self.user = User.objects.get_or_create(username="testuser")[0]
+        permission = _Permission.objects.get(codename="view_system")
+        self.user.user_permissions.add(permission)
 
     def test_starting_data(self):
         pending_parses = self.managers.rrl_novel.all_pending_parses()
@@ -24,7 +28,7 @@ class ParseLogListViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.client.force_login(self.user)
         self.managers.rrl_novel.novel_extractor()
         response = self.client.get(reverse("scrapes:log"))
         self.assertNotEquals(
@@ -38,6 +42,9 @@ class QueueViewTests(TestCase):
 
     def setUp(self):
         self.managers = Managers()
+        self.user = User.objects.get_or_create(username="testuser")[0]
+        permission = _Permission.objects.get(codename="view_system")
+        self.user.user_permissions.add(permission)
 
     def test_starting_data(self):
         queue = self.managers.manager.scrape_queue()
@@ -50,7 +57,7 @@ class QueueViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.client.force_login(self.user)
         response = self.client.get(reverse("scrapes:queue"))
         self.assertNotEquals(
             response.context["queue"].count(), 0, "Queue shouldn't be empty"
@@ -62,6 +69,9 @@ class HistoryViewTests(TestCase):
     # fixtures = ["2018-10-17.json"]
 
     def setUp(self):
+        self.user = User.objects.get_or_create(username="testuser")[0]
+        permission = _Permission.objects.get(codename="view_system")
+        self.user.user_permissions.add(permission)
         pass
 
     def test_unauthenticated_get(self):
@@ -69,12 +79,24 @@ class HistoryViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_parse_log_context(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.client.force_login(self.user)
         response = self.client.get(reverse("scrapes:history"))
         self.assertEqual(response.status_code, 200)
 
 
 class RequeueComponentTestsMixin(object):
+    def setUp(self):
+        self.user = User.objects.get_or_create(
+            username="testuser", defaults={"internal_links": True}
+        )[0]
+        self.novel = Fiction.objects.create(
+            url="https://some.fq.dn/some/uri", title="testnovel"
+        )
+        self.chapter = Chapter.objects.create(
+            fiction=self.novel, url="https://some.fq.dn/some/chapter/uri"
+        )
+        self.managers = Managers()
+
     def test_unauthenticated_post(self):
         initial_scrape_queue_count = self.managers.manager.scrape_queue().count()
         response = self.client.post(
@@ -96,7 +118,7 @@ class RequeueComponentTestsMixin(object):
         )
 
     def test_authenticated_post(self):
-        self.client.force_login(User.objects.get_or_create(username="testuser")[0])
+        self.client.force_login(self.user)
         initial_scrape_queue_count = self.managers.manager.scrape_queue().count()
         response = self.client.post(
             reverse(
@@ -152,20 +174,11 @@ class RequeueNovelComponentTests(RequeueComponentTestsMixin, TestCase):
     component = "novel"
 
     def setUp(self):
-        self.novel = Fiction.objects.create(
-            url="https://some.fq.dn/some/uri", title="testnovel"
-        )
-        self.managers = Managers()
+        super().setUp()
 
 
 class RequeueChapterComponentTests(RequeueComponentTestsMixin, TestCase):
     component = "chapter"
 
     def setUp(self):
-        self.novel = Fiction.objects.create(
-            url="https://some.fq.dn/some/uri", title="testnovel"
-        )
-        self.chapter = Chapter.objects.create(
-            fiction=self.novel, url="https://some.fq.dn/some/chapter/uri"
-        )
-        self.managers = Managers()
+        super().setUp()

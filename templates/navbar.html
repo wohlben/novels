@@ -28,7 +28,8 @@
         {% endif %}
       </li>
 
-      {% if user.is_authenticated %}
+
+      {% if perms.scrapes.view_system %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             System
@@ -40,7 +41,8 @@
             <a class="dropdown-item" href="{% url "scrapes:log" %}">Log</a>
           </div>
         </li>
-
+      {% endif %}
+      {% if user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link disabled" href="{% url 'logout' %}">Logout</a>
         </li>

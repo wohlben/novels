@@ -4,13 +4,16 @@ from django.db.models import Count, F
 from scrapes.managers import Managers
 from scrapes.forms import RequeueNovelForm, RequeueChapterForm
 from django.http import HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (
+    PermissionRequiredMixin as _PermissionRequiredMixin,
+)
 
 managers = Managers()
 
 
-class ParseLogListView(LoginRequiredMixin, TemplateView):
+class ParseLogListView(_PermissionRequiredMixin, TemplateView):
     template_name = "scrapes/lists/log.html"
+    permission_required = "scrapes.view_system"
 
     def get_context_data(self, **kwargs):
         context = {
@@ -25,8 +28,9 @@ class ParseLogListView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class QueueView(LoginRequiredMixin, TemplateView):
+class QueueView(_PermissionRequiredMixin, TemplateView):
     template_name = "scrapes/lists/queue.html"
+    permission_required = "scrapes.view_system"
 
     def get_context_data(self, **kwargs):
         context = {
@@ -38,8 +42,9 @@ class QueueView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class HistoryView(LoginRequiredMixin, TemplateView):
+class HistoryView(_PermissionRequiredMixin, TemplateView):
     template_name = "scrapes/lists/history.html"
+    permission_required = "scrapes.view_system"
 
 
 class RequeueNovelComponent(FormView):

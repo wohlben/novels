@@ -6,6 +6,12 @@ from django.contrib.postgres.fields import JSONField
 class Scrapes(models.Model):
     """Urls that should be Scraped."""
 
+    class Meta:
+        permissions = (
+            ("force_fetch", "Allows a User to force a fetch from the source"),
+            ("view_system", "Allows the User to see the System views"),
+        )
+
     url = models.TextField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     last_change = models.DateTimeField(auto_now=True)
