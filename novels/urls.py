@@ -1,22 +1,22 @@
-from django.conf import settings
-from django.urls import path
-from novels import views
+from django.conf import settings as _settings
+from django.urls import path as _path
+from novels import views as _views
 from . import APP_NAME
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page as _cache_page
 
 
 app_name = APP_NAME
 
 urlpatterns = [
-    path("", views.FictionListView.as_view(), name="novels"),
-    path("updates", views.ChaptersListView.as_view(), name="updates"),
-    path("watch/<novel_id>", views.WatchComponent.as_view(), name="watch-component"),
-    path("novel/<novel_id>", views.FictionDetailView.as_view(), name="novel"),
-    path("chapter/<chapter_id>", views.ChapterDetailView.as_view(), name="chapter"),
-    path(
+    _path("", _views.FictionListView.as_view(), name="novels"),
+    _path("updates", _views.ChaptersListView.as_view(), name="updates"),
+    _path("watch/<novel_id>", _views.WatchComponent.as_view(), name="watch-component"),
+    _path("novel/<novel_id>", _views.FictionDetailView.as_view(), name="novel"),
+    _path("chapter/<chapter_id>", _views.ChapterDetailView.as_view(), name="chapter"),
+    _path(
         "search",
-        cache_page(settings.GENERIC_CACHE_TIME, cache="pages")(
-            views.SearchComponent.as_view()
+        _cache_page(_settings.GENERIC_CACHE_TIME, cache="pages")(
+            _views.SearchComponent.as_view()
         ),
         name="search",
     ),

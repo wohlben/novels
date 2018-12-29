@@ -1,22 +1,22 @@
 """Modeldefinitions for the novel app."""
-from django.shortcuts import reverse
-from django.db import models
+from django.shortcuts import reverse as _reverse
+from django.db import models as _models
 
 
-class Fiction(models.Model):
+class Fiction(_models.Model):
     """Fiction database model."""
 
-    pic_url = models.TextField(blank=True, null=True)
-    pic = models.BinaryField(blank=True, null=True)
-    title = models.TextField(blank=True)
-    url = models.TextField()
-    remote_id = models.TextField(blank=True, null=True)
-    author = models.TextField(blank=True, null=True)
+    pic_url = _models.TextField(blank=True, null=True)
+    pic = _models.BinaryField(blank=True, null=True)
+    title = _models.TextField(blank=True)
+    url = _models.TextField()
+    remote_id = _models.TextField(blank=True, null=True)
+    author = _models.TextField(blank=True, null=True)
 
-    watching = models.ManyToManyField("profiles.User")
+    watching = _models.ManyToManyField("profiles.User")
 
-    source = models.ForeignKey(
-        "scrapes.Parser", on_delete=models.SET_NULL, blank=True, null=True
+    source = _models.ForeignKey(
+        "scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True
     )
 
     def __str__(self):
@@ -24,35 +24,35 @@ class Fiction(models.Model):
 
     @property
     def get_absolute_url(self):
-        return reverse("novels:novel", kwargs={"novel_id": self.pk})
+        return _reverse("novels:novel", kwargs={"novel_id": self.pk})
 
 
-class ChapterQS(models.QuerySet):
+class ChapterQS(_models.QuerySet):
     def date_sorted(self):
         return (
             super()
             .all()
             .annotate(
-                sort_date=models.Case(
-                    models.When(published=None, then=models.F("discovered")),
-                    default=models.F("published"),
+                sort_date=_models.Case(
+                    _models.When(published=None, then=_models.F("discovered")),
+                    default=_models.F("published"),
                 )
             )
             .order_by("-sort_date")
         )
 
 
-class Chapter(models.Model):
+class Chapter(_models.Model):
     """Chapter database model."""
 
     objects = ChapterQS.as_manager()
 
-    fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
-    title = models.TextField(blank=True, null=True)
-    remote_id = models.TextField(blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
-    published = models.DateTimeField(blank=True, null=True)
-    published_relative = models.TextField(blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
-    discovered = models.DateTimeField(auto_now_add=True)
-    url = models.TextField()
+    fiction = _models.ForeignKey("Fiction", on_delete=_models.CASCADE)
+    title = _models.TextField(blank=True, null=True)
+    remote_id = _models.TextField(blank=True, null=True)
+    content = _models.TextField(blank=True, null=True)
+    published = _models.DateTimeField(blank=True, null=True)
+    published_relative = _models.TextField(blank=True, null=True)
+    updated = _models.DateTimeField(auto_now=True)
+    discovered = _models.DateTimeField(auto_now_add=True)
+    url = _models.TextField()
