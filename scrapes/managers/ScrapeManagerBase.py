@@ -1,14 +1,15 @@
 from scrapes.models import Scrapes, Parser
 import logging
+from requests import get
 from django.utils import timezone
 from datetime import timedelta
 
 from abc import ABC, abstractmethod
-
+from django.conf import settings as _settings
 
 class ScrapeManagerBase(ABC):
     logger = logging.getLogger("scrapes.tasks")
-    parser_id = None
+    parser_id = None  # type: int
 
     @property
     @abstractmethod
@@ -20,18 +21,30 @@ class ScrapeManagerBase(ABC):
         pass
 
     def get_parser_id(self):
-        if self.parser_id == None:
+        if self.parser_id is None:
             self.parser_id = Parser.objects.get(name=self.parser_name).id
         return self.parser_id
-
-    def __init__(self, *args, **kwargs):
-        return super().__init__(*args, **kwargs)
 
     def all_pending_parses(self):
         """Return the pending parses that this parser can handle."""
         return Scrapes.objects.filter(
             http_code=200, parser_type_id=self.get_parser_id(), parselog__isnull=True
         )
+
+    def _fetch_from_source(self, scrape_id: int) -> int:
+        scrape = Scrapes.objects.get(id=scrape_id)
+
+        self.logger.info(f"fetching {scrape.url} for {scrape.id}")
+
+        if _settings.TESTING:
+            self.logger.info("not fetching in test mode...")
+            return scrape.id
+
+        with get(scrape.url) as page:  # pragma: no cover
+            scrape.content = page.content
+            scrape.http_code = page.status_code
+            scrape.save()
+        return scrape.id
 
     @staticmethod
     def scrape_queue():

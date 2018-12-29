@@ -40,10 +40,10 @@ class GenerateChapterTestCase(TestCase):
         return rrl_chapter.add_queue_events()
 
     def monitored_novels(self):
-        return len(rrl_chapter.monitored_novels())
+        return len(rrl_chapter._monitored_novels())
 
     def missing_chapters(self):
-        return rrl_chapter.missing_chapters().count()
+        return rrl_chapter._missing_chapters().count()
 
     def pending_fetches(self):
         return rrl_chapter.pending_fetches().count()
