@@ -27,11 +27,20 @@ class Fiction(models.Model):
         return reverse("novels:novel", kwargs={"novel_id": self.pk})
 
 
+class ChapterManager(models.Manager):
+    def sorted_by_date(self):
+        return self.annotate(
+            sort_date=models.Case(
+                models.When(published=None, then=models.F("discovered")),
+                default=models.F("published"),
+            )
+        ).order_by("-sort_date")
+
+
 class Chapter(models.Model):
     """Chapter database model."""
 
-    class Meta:
-        ordering = ["published", "id"]
+    objects = ChapterManager()
 
     fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)

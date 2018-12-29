@@ -59,15 +59,12 @@ class ChaptersListView(TemplateView):
     template_name = "novels/lists/chapters.html"
 
     def get_context_data(self, **kwargs):
-
         prefetch = Prefetch("fiction", queryset=Fiction.objects.only("title", "author"))
         qs = (
-            Chapter.objects.order_by("-published")
+            Chapter.objects.sorted_by_date()
             .prefetch_related(prefetch)
             .only("id", "title", "published", "fiction", "url", "discovered")
         )
-        if self.request.user.is_authenticated and self.request.user.internal_links:
-            qs = qs.exclude(published=None)
         chapters = ChapterFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
         ).qs
