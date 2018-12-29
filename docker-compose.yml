@@ -1,5 +1,8 @@
 version: '3.4'
 
+# You might have to first update the requirements.txt by using
+# pipenv lock -r > requirements.txt
+
 services:
   proxy:
     build:
