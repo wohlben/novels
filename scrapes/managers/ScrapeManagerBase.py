@@ -7,6 +7,7 @@ from datetime import timedelta
 from abc import ABC, abstractmethod
 from django.conf import settings as _settings
 
+
 class ScrapeManagerBase(ABC):
     logger = logging.getLogger("scrapes.tasks")
     parser_id = None  # type: int
@@ -44,7 +45,7 @@ class ScrapeManagerBase(ABC):
             scrape.content = page.content
             scrape.http_code = page.status_code
             scrape.save()
-        return scrape.id
+            return scrape.id
 
     @staticmethod
     def scrape_queue():
