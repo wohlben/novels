@@ -1,22 +1,23 @@
 """Modeldefinitions for the novel app."""
-from django.shortcuts import reverse
-from django.db import models
+from django.shortcuts import reverse as _reverse
+from django.db import models as _models
+from profiles.models import ReadingProgress as _ReadingProgress
 
 
-class Fiction(models.Model):
+class Fiction(_models.Model):
     """Fiction database model."""
 
-    pic_url = models.TextField(blank=True, null=True)
-    pic = models.BinaryField(blank=True, null=True)
-    title = models.TextField(blank=True)
-    url = models.TextField()
-    remote_id = models.TextField(blank=True, null=True)
-    author = models.TextField(blank=True, null=True)
+    pic_url = _models.TextField(blank=True, null=True)
+    pic = _models.BinaryField(blank=True, null=True)
+    title = _models.TextField(blank=True)
+    url = _models.TextField()
+    remote_id = _models.TextField(blank=True, null=True)
+    author = _models.TextField(blank=True, null=True)
 
-    watching = models.ManyToManyField("profiles.User")
+    watching = _models.ManyToManyField("profiles.User")
 
-    source = models.ForeignKey(
-        "scrapes.Parser", on_delete=models.SET_NULL, blank=True, null=True
+    source = _models.ForeignKey(
+        "scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True
     )
 
     def __str__(self):
@@ -24,21 +25,60 @@ class Fiction(models.Model):
 
     @property
     def get_absolute_url(self):
-        return reverse("novels:novel", kwargs={"novel_id": self.pk})
+        return _reverse("novels:novel", kwargs={"novel_id": self.pk})
 
 
-class Chapter(models.Model):
+class ChapterQS(_models.QuerySet):
+    def date_sorted(self):
+        return (
+            super()
+            .annotate(
+                sort_date=_models.Case(
+                    _models.When(published=None, then=_models.F("discovered")),
+                    default=_models.F("published"),
+                )
+            )
+            .order_by("-sort_date")
+        )
+
+    def add_progress(self, user_id):
+        annotation = _ReadingProgress.objects.filter(
+            user=user_id, chapter=_models.OuterRef("id")
+        )
+        return super().annotate(progress=_models.Subquery(annotation.values('progress')), timestamp=_models.Subquery(annotation.values('timestamp')))
+
+
+class Chapter(_models.Model):
     """Chapter database model."""
 
-    class Meta:
-        ordering = ["published", "id"]
+    objects = ChapterQS.as_manager()
 
-    fiction = models.ForeignKey("Fiction", on_delete=models.CASCADE)
-    title = models.TextField(blank=True, null=True)
-    remote_id = models.TextField(blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
-    published = models.DateTimeField(blank=True, null=True)
-    published_relative = models.TextField(blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
-    discovered = models.DateTimeField(auto_now_add=True)
-    url = models.TextField()
+    fiction = _models.ForeignKey("Fiction", on_delete=_models.CASCADE)
+    title = _models.TextField(blank=True, null=True)
+    remote_id = _models.TextField(blank=True, null=True)
+    content = _models.TextField(blank=True, null=True)
+    total_progress = _models.IntegerField(blank=True, null=True)
+    published = _models.DateTimeField(blank=True, null=True)
+    published_relative = _models.TextField(blank=True, null=True)
+    updated = _models.DateTimeField(auto_now=True)
+    discovered = _models.DateTimeField(auto_now_add=True)
+    url = _models.TextField()
+
+    @property
+    def get_absolute_url(self):
+        return _reverse("novels:chapter", kwargs={"chapter_id": self.pk})
+
+    @property
+    def get_next_chapter(self):
+        try:
+            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__gt=self.published).last()
+        except ValueError:
+            return self.get_next_by_discovered(fiction=self.fiction)
+
+    @property
+    def get_previous_chapter(self):
+        try:
+            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__lt=self.published).first()
+        except ValueError:
+            return self.get_previous_by_discovered(fiction=self.fiction)
+

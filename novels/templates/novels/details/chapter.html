@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load read_inserter %}
 {% block title %}{{chapter.fiction.title }}: {{ chapter.title }}{% endblock %}
 {% block content %}
 <h6 class="text-center pt-1">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}</h6>
@@ -17,14 +18,47 @@
     <button class="btn btn-light" title="increase Text size" onclick="resizeText(false)">
        decrease
     </button>
+    <a title="go back to the fiction overview" href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
+    {% if progress != None %}
+        <a title="go to the last progress event" onclick="document.getElementById('progress-{{ progress.progress }}').scrollIntoView(false)"><button class="btn button btn-light">continue</button></a>
+    {% endif %}
 
 </aside>
 
 <hr />
+    {% if chapter.content is None %}
+    <p class="jumbotron text-center">
+        this chapter hasn't been fetched yet
+    {% if perms.scrapes.force_fetch %}
+      , but you do have permission to <a href="{{ chapter.get_absolute_url }}?force-fetch=true">force a fetch</a>
+    {% else %}
+      and you don't have the permission to force a fetch
+    {% endif %}
+      <br />
+        You could always go to the original source, which you probably
+        should've done to begin with...
+      <br/>
+        cheers mate
+      <br />
+      <a href="{{ chapter.url }}">source</a>
+      <br />
+        the scrape queue is currently ... {{ scrape_queue_count }} items long. <br />
+        waiting is probably not worth it!
 
-<div id="chapter-content" class="pl-3 pr-3">
-  {{ chapter.content|safe  }}
-</div>
+    </p>
+    {% else %}
+    <div id="chapter-content" class="pl-3 pr-3">
+        {{ chapter.content|read_inserter:chapter.id|safe  }}
+    </div>
+    <div id="progress-{{ chapter.total_progress }}" ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=chapter.total_progress %}" ic-trigger-on="scrolled-into-view"></div>
+    {% endif %}
+<hr />
+
+<aside class="d-flex justify-content-center btn-group">
+    <a href="{{ chapter.get_previous_chapter.get_absolute_url }}"><button class="btn btn-light">Last Chapter</button></a>
+    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
+    <a href="{{ chapter.get_next_chapter.get_absolute_url }}"><button class="btn btn-light">Next Chapter</button></a>
+</aside>
 
 <script>
     try {
@@ -44,6 +78,6 @@
 
         document.getElementById("chapter-content").style.fontSize = fontSize + '%';
         Cookies.set('font-size', fontSize);
-    };
+    }
 </script>
 {% endblock %}

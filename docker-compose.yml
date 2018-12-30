@@ -1,5 +1,8 @@
 version: '3.4'
 
+# You might have to first update the requirements.txt by using
+# pipenv lock -r > requirements.txt
+
 services:
   proxy:
     build:
@@ -49,10 +52,12 @@ services:
 
   database:
     image: postgres
+    env_file:
+      - .env
     volumes:
       - type: bind
         source: /srv/pgdata
-        target: /var/lib/postgresql/data/pgdata
+        target: /var/lib/postgresql/data
 
     # environment:
     #   - POSTGRES_DB=django

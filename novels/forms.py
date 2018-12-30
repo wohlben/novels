@@ -1,14 +1,20 @@
-from django.forms import ModelForm, BooleanField, Form, CharField, Textarea
-from novels.models import Fiction
+from django.forms import (
+    ModelForm as _ModelForm,
+    BooleanField as _BooleanField,
+    Form as _Form,
+    CharField as _CharField,
+    Textarea as _Textarea,
+)
+from novels.models import Fiction as _Fiction
 
 
-class BulkWatchForm(Form):
-    url_list = CharField(widget=Textarea)
+class BulkWatchForm(_Form):
+    url_list = _CharField(widget=_Textarea)
 
 
-class WatchingForm(ModelForm):
-    watch = BooleanField
+class WatchingForm(_ModelForm):
+    watch = _BooleanField
 
     class Meta:
-        model = Fiction
+        model = _Fiction
         fields = []

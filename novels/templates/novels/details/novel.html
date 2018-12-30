@@ -1,27 +1,26 @@
 {% extends "base.html" %}
 {% load values %}
+{% load divide %}
 
 {% block content %}
 <h1 class="display-4 novel-title text-center">{{ novel.title }}</h1>
 {% if novel.author %}
     <p class="lead text-center">a novel by <span class="novel-author">{{ novel.author }}</span></p>
 {% endif %}
-{% if user.is_authenticated and user.internal_links %}
-  <div class="d-flex justify-content-center">
-      <span title="watch the novel"
-            id="watch-component"
-            ic-replace-target="true"
-            ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
-            ic-trigger-on="load"></span>
-      <span title="refetch the novel"
-            id="requeue-component"
-            ic-replace-target="true"
-            ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"
-            ic-trigger-on="load"></span>
-  </div>
-{% endif %}
+<div class="d-flex justify-content-center">
+  <span title="watch the novel"
+        id="watch-component"
+        ic-replace-target="true"
+        ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
+        ic-trigger-on="load"></span>
+  <span title="refetch the novel"
+        id="requeue-component"
+        ic-replace-target="true"
+        ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"
+        ic-trigger-on="load"></span>
+</div>
 <ul class="list-group">
-  {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
+  {% for chapter in novel.chapter_set.all reversed %}
   <li class="list-group-item">
     <a class="row chapter"
       {% if user.is_authenticated and user.internal_links %}
@@ -34,8 +33,18 @@
               class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
             {% firstof chapter.published chapter.discovered %}
         </time>
-        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead chapter-title">
-            {{ chapter.title }}
+        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead d-flex justify-content-between">
+            <span class="chapter-title">{{ chapter.title }}</span>
+            {% with progress=chapter.progress|divide:chapter.total_progress|percent %}
+                {% if progress == "100 %" %}
+                    <i title="finished reading on {{ chapter.timestamp }}" class="fa-check fa"></i>
+                {% elif progress != "" %}
+                    <span title="stopped reading on {{ chapter.timestamp }}"  class="read-progress">{% firstof progress '' %}</span>
+                {% else %}
+                    <span class="read-progress"></span>
+                {% endif %}
+
+            {% endwith %}
         </div>
     </a>
   </li>

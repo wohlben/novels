@@ -1,33 +1,33 @@
-from django.shortcuts import reverse
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from uuid import uuid4
+from django.shortcuts import reverse as _reverse
+from django.db import models as _models
+from django.contrib.auth.models import AbstractUser as _AbstractUser
+from uuid import uuid4 as _uuid4
 
 
-class ProvidedUrl(models.Model):
-    url = models.CharField(max_length=200)
-    success = models.BooleanField(null=True, blank=True)
-    scrape = models.ForeignKey(
-        "scrapes.Scrapes", null=True, blank=True, on_delete=models.SET_NULL
+class ProvidedUrl(_models.Model):
+    url = _models.CharField(max_length=200)
+    success = _models.BooleanField(null=True, blank=True)
+    scrape = _models.ForeignKey(
+        "scrapes.Scrapes", null=True, blank=True, on_delete=_models.SET_NULL
     )
-    parser = models.ForeignKey(
-        "scrapes.Parser", null=True, blank=True, on_delete=models.SET_NULL
+    parser = _models.ForeignKey(
+        "scrapes.Parser", null=True, blank=True, on_delete=_models.SET_NULL
     )
-    fiction = models.ForeignKey(
-        "novels.Fiction", null=True, blank=True, on_delete=models.SET_NULL
+    fiction = _models.ForeignKey(
+        "novels.Fiction", null=True, blank=True, on_delete=_models.SET_NULL
     )
-    job = models.ForeignKey("BulkWatchJob", on_delete=models.CASCADE)
+    job = _models.ForeignKey("BulkWatchJob", on_delete=_models.CASCADE)
 
 
-class BulkWatchJob(models.Model):
-    user = models.ForeignKey("User", on_delete=models.CASCADE)
+class BulkWatchJob(_models.Model):
+    user = _models.ForeignKey("User", on_delete=_models.CASCADE)
 
     @property
     def get_absolute_url(self):
-        return reverse("profiles:bulk-watch-progress", kwargs={"job_id": self.pk})
+        return _reverse("profiles:bulk-watch-progress", kwargs={"job_id": self.pk})
 
 
-class User(AbstractUser):
+class User(_AbstractUser):
     COLOR_CHOICES = (
         ("cerulean", "cerulean"),
         ("cosmo", "cosmo"),
@@ -53,9 +53,25 @@ class User(AbstractUser):
         ("yeti", "yeti"),
     )
 
-    login_token = models.UUIDField(default=uuid4, blank=True, null=True, editable=False)
-    enable_login_token = models.BooleanField(default=False)
-    internal_links = models.BooleanField(default=False)
-    color_theme = models.CharField(
+    login_token = _models.UUIDField(
+        default=_uuid4, blank=True, null=True, editable=False
+    )
+    enable_login_token = _models.BooleanField(default=False)
+    internal_links = _models.BooleanField(default=False)
+    color_theme = _models.CharField(
         default="darkly", choices=COLOR_CHOICES, max_length=50
     )
+
+
+class ReadingProgress(_models.Model):
+    chapter = _models.ForeignKey("novels.Chapter", on_delete=_models.CASCADE)
+    user = _models.ForeignKey("User", on_delete=_models.CASCADE)
+    progress = _models.IntegerField()
+    timestamp = _models.DateTimeField(auto_now=True)
+
+    @property
+    def get_absolute_url(self):
+        _reverse(
+            "profiles:progress",
+            kwargs={"chapter_id": self.id, "progress": self.progress},
+        )

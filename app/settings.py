@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 import os
+import sys
 
 from celery.schedules import crontab
 from . import env_variable
@@ -30,6 +31,8 @@ else:
     DEBUG = env_variable("django_debug", False) == "True"
 
 print(f"starting with debug: {DEBUG}")
+
+TESTING = "test" in sys.argv
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
 INTERNAL_IPS = env_variable("internal_ips", "127.0.0.1 localhost").split()
@@ -219,10 +222,14 @@ CELERY_RESULTS_BACKEND = env_variable("results", "django-db")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 
+fetch_time = {"minute": "*"}
+if DEBUG:
+    fetch_time = {"minute": "15"}
+
 CELERY_BEAT_SCHEDULE = {
     "minutely_fetch": {
         "task": "scrapes.tasks.fetch_content",
-        "schedule": crontab(minute="*"),
+        "schedule": crontab(**fetch_time),
     },
     "generators": {
         "task": "scrapes.tasks.generators_task",

@@ -1,74 +1,84 @@
-from django.views.generic import TemplateView, FormView
-from scrapes.models import ParseLog
-from django.db.models import Count, F
-from scrapes.managers import Managers
-from scrapes.forms import RequeueNovelForm, RequeueChapterForm
-from django.http import HttpResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView as _TemplateView, FormView as _FormView
+from scrapes.models import ParseLog as _ParseLog
+from django.db.models import Count as _Count, F as _F
+from scrapes.managers import Managers as _Managers
+from scrapes.forms import (
+    RequeueNovelForm as _RequeueNovelForm,
+    RequeueChapterForm as _RequeueChapterForm,
+)
+from django.http import HttpResponse as _HttpResponse
+from django.contrib.auth.mixins import (
+    PermissionRequiredMixin as _PermissionRequiredMixin,
+)
 
-managers = Managers()
+_managers = _Managers()
 
 
-class ParseLogListView(LoginRequiredMixin, TemplateView):
+class ParseLogListView(_PermissionRequiredMixin, _TemplateView):
     template_name = "scrapes/lists/log.html"
+    permission_required = "scrapes.view_system"
 
     def get_context_data(self, **kwargs):
         context = {
-            "parses": ParseLog.objects.all()
+            "parses": _ParseLog.objects.all()
             .order_by("-id")
             .select_related("parser")
             .annotate(
-                added_count=Count("added_by"),
-                scrape_last_change=F("scrape__last_change"),
+                added_count=_Count("added_by"),
+                scrape_last_change=_F("scrape__last_change"),
             )
         }
         return context
 
 
-class QueueView(LoginRequiredMixin, TemplateView):
+class QueueView(_PermissionRequiredMixin, _TemplateView):
     template_name = "scrapes/lists/queue.html"
+    permission_required = "scrapes.view_system"
 
     def get_context_data(self, **kwargs):
         context = {
-            "queue": managers.manager.scrape_queue().prefetch_related("parser_type"),
+            "queue": _managers.manager.scrape_queue().prefetch_related("parser_type"),
             "last_scrapes": reversed(
-                managers.manager.last_scrapes().prefetch_related("parser_type")
+                _managers.manager.last_scrapes().prefetch_related("parser_type")
             ),
         }
         return context
 
 
-class HistoryView(LoginRequiredMixin, TemplateView):
+class HistoryView(_PermissionRequiredMixin, _TemplateView):
     template_name = "scrapes/lists/history.html"
+    permission_required = "scrapes.view_system"
 
 
-class RequeueNovelComponent(FormView):
-    form_class = RequeueNovelForm
+class RequeueNovelComponent(_FormView):
+    form_class = _RequeueNovelForm
     template_name = "scrapes/components/requeue_novel.html"
 
     def get_context_data(self):
         return {"novel_id": self.kwargs.get("novel_id")}
 
-    def post(self, request, novel_id, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        novel_id = kwargs.get("novel_id")
         if request.user.is_authenticated:
-            managers.rrl_novel.refetch_novel(novel_id)
-            return HttpResponse(status=201)
-        return HttpResponse(status=403)
+            _managers.rrl_novel.refetch_novel(novel_id)
+            return _HttpResponse(status=201)
+        return _HttpResponse(status=403)
 
 
-class RequeueChapterComponent(FormView):
-    form_class = RequeueChapterForm
+class RequeueChapterComponent(_FormView):
+    form_class = _RequeueChapterForm
     template_name = "scrapes/components/requeue_chapter.html"
 
     def get_context_data(self):
         return {"chapter_id": self.kwargs.get("chapter_id")}
 
-    def post(self, request, chapter_id, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        chapter_id = kwargs.get("chapter_id")
         if request.user.is_authenticated:
-            managers.rrl_chapter.refetch_chapter(chapter_id)
-            return HttpResponse(status=201)
-        return HttpResponse(status=403)
+            _managers.rrl_chapter.refetch_chapter(chapter_id)
+            return _HttpResponse(status=201)
+        return _HttpResponse(status=403)
 
 
-class TestView(TemplateView):
+class TestView(_TemplateView):
     template_name = "base.html"

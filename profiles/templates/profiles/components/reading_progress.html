@@ -1,0 +1,10 @@
+<form hidden id="progress-{{ progress }}-form" method="POST" action="{% url 'profiles:reading-progress' chapter_id=chapter_id progress=progress %}">
+    <input readonly name="chapter_id" type="number" value="{{ chapter_id }}"/>
+    <input readonly name="user_id" type="number" value="{{ user.id }}" />
+    <input readonly name="progress" type="number" value="{{ progress }}">
+    {% csrf_token %}
+    <button type="submit"
+            ic-post-to="{% url 'profiles:reading-progress' chapter_id=chapter_id progress=progress %}"
+            ic-trigger-on="load"
+    ></button>
+</form>

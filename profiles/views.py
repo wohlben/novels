@@ -1,44 +1,84 @@
-from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView, UpdateView, FormView
-from django.contrib.auth.mixins import LoginRequiredMixin as __LoginRequiredMixin
-from .forms import ProfileForm, BulkWatchForm
-from .models import User as User, BulkWatchJob, ProvidedUrl
-from scrapes.models import Parser, Scrapes
-from novels.models import Fiction
-from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect
-import re
+from django.http import (
+    HttpResponseRedirect as _HttpResponseRedirect,
+    HttpResponse as _HttpResponse,
+)
+from django.urls import reverse_lazy as _reverse_lazy
+from django.views.generic import (
+    TemplateView as _TemplateView,
+    UpdateView as _UpdateView,
+    FormView as _FormView,
+)
+from django.contrib.auth.mixins import LoginRequiredMixin as _LoginRequiredMixin
+from .forms import (
+    ProfileForm as _ProfileForm,
+    BulkWatchForm as _BulkWatchForm,
+    ReadingProgressForm as _ReadingProgressForm,
+)
+from .models import (
+    User as _User,
+    BulkWatchJob as _BulkWatchJob,
+    ProvidedUrl as _ProvidedUrl,
+    ReadingProgress as _ReadingProgress,
+)
+from scrapes.models import Parser as _Parser, Scrapes as _Scrapes
+from novels.models import Fiction as _Fiction
+from django.contrib.auth import authenticate as _authenticate, login as _login
+from django.shortcuts import redirect as _redirect
+import re as _re
 
 from django.contrib.auth.views import (
-    LogoutView as LogoutViewBase,
-    LoginView as LoginViewBase,
+    LogoutView as _LogoutViewBase,
+    LoginView as _LoginViewBase,
 )
-from django.core.cache import cache
 
 
-class BulkWatchProgress(__LoginRequiredMixin, TemplateView):
+class ReadingProgressView(_LoginRequiredMixin, _FormView):
+    template_name = "profiles/components/reading_progress.html"
+    form_class = _ReadingProgressForm
+
+    def get_context_data(self, **kwargs):
+        context = dict(
+            **self.request.resolver_match.kwargs, **super().get_context_data(**kwargs)
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            progress, created = _ReadingProgress.objects.get_or_create(
+                user=request.user,
+                chapter_id=kwargs["chapter_id"],
+                defaults={"progress": kwargs["progress"]},
+            )
+            if not created:
+                if progress.progress < kwargs["progress"] or progress.progress == 0:
+                    progress.progress = kwargs["progress"]
+                    progress.save()
+            return _HttpResponse(status=204)
+        return _HttpResponse(status=403)
+
+
+class BulkWatchProgress(_LoginRequiredMixin, _TemplateView):
     template_name = "profiles/details/bulk_watch_progress.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["job"] = BulkWatchJob.objects.get(id=kwargs.get("job_id"))
+        context["job"] = _BulkWatchJob.objects.get(id=kwargs.get("job_id"))
         return context
 
 
-class BulkWatchComponent(__LoginRequiredMixin, FormView):
-    form_class = BulkWatchForm
+class BulkWatchComponent(_LoginRequiredMixin, _FormView):
+    form_class = _BulkWatchForm
     template_name = "profiles/components/bulk_watch.html"
 
     def form_valid(self, form):
         urls = form.data["url_list"].splitlines()
         print(f"working with {urls}")
-        job = BulkWatchJob.objects.create(user=self.request.user)
-        parsers = Parser.objects.all()
+        job = _BulkWatchJob.objects.create(user=self.request.user)
+        parsers = _Parser.objects.all()
         for url in urls:
-            provided_url = ProvidedUrl.objects.create(job=job, url=url)
+            provided_url = _ProvidedUrl.objects.create(job=job, url=url)
             try:
-                existing_fiction = Fiction.objects.filter(url=url)
+                existing_fiction = _Fiction.objects.filter(url=url)
                 if existing_fiction.count() == 1:
                     provided_url.fiction = existing_fiction.first()
                     provided_url.fiction.watching.add(self.request.user)
@@ -47,14 +87,14 @@ class BulkWatchComponent(__LoginRequiredMixin, FormView):
                     continue
 
                 for parser in parsers:
-                    if re.compile(parser.url_scheme).match(url):
+                    if _re.compile(parser.url_scheme).match(url):
                         provided_url.parser = parser
                         provided_url.save()
 
                 if provided_url.parser:
 
-                    if Scrapes.objects.filter(url=url).count() == 0:
-                        scrape = Scrapes.objects.create(
+                    if _Scrapes.objects.filter(url=url).count() == 0:
+                        scrape = _Scrapes.objects.create(
                             url=url, parser_type=provided_url.parser
                         )
                     provided_url.scrape = scrape
@@ -71,33 +111,33 @@ class BulkWatchComponent(__LoginRequiredMixin, FormView):
                 print(f"failed to process {url}")
                 raise
 
-        return HttpResponseRedirect(
-            reverse_lazy("profiles:bulk-watch-progress", kwargs={"job_id": job.id})
+        return _HttpResponseRedirect(
+            _reverse_lazy("profiles:bulk-watch-progress", kwargs={"job_id": job.id})
         )
 
 
-class LogoutView(LogoutViewBase):
+class LogoutView(_LogoutViewBase):
     template_name = "profiles/logout.html"
 
 
-class LoginView(LoginViewBase):
+class LoginView(_LoginViewBase):
     template_name = "profiles/login.html"
 
     def get(self, *args, **kwargs):
         login_token = self.request.GET.get("login_token")
         if login_token:
-            user = authenticate(login_token)
+            user = _authenticate(login_token)
             if user:
-                login(self.request, user)
-                return redirect(reverse_lazy("home"))
+                _login(self.request, user)
+                return _redirect(_reverse_lazy("home"))
         return super().get(*args, **kwargs)
 
 
-class ProfileView(__LoginRequiredMixin, UpdateView):
-    form_class = ProfileForm
-    model = User
+class ProfileView(_LoginRequiredMixin, _UpdateView):
+    form_class = _ProfileForm
+    model = _User
     template_name = "profiles/profile.html"
-    success_url = reverse_lazy("profiles:profile")
+    success_url = _reverse_lazy("profiles:profile")
 
     def get_object(self, queryset=None):
         return self.request.user

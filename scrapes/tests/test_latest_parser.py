@@ -32,7 +32,7 @@ class ParseLatestTestCase(TestCase):
         return novel_models.Chapter.objects.all().count()
 
     def latest_extractor(self):
-        return rrl_latest.latest_extractor()
+        return rrl_latest._latest_extractor()
 
     def test_fixture_data_pending_parses(self):
         pending_parses = self.pending_parses()
