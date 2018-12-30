@@ -99,8 +99,19 @@ class FictionListView(_TemplateView):
 class FictionDetailView(_TemplateView):
     template_name = "novels/details/novel.html"
 
-    def get_context_data(self, novel_id):
-        return {"novel": _Fiction.objects.get(id=novel_id)}
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        prefetch_qs = _Chapter.objects.date_sorted()
+        if self.request.user.is_authenticated:
+            prefetch = _Prefetch(
+                "chapter_set", queryset=prefetch_qs.add_progress(self.request.user.id)
+            )
+        else:
+            prefetch = _Prefetch("chapter_set", queryset=prefetch_qs)
+        context["novel"] = _Fiction.objects.prefetch_related(prefetch).get(
+            id=kwargs.get("novel_id")
+        )
+        return context
 
 
 class ChapterDetailView(_TemplateView):

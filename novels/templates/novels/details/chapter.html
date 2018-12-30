@@ -48,6 +48,9 @@
         {{ chapter.content|read_inserter:chapter.id|safe  }}
     {% endif %}
 
+    <div id="progress-{{ chapter.total_progress }}" ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=chapter.total_progress %}" ic-trigger-on="scrolled-into-view" ic-replace-target="true"></div>
+
+    <br />
 </div>
 
 <script>

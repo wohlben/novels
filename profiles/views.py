@@ -50,7 +50,7 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
                 defaults={"progress": kwargs["progress"]},
             )
             if not created:
-                if progress.progress < kwargs["progress"]:
+                if progress.progress < kwargs["progress"] or progress.progress == 0:
                     progress.progress = kwargs["progress"]
                     progress.save()
             return _HttpResponse(status=204)

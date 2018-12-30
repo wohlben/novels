@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load values %}
+{% load divide %}
 
 {% block content %}
 <h1 class="display-4 novel-title text-center">{{ novel.title }}</h1>
@@ -19,7 +20,7 @@
         ic-trigger-on="load"></span>
 </div>
 <ul class="list-group">
-  {% for chapter in novel.chapter_set.date_sorted|values:"id title published discovered url" reversed %}
+  {% for chapter in novel.chapter_set.all reversed %}
   <li class="list-group-item">
     <a class="row chapter"
       {% if user.is_authenticated and user.internal_links %}
@@ -32,8 +33,9 @@
               class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
             {% firstof chapter.published chapter.discovered %}
         </time>
-        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead chapter-title">
-            {{ chapter.title }}
+        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead d-flex justify-content-between">
+            <span class="chapter-title">{{ chapter.title }}</span>
+            <span class="read-progress">{{ chapter.progress|divide:chapter.total_progress }}</span>
         </div>
     </a>
   </li>

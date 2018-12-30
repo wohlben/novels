@@ -1,6 +1,7 @@
 """Modeldefinitions for the novel app."""
 from django.shortcuts import reverse as _reverse
 from django.db import models as _models
+from profiles.models import ReadingProgress as _ReadingProgress
 
 
 class Fiction(_models.Model):
@@ -31,7 +32,6 @@ class ChapterQS(_models.QuerySet):
     def date_sorted(self):
         return (
             super()
-            .all()
             .annotate(
                 sort_date=_models.Case(
                     _models.When(published=None, then=_models.F("discovered")),
@@ -40,6 +40,12 @@ class ChapterQS(_models.QuerySet):
             )
             .order_by("-sort_date")
         )
+
+    def add_progress(self, user_id):
+        annotation = _ReadingProgress.objects.filter(
+            user=user_id, chapter=_models.OuterRef("id")
+        ).values("progress")
+        return super().annotate(progress=_models.Subquery(annotation))
 
 
 class Chapter(_models.Model):
