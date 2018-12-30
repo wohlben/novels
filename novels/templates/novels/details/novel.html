@@ -35,7 +35,16 @@
         </time>
         <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead d-flex justify-content-between">
             <span class="chapter-title">{{ chapter.title }}</span>
-            <span class="read-progress">{{ chapter.progress|divide:chapter.total_progress }}</span>
+            {% with progress=chapter.progress|divide:chapter.total_progress|percent %}
+                {% if progress == "100 %" %}
+                    <i title="finished reading on {{ chapter.timestamp }}" class="fa-check fa"></i>
+                {% elif progress != "" %}
+                    <span title="stopped reading on {{ chapter.timestamp }}"  class="read-progress">{% firstof progress '' %}</span>
+                {% else %}
+                    <span class="read-progress"></span>
+                {% endif %}
+
+            {% endwith %}
         </div>
     </a>
   </li>

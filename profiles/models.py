@@ -67,6 +67,7 @@ class ReadingProgress(_models.Model):
     chapter = _models.ForeignKey("novels.Chapter", on_delete=_models.CASCADE)
     user = _models.ForeignKey("User", on_delete=_models.CASCADE)
     progress = _models.IntegerField()
+    timestamp = _models.DateTimeField(auto_now=True)
 
     @property
     def get_absolute_url(self):
