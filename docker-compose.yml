@@ -52,10 +52,12 @@ services:
 
   database:
     image: postgres
+    env_file:
+      - .env
     volumes:
       - type: bind
         source: /srv/pgdata
-        target: /var/lib/postgresql/data/pgdata
+        target: /var/lib/postgresql/data
 
     # environment:
     #   - POSTGRES_DB=django
