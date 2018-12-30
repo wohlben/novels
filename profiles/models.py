@@ -59,3 +59,9 @@ class User(AbstractUser):
     color_theme = models.CharField(
         default="darkly", choices=COLOR_CHOICES, max_length=50
     )
+
+
+class ReadingProgress(models.Model):
+    chapter = models.ForeignKey("novels.Chapter", on_delete=models.CASCADE)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    progress = models.IntegerField()

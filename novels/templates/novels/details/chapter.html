@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load read_inserter %}
 {% block title %}{{chapter.fiction.title }}: {{ chapter.title }}{% endblock %}
 {% block content %}
 <h6 class="text-center pt-1">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}</h6>
@@ -23,7 +24,30 @@
 <hr />
 
 <div id="chapter-content" class="pl-3 pr-3">
-  {{ chapter.content|safe  }}
+    {% if chapter.content is None %}
+    <p class="jumbotron text-center">
+        this chapter hasn't been fetched yet
+    {% if perms.scrapes.force_fetch %}
+      , but you do have permission to <a href="{{ chapter.get_absolute_url }}?force-fetch=true">force a fetch</a>
+    {% else %}
+      and you don't have the permission to force a fetch
+    {% endif %}
+      <br />
+        You could always go to the original source, which you probably
+        should've done to begin with...
+      <br/>
+        cheers mate
+      <br />
+      <a href="{{ chapter.url }}">source</a>
+      <br />
+        the scrape queue is currently ... {{ scrape_queue_count }} items long. <br />
+        waiting is probably not worth it!
+
+    </p>
+    {% else %}
+        {{ chapter.content|read_inserter:chapter.id|safe  }}
+    {% endif %}
+
 </div>
 
 <script>
@@ -45,5 +69,10 @@
         document.getElementById("chapter-content").style.fontSize = fontSize + '%';
         Cookies.set('font-size', fontSize);
     };
+    {% if progress %}
+        console.log("progress-{{ progress.progress }}");
+    document.getElementById("progress-{{ progress.progress }}").scrollIntoView();
+
+    {% endif %}
 </script>
 {% endblock %}

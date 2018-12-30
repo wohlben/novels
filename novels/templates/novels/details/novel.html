@@ -19,7 +19,7 @@
         ic-trigger-on="load"></span>
 </div>
 <ul class="list-group">
-  {% for chapter in novel.chapter_set.all|values:"id title published discovered url" %}
+  {% for chapter in novel.chapter_set.date_sorted|values:"id title published discovered url" reversed %}
   <li class="list-group-item">
     <a class="row chapter"
       {% if user.is_authenticated and user.internal_links %}

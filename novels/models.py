@@ -51,8 +51,13 @@ class Chapter(_models.Model):
     title = _models.TextField(blank=True, null=True)
     remote_id = _models.TextField(blank=True, null=True)
     content = _models.TextField(blank=True, null=True)
+    total_progress = _models.IntegerField(blank=True, null=True)
     published = _models.DateTimeField(blank=True, null=True)
     published_relative = _models.TextField(blank=True, null=True)
     updated = _models.DateTimeField(auto_now=True)
     discovered = _models.DateTimeField(auto_now_add=True)
     url = _models.TextField()
+
+    @property
+    def get_absolute_url(self):
+        return _reverse("novels:chapter", kwargs={"chapter_id": self.pk})

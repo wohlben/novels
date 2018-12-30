@@ -106,13 +106,27 @@ class FictionDetailView(_TemplateView):
 class ChapterDetailView(_TemplateView):
     template_name = "novels/details/chapter.html"
 
-    def get_context_data(self, chapter_id):
+    def get_context_data(self, **kwargs):
+        chapter_id = kwargs["chapter_id"]
         chapter = _Chapter.objects.prefetch_related("fiction").get(id=chapter_id)
-        if chapter.content is None and self.request.user.has_perm(
-            "scrapes.force_fetch"
+
+        if (
+            self.request.GET.get("force-fetch")
+            and self.request.user.has_perm("scrapes.force_fetch")
+            and chapter.content is None
         ):
             scrape = _rrl_chapter.fetch_chapter(chapter_id, "forced user refresh")
             _rrl_chapter.parse(scrape_id=scrape)
-        chapter.refresh_from_db()
+            chapter.refresh_from_db()
+
         context = {"chapter": chapter}
+        if chapter.content is None:
+            context["scrape_queue_count"] = _rrl_novel.scrape_queue().count()
+
+        reading_progress = self.request.user.readingprogress_set.filter(
+            chapter_id=chapter.id
+        )
+        if reading_progress.count() > 0:
+            context["progress"] = reading_progress.first()
+
         return context

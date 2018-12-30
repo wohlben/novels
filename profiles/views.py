@@ -1,9 +1,9 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, UpdateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin as __LoginRequiredMixin
-from .forms import ProfileForm, BulkWatchForm
-from .models import User as User, BulkWatchJob, ProvidedUrl
+from .forms import ProfileForm, BulkWatchForm, ReadingProgressForm
+from .models import User as User, BulkWatchJob, ProvidedUrl, ReadingProgress
 from scrapes.models import Parser, Scrapes
 from novels.models import Fiction
 from django.contrib.auth import authenticate, login
@@ -14,7 +14,33 @@ from django.contrib.auth.views import (
     LogoutView as LogoutViewBase,
     LoginView as LoginViewBase,
 )
-from django.core.cache import cache
+
+
+class ReadingProgressView(__LoginRequiredMixin, FormView):
+    template_name = "profiles/components/reading_progress.html"
+    form_class = ReadingProgressForm
+
+    def get_context_data(self, **kwargs):
+        context = dict(
+            **self.request.resolver_match.kwargs, **super().get_context_data(**kwargs)
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            progress, created = ReadingProgress.objects.get_or_create(
+                user=request.user,
+                chapter_id=kwargs["chapter_id"],
+                defaults={"progress": kwargs["progress"]},
+            )
+            if not created:
+                if progress.progress < kwargs["progress"]:
+                    progress.progress = kwargs["progress"]
+                    progress.save()
+            pprint(created)
+            pprint(progress.progress)
+            return HttpResponse(status=204)
+        return HttpResponse(status=403)
 
 
 class BulkWatchProgress(__LoginRequiredMixin, TemplateView):
