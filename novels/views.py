@@ -123,10 +123,10 @@ class ChapterDetailView(_TemplateView):
         if chapter.content is None:
             context["scrape_queue_count"] = _rrl_novel.scrape_queue().count()
 
-        reading_progress = self.request.user.readingprogress_set.filter(
-            chapter_id=chapter.id
-        )
-        if reading_progress.count() > 0:
-            context["progress"] = reading_progress.first()
-
+        if self.request.user.is_authenticated:
+            reading_progress = self.request.user.readingprogress_set.filter(
+                chapter_id=chapter.id
+            )
+            if reading_progress.count() > 0:
+                context["progress"] = reading_progress.first()
         return context
