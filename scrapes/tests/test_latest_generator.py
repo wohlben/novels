@@ -15,10 +15,10 @@ class FetchLatestTestCase(TestCase):
         cls.rrl_latest_parser_id = models.Parser.objects.get(name="rrl latest").id
 
     def pending_fetches(self):
-        return rrl_latest.pending_fetches()
+        return rrl_latest._pending_fetches()
 
     def last_fetch(self):
-        return rrl_latest.last_fetch()
+        return rrl_latest._last_fetch()
 
     def add_queue_event(self):
         return rrl_latest.add_queue_event()
