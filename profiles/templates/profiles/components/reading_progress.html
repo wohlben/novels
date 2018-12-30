@@ -1,4 +1,4 @@
-<form hidden id="progress-{{ progress }}" method="POST" action="{% url 'profiles:reading-progress' chapter_id=chapter_id progress=progress %}">
+<form hidden id="progress-{{ progress }}-form" method="POST" action="{% url 'profiles:reading-progress' chapter_id=chapter_id progress=progress %}">
     <input readonly name="chapter_id" type="number" value="{{ chapter_id }}"/>
     <input readonly name="user_id" type="number" value="{{ user.id }}" />
     <input readonly name="progress" type="number" value="{{ progress }}">

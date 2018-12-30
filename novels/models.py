@@ -48,7 +48,6 @@ class ChapterQS(_models.QuerySet):
         return super().annotate(progress=_models.Subquery(annotation.values('progress')), timestamp=_models.Subquery(annotation.values('timestamp')))
 
 
-
 class Chapter(_models.Model):
     """Chapter database model."""
 
@@ -68,3 +67,18 @@ class Chapter(_models.Model):
     @property
     def get_absolute_url(self):
         return _reverse("novels:chapter", kwargs={"chapter_id": self.pk})
+
+    @property
+    def get_next_chapter(self):
+        try:
+            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__gt=self.published).last()
+        except ValueError:
+            return self.get_next_by_discovered(fiction=self.fiction)
+
+    @property
+    def get_previous_chapter(self):
+        try:
+            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__lt=self.published).first()
+        except ValueError:
+            return self.get_previous_by_discovered(fiction=self.fiction)
+
