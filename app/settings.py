@@ -244,6 +244,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "scrapes.tasks.parsers_task",
         "schedule": crontab(minute="*/5"),
     },
+    "process_provided_urls": {
+        "task": "profiles.tasks.match_provided_urls_to_fictions",
+        "schedule": crontab(minute="*/10"),
+    },
 }
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}  # Where your Graphene schema lives

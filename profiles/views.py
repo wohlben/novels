@@ -98,7 +98,6 @@ class BulkWatchComponent(_LoginRequiredMixin, _FormView):
                             url=url, parser_type=provided_url.parser
                         )
                     provided_url.scrape = scrape
-                    provided_url.success = True
                     provided_url.save()
                     continue
 
