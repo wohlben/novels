@@ -45,7 +45,10 @@ class ChapterQS(_models.QuerySet):
         annotation = _ReadingProgress.objects.filter(
             user=user_id, chapter=_models.OuterRef("id")
         )
-        return super().annotate(progress=_models.Subquery(annotation.values('progress')), timestamp=_models.Subquery(annotation.values('timestamp')))
+        return super().annotate(
+            progress=_models.Subquery(annotation.values("progress")),
+            timestamp=_models.Subquery(annotation.values("timestamp")),
+        )
 
 
 class Chapter(_models.Model):
@@ -71,14 +74,30 @@ class Chapter(_models.Model):
     @property
     def get_next_chapter(self):
         try:
-            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__gt=self.published).last()
+            sort_date = self.published
+            if not sort_date:
+                sort_date = self.discovered
+
+            return (
+                Chapter.objects.filter(fiction=self.fiction)
+                .date_sorted()
+                .filter(sort_date__gt=sort_date)
+                .last()  # date_sorted returns descending chapters!
+            )
         except ValueError:
-            return self.get_next_by_discovered(fiction=self.fiction)
+            return
 
     @property
     def get_previous_chapter(self):
         try:
-            return Chapter.objects.filter(fiction=self.fiction).order_by('published').filter(published__lt=self.published).first()
+            sort_date = self.published
+            if not sort_date:
+                sort_date = self.discovered
+            return (
+                Chapter.objects.filter(fiction=self.fiction)
+                .date_sorted()
+                .filter(sort_date__lt=sort_date)
+                .first()
+            )
         except ValueError:
-            return self.get_previous_by_discovered(fiction=self.fiction)
-
+            return
