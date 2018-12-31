@@ -123,7 +123,7 @@ class RRLChapterScraper(ScrapeManagerBase):
                 chapter_content += self._clean_chapter_content(_tostring(i))
             chapter.content = chapter_content
 
-            chapter.total_progress = len(chapter_content_element.getchildren())
+            chapter.total_progress = len(chapter_content_element[0].getchildren())
 
             remote_id = scrape.url.split("/")[-2]
             if chapter.remote_id is None:
