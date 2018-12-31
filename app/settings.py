@@ -157,6 +157,11 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO", "propagate": True},
         "scrapes.tasks": {"handlers": ["console"], "level": "INFO", "propagate": True},
+        "profiles.token_auth": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
     },
 }
 

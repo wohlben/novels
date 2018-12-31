@@ -2,7 +2,7 @@ from django.http import (
     HttpResponseRedirect as _HttpResponseRedirect,
     HttpResponse as _HttpResponse,
 )
-from django.urls import reverse_lazy as _reverse_lazy
+from django.urls import reverse_lazy as _reverse_lazy, reverse as _reverse
 from django.views.generic import (
     TemplateView as _TemplateView,
     UpdateView as _UpdateView,
@@ -124,6 +124,8 @@ class LoginView(_LoginViewBase):
     template_name = "profiles/login.html"
 
     def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return _HttpResponseRedirect(_reverse("profiles:profile"))
         login_token = self.request.GET.get("login_token")
         if login_token:
             user = _authenticate(login_token)

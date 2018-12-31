@@ -22,9 +22,9 @@ Profile: {{ request.user.username }}
     <br />
     Just bookmark the link to login.
   </p>
-  <a href="{% url 'login' %}?login_token={{ user.login_token }}">
+  <a href="{% url 'login' %}?login_token={{ user.username }}:{{ user.login_token }}">
     <div class="primary-text">
-      {{ user.login_token }}
+      {{ user.username }}:{{ user.login_token }}
     </div>
   </a>
   <hr />
