@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('profiles', '0008_auto_20181229_1637'),
-    ]
+    dependencies = [("profiles", "0008_auto_20181229_1637")]
 
     operations = [
         migrations.AddField(
-            model_name='readingprogress',
-            name='timestamp',
+            model_name="readingprogress",
+            name="timestamp",
             field=models.DateTimeField(auto_now=True),
-        ),
+        )
     ]
