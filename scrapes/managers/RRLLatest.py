@@ -128,7 +128,8 @@ class RRLLatestScraper(ScrapeManagerBase):
         updated_fictions = 0
         fictions = tree.xpath('//div[@class="fiction-list-item row"]')
         expected_fictions = len(fictions)
-        for element in fictions:
+        # reverse fictions so that the discovered timestamp is from oldest to newest
+        for element in reversed(fictions):
             try:
                 fiction = {}
                 fiction["pic_url"] = element.xpath("./figure/img/@src")[0]
