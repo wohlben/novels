@@ -1,8 +1,10 @@
 from django.test import TestCase as _TestCase
 from django.urls import reverse as _reverse
-from profiles.models import User as _User
+from profiles.models import User as _User, ReadingProgress as _ReadingProgress
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from scrapes.models import Parser as _Parser
+from django.contrib.auth.models import Permission as _Permission
+from django.shortcuts import get_object_or_404 as _get_object_or_404
 
 
 class WatchComponentTests(_TestCase):
@@ -173,14 +175,15 @@ class NovelViewTests(_TestCase):
 
 
 class ChapterViewTests(_TestCase):
+    fixtures = ["2018-10-17.json"]
+
     def setUp(self):
-        parser = _Parser.objects.get(name="rrl novel")
-        self.fic = _Fiction.objects.create(
-            title="test fiction", url="https://some.fq.dn/with/uri", source=parser
-        )
-        self.chap = _Chapter.objects.create(
-            fiction=self.fic, url="https://some.fq.dn/with/chap/uri"
-        )
+        self.user, created = _User.objects.get_or_create(username="testuser")
+        self.fic = _Fiction.objects.exclude(author=None).first()
+        self.chap = _Chapter.objects.exclude(content=None).first()
+        if self.chap.total_progress is None:  # TODO: update fixture...
+            self.chap.total_progress = 20
+            self.chap.save()
 
     def test_unauthenticated_get(self):
         response = self.client.get(
@@ -189,5 +192,57 @@ class ChapterViewTests(_TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_authenticated_get(self):
-        self.client.force_login(_User.objects.get_or_create(username="testuser")[0])
-        self.test_unauthenticated_get()
+        self.client.force_login(self.user)
+        response = self.client.get(
+            _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
+        )
+        self.assertEqual(response.status_code, 200, "there should be a simple http ok")
+        self.assertContains(response, f"progress-{self.chap.total_progress}")
+
+    def test_reading_progress_get(self):
+        self.client.force_login(self.user)
+        reading_progress, created = _ReadingProgress.objects.get_or_create(
+            user=self.user,
+            chapter=self.chap,
+            defaults={"progress": self.chap.total_progress},
+        )
+
+        response = self.client.get(
+            _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
+        )
+        self.assertEqual(response.status_code, 200, "there should be a simple http ok")
+        self.assertContains(response, f"progress-{self.chap.total_progress}")
+        self.assertContains(
+            response, f"continue"
+        )  # continue button should be available with a related reading_progress object
+
+    def test_chapter_without_content(self):
+        self.client.force_login(self.user)
+        self.chap.content = None
+        self.chap.save()
+
+        response = self.client.get(
+            _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
+        )
+        self.assertEqual(response.status_code, 200, "there should be a simple http ok")
+        self.assertContains(response, f"always go to the original source")
+
+    def test_chapter_without_content_but_fetch_permission(self):
+        permission = _Permission.objects.get(codename="force_fetch")
+        self.user.user_permissions.add(permission)
+        self.client.force_login(self.user)
+        self.chap.content = None
+        self.chap.save()
+
+        self.assertTrue(
+            self.user.has_perm("scrapes.force_fetch"),
+            "the user should have the permission to force a fetch for this test",
+        )
+
+        response = self.client.get(
+            _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
+        )
+        self.assertEqual(response.status_code, 200, "there should be a simple http ok")
+        self.assertContains(
+            response, f"?force-fetch=true"
+        )  # the force fetch link should be in the body
