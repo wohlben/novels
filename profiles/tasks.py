@@ -23,7 +23,9 @@ def match_provided_urls_to_fictions():
             )
             continue
         else:
-            _logger.info(f"couldn't find a ficiton matching {provided_url.url} for {provided_url.job.user.username}")
+            _logger.info(
+                f"couldn't find a ficiton matching {provided_url.url} for {provided_url.job.user.username}"
+            )
             existing_scrapes = _Scrapes.objects.filter(url=provided_url.url)
             if existing_scrapes >= 1:
                 existing_scrape = existing_scrapes.last()
@@ -33,4 +35,4 @@ def match_provided_urls_to_fictions():
                 else:  # don't process if the scrape hasn't been fetched yet
                     continue
             else:  # pragma: no cover
-                _logger.error(f'couldn\'t find related scrape. something broke')
+                _logger.error(f"couldn't find related scrape. something broke")

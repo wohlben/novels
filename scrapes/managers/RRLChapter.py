@@ -118,7 +118,7 @@ class RRLChapterScraper(ScrapeManagerBase):
             tree = _html.fromstring(scrape.content)
 
             chapter_content = ""
-            chapter_content_element = tree.cssselect('.chapter-content')
+            chapter_content_element = tree.cssselect(".chapter-content")
             for i in chapter_content_element:
                 chapter_content += self._clean_chapter_content(_tostring(i))
             chapter.content = chapter_content
