@@ -33,6 +33,9 @@ class TokenAuthBackend(_ModelBackend):
                 return None
             _logger.info(f"authenticated {username}")
             return user
+        except ValueError:
+            _logger.info(f"somebody didn'nt specify a username")
+            return None
         except Exception as e:
             _logger.error("failed to authenticate")
             raise

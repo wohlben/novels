@@ -22,9 +22,10 @@ class LogoutViewTests(TestCase):
 
 class LoginViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.get_or_create(
+        self.user, created = User.objects.get_or_create(
             username="testuser", defaults={"enable_login_token": True}
-        )[0]
+        )
+        self.login_token = f"login_token={self.user.username}:{self.user.login_token}"
 
     def test_unauthenticated_get(self):
         response = self.client.get(reverse("login"))
@@ -32,9 +33,7 @@ class LoginViewTests(TestCase):
         self.assertEqual(response.status_code, 200, "response should be a login prompt")
 
     def test_login_token_login(self):
-        response = self.client.get(
-            f"{reverse('login')}?login_token={self.user.login_token}"
-        )
+        response = self.client.get(f"{reverse('login')}?{self.login_token}")
         self.assertEqual(
             response.status_code, 302, "response should be a redirect to home"
         )
@@ -48,13 +47,18 @@ class LoginViewTests(TestCase):
     def test_disabled_login_token_login(self):
         self.user.enable_login_token = False
         self.user.save()
-        response = self.client.get(
-            f"{reverse('login')}?login_token={self.user.login_token}"
-        )
+        response = self.client.get(f"{reverse('login')}?{self.login_token}")
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(response.status_code, 200, "response should be a login prompt")
 
     def test_invalid_login_token_login(self):
+        response = self.client.get(
+            f"{reverse('login')}?login_token={self.user}:{uuid4()}"
+        )
+        self.assertContains(response, "Login with GitHub")
+        self.assertEqual(response.status_code, 200, "response should be a login prompt")
+
+    def test_missing_username_in_token(self):
         response = self.client.get(f"{reverse('login')}?login_token={uuid4()}")
         self.assertContains(response, "Login with GitHub")
         self.assertEqual(response.status_code, 200, "response should be a login prompt")
