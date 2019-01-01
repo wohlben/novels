@@ -1,4 +1,4 @@
-from django.forms import ModelForm, Form, CharField, Textarea
+from django.forms import ModelForm, Form, CharField, Textarea, BooleanField
 from .models import User, ReadingProgress
 
 
@@ -16,3 +16,7 @@ class ReadingProgressForm(ModelForm):
     class Meta:
         model = ReadingProgress
         fields = "__all__"
+
+
+class BulkReadingProgressForm(Form):
+    mark_read = BooleanField()

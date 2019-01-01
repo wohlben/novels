@@ -13,6 +13,7 @@ from .forms import (
     ProfileForm as _ProfileForm,
     BulkWatchForm as _BulkWatchForm,
     ReadingProgressForm as _ReadingProgressForm,
+    BulkReadingProgressForm as _BulkReadingProgressForm,
 )
 from .models import (
     User as _User,
@@ -21,7 +22,7 @@ from .models import (
     ReadingProgress as _ReadingProgress,
 )
 from scrapes.models import Parser as _Parser, Scrapes as _Scrapes
-from novels.models import Fiction as _Fiction
+from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from django.contrib.auth import authenticate as _authenticate, login as _login
 from django.shortcuts import redirect as _redirect
 import re as _re
@@ -30,6 +31,45 @@ from django.contrib.auth.views import (
     LogoutView as _LogoutViewBase,
     LoginView as _LoginViewBase,
 )
+
+
+class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
+    template_name = "profiles/components/missed_reading_progress_alert.html"
+    form_class = _BulkReadingProgressForm
+
+    def get_context_data(self, **kwargs):
+        chapter_id = int(self.request.resolver_match.kwargs.get("chapter_id"))
+        chapter = _Chapter.objects.get(id=chapter_id)
+        context = super().get_context_data(**kwargs)
+        context["previous_unread_chapters"] = chapter.get_unread_previous_chapters(
+            self.request.user.id
+        )
+        context["chapter"] = chapter
+        if self.request.GET.get("show-all"):
+            context["show_all"] = True
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return _HttpResponse(status=403)
+
+        chapter_id = kwargs.get("chapter_id")
+        chapter = _Chapter.objects.get(id=chapter_id)
+        for chapter in chapter.get_unread_previous_chapters(self.request.user.id):
+            progress_obj, created = _ReadingProgress.objects.get_or_create(
+                user=self.request.user,
+                chapter=chapter,
+                defaults={"progress": chapter.total_progress},
+            )
+            if not created:
+                progress_obj.progress = chapter.total_progress
+                progress_obj.save()
+
+        return _HttpResponseRedirect(
+            _reverse_lazy(
+                "profiles:bulk-reading-progress", kwargs={"chapter_id": chapter.id}
+            )
+        )
 
 
 class ReadingProgressView(_LoginRequiredMixin, _FormView):
