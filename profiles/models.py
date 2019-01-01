@@ -64,6 +64,9 @@ class User(_AbstractUser):
 
 
 class ReadingProgress(_models.Model):
+    class Meta:
+        unique_together = ("chapter", "user")
+
     chapter = _models.ForeignKey("novels.Chapter", on_delete=_models.CASCADE)
     user = _models.ForeignKey("User", on_delete=_models.CASCADE)
     progress = _models.IntegerField()
