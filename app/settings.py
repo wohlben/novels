@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "profiles",
     "novels",
     "scrapes",
+    "monitoring",
 ]
 if DEBUG:
     INSTALLED_APPS.insert(6, "debug_toolbar")
