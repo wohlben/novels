@@ -44,6 +44,6 @@ def generators_task():
 def parsers_task():
     """Periodic task to parse all available rrl fetches."""
     managers.rrl_latest.parse()
-    managers.rrl_chapter.parse()
     managers.rrl_novel.parse()
+    managers.rrl_chapter.parse()
     return True

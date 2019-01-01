@@ -1,4 +1,4 @@
-from . import ScrapeManagerBase
+from scrapes.managers.ScrapeManagerBase import ScrapeManagerBase as _ScrapeManagerBase
 
 from scrapes.models import Scrapes as _Scrapes, ParseLog as _ParseLog
 from novels.models import Chapter as _Chapter, Fiction as _Fiction
@@ -11,7 +11,7 @@ import re as _re
 from lxml.etree import tostring as _tostring
 
 
-class RRLChapterScraper(ScrapeManagerBase):
+class RRLChapterScraper(_ScrapeManagerBase):
     parser_name = "rrl chapter"
 
     def parse(self, **kwargs):
@@ -103,18 +103,24 @@ class RRLChapterScraper(ScrapeManagerBase):
 
     def _parse_chapter_scrape(self, scrape_id: int) -> bool:
         scrape = _Scrapes.objects.get(id=scrape_id)
-        chapter = _Chapter.objects.get(url=scrape.url)  # TODO: get or create
+        # chapter = _Chapter.objects.get(url=scrape.url)  # TODO: get or create
         parse_log = _ParseLog.objects.create(
-            scrape=scrape,
-            parser_id=self.get_parser_id(),
-            started=_timezone.now(),
-            modified_object={
-                "count": 1,
-                "chapters": [chapter.id],
-                "types": ["chapters"],
-            },
+            scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now()
         )
+
         try:
+            remote_id = int(scrape.url.split("/")[-2])
+        except TypeError:
+            self.logger.exception("couldn't determine remote_id")
+            raise
+        if remote_id == 0:
+            raise Exception("incorrect remote_id 0, failing on parsing error")
+
+        try:
+            chapter = _Chapter.objects.get(
+                remote_id=remote_id, fiction__source__name="rrl novel"
+            )
+
             tree = _html.fromstring(scrape.content)
 
             chapter_content = ""
@@ -124,15 +130,6 @@ class RRLChapterScraper(ScrapeManagerBase):
             chapter.content = chapter_content
 
             chapter.total_progress = len(chapter_content_element[0].getchildren())
-
-            remote_id = scrape.url.split("/")[-2]
-            if chapter.remote_id is None:
-                chapter.remote_id = remote_id
-            if chapter.remote_id != remote_id:
-                self.logger.error(
-                    "unexpected remote_id. not updating content on possible parsing error!"
-                )
-                raise Exception("unexpected Data")
 
             timestamp = int(tree.xpath('//i[@title="Published"]/../time/@unixtime')[0])
             chapter.published = _timezone.make_aware(
@@ -161,8 +158,8 @@ class RRLChapterScraper(ScrapeManagerBase):
     @staticmethod
     def _clean_chapter_content(content):
         content = (
-            content.decode("unicode_escape")
-            .encode("raw_unicode_escape")
+            content.decode("unicode-escape")
+            .encode("raw-unicode-escape")
             .decode("utf-8")
         )
         removed_scripts = _re.sub(r"<script.*?</script>", "", str(content))
