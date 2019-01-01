@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView as _TemplateView
-from django.contrib.auth.mixins import PermissionRequiredMixin as _PermissionRequiredMixin
+from django.contrib.auth.mixins import (
+    PermissionRequiredMixin as _PermissionRequiredMixin,
+)
 from profiles.models import ProvidedUrl as _ProvidedUrls
 from scrapes.models import Scrapes as _Scrapes, ParseLog as _Parselog
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
@@ -20,5 +22,5 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
             http_code=None
         )
         context["failed_parses"] = _Parselog.objects.exclude(success=True)
-        context['sourceless_fictions'] = _Fiction.objects.filter(source=None)
+        context["sourceless_fictions"] = _Fiction.objects.filter(source=None)
         return context
