@@ -44,14 +44,19 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            try:
+                reading_progress = int(kwargs.get("progress"))
+            except (ValueError, TypeError):
+                reading_progress = 0
+
             progress, created = _ReadingProgress.objects.get_or_create(
                 user=request.user,
                 chapter_id=kwargs["chapter_id"],
-                defaults={"progress": kwargs["progress"]},
+                defaults={"progress": reading_progress},
             )
             if not created:
-                if progress.progress < kwargs["progress"] or progress.progress == 0:
-                    progress.progress = kwargs["progress"]
+                if progress.progress < reading_progress or progress.progress == 0:
+                    progress.progress = reading_progress
                     progress.save()
             return _HttpResponse(status=204)
         return _HttpResponse(status=403)
