@@ -142,7 +142,7 @@ class LoginView(_LoginViewBase):
 class ProfileView(_LoginRequiredMixin, _UpdateView):
     form_class = _ProfileForm
     model = _User
-    template_name = "profiles/profile.html"
+    template_name = "profiles/details/profile.html"
     success_url = _reverse_lazy("profiles:profile")
 
     def get_object(self, queryset=None):
