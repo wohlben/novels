@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table class="table table-borderless">
+<thead></thead>
+    <tbody>
+        <tr>
+            <td>unresolved provided URLS</td>
+            <td>{{ unresolved_provided_urls|length }}</td>
+        </tr>
+        <tr>
+            <td>failed fetches</td>
+            <td>{{ failed_fetches|length }}</td>
+        </tr>
+        <tr>
+            <td>failed parses</td>
+            <td>{{ failed_parses|length }}</td>
+        </tr>
+        <tr>
+            <td>fictions without source</td>
+            <td>{{ sourceless_fictions|length }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

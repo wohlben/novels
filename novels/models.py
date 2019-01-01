@@ -23,13 +23,25 @@ class Fiction(_models.Model):
     def __str__(self):
         return self.title
 
+    def get_last_read_chapter(self, user_id):
+        qs = (
+            Chapter.objects.filter(fiction=self)
+            .date_sorted(order="")
+            .add_progress(user_id)
+            .exclude(progress=None)
+        )
+        if len(qs) >= 1:
+            return qs.last()
+        else:
+            return None
+
     @property
     def get_absolute_url(self):
         return _reverse("novels:novel", kwargs={"novel_id": self.pk})
 
 
-class ChapterQS(_models.QuerySet):
-    def date_sorted(self):
+class _ChapterQS(_models.QuerySet):
+    def date_sorted(self, order="-"):
         return (
             super()
             .annotate(
@@ -38,7 +50,7 @@ class ChapterQS(_models.QuerySet):
                     default=_models.F("published"),
                 )
             )
-            .order_by("-sort_date")
+            .order_by(f"{order}sort_date")
         )
 
     def add_progress(self, user_id):
@@ -54,7 +66,7 @@ class ChapterQS(_models.QuerySet):
 class Chapter(_models.Model):
     """Chapter database model."""
 
-    objects = ChapterQS.as_manager()
+    objects = _ChapterQS.as_manager()
 
     fiction = _models.ForeignKey("Fiction", on_delete=_models.CASCADE)
     title = _models.TextField(blank=True, null=True)
@@ -66,6 +78,24 @@ class Chapter(_models.Model):
     updated = _models.DateTimeField(auto_now=True)
     discovered = _models.DateTimeField(auto_now_add=True)
     url = _models.TextField()
+
+    def __str__(self):
+        return self.title
+
+    def get_unread_previous_chapters(self, user_id):
+        sort_date = self.published
+        if not sort_date:
+            sort_date = self.discovered
+        return (
+            Chapter.objects.filter(fiction=self.fiction)
+            .date_sorted(order="")
+            .add_progress(user_id)
+            .filter(
+                _models.Q(progress__lt=_models.F("total_progress"))
+                | _models.Q(progress=None)
+            )
+            .filter(sort_date__lt=sort_date)
+        )
 
     @property
     def get_absolute_url(self):

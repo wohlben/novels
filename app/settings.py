@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "profiles",
     "novels",
     "scrapes",
+    "monitoring",
 ]
 if DEBUG:
     INSTALLED_APPS.insert(6, "debug_toolbar")
@@ -157,6 +158,11 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO", "propagate": True},
         "scrapes.tasks": {"handlers": ["console"], "level": "INFO", "propagate": True},
+        "profiles.token_auth": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
     },
 }
 
@@ -238,6 +244,10 @@ CELERY_BEAT_SCHEDULE = {
     "parsers": {
         "task": "scrapes.tasks.parsers_task",
         "schedule": crontab(minute="*/5"),
+    },
+    "process_provided_urls": {
+        "task": "profiles.tasks.match_provided_urls_to_fictions",
+        "schedule": crontab(minute="*/10"),
     },
 }
 

@@ -1,5 +1,5 @@
-from .ScrapeManagerBase import ScrapeManagerBase
-from .RRL import RRLLatestScraper, RRLNovelScraper, RRLChapterScraper
+from .ScrapeManagerBase import ScrapeManagerBase as _ScrapeManagerBase
+from .rrl import RRLLatestScraper, RRLNovelScraper, RRLChapterScraper
 
 __all__ = [
     "Managers",
@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 
-class ScrapeManager(ScrapeManagerBase):
+class ScrapeManager(_ScrapeManagerBase):
     parser_name = "generic"
 
     def parse(self):

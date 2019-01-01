@@ -102,15 +102,21 @@ class FictionDetailView(_TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         prefetch_qs = _Chapter.objects.date_sorted()
-        if self.request.user.is_authenticated:
+        user = self.request.user
+        if user.is_authenticated:
             prefetch = _Prefetch(
                 "chapter_set", queryset=prefetch_qs.add_progress(self.request.user.id)
             )
         else:
             prefetch = _Prefetch("chapter_set", queryset=prefetch_qs)
-        context["novel"] = _Fiction.objects.prefetch_related(prefetch).get(
+
+        novel = _Fiction.objects.prefetch_related(prefetch).get(
             id=kwargs.get("novel_id")
         )
+
+        context["novel"] = novel
+        if user.is_authenticated:
+            context["last_read_chapter"] = novel.get_last_read_chapter(user.id)
         return context
 
 
@@ -131,6 +137,7 @@ class ChapterDetailView(_TemplateView):
             chapter.refresh_from_db()
 
         context = {"chapter": chapter}
+
         if chapter.content is None:
             context["scrape_queue_count"] = _rrl_novel.scrape_queue().count()
 

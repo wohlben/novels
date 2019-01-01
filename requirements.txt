@@ -5,7 +5,7 @@ celery==4.2.1
 certifi==2018.11.29
 chardet==3.0.4
 cssselect==1.0.3
-defusedxml==0.5.0; python_version >= '3.0'
+defusedxml==0.5.0
 django-celery-results==1.0.4
 django-cors-headers==2.4.0
 django-filter==2.0.0
@@ -14,7 +14,7 @@ django==2.1.4
 djangorestframework==3.9.0
 gunicorn==19.9.0
 idna==2.8
-kombu==4.2.2
+kombu==4.2.2.post1
 lxml==4.2.5
 markdown==3.0.1
 oauthlib==2.1.0

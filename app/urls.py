@@ -26,6 +26,7 @@ urlpatterns = [
     ),
     path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
+    path("monitoring/", include("monitoring.urls")),
     path("api/", include("api.urls", namespace="api")),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),

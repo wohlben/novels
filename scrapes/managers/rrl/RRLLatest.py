@@ -1,4 +1,4 @@
-from . import ScrapeManagerBase
+from scrapes.managers.ScrapeManagerBase import ScrapeManagerBase as _ScrapeManagerBase
 
 from lxml import html as _html
 from scrapes.models import ParseLog as _ParseLog, Parser as _Parser, Scrapes as _Scrapes
@@ -9,7 +9,7 @@ from datetime import timedelta as _timedelta
 __all__ = ["RRLLatestScraper"]
 
 
-class RRLLatestScraper(ScrapeManagerBase):
+class RRLLatestScraper(_ScrapeManagerBase):
     parser_name = "rrl latest"
 
     BASE_URL = "https://www.royalroad.com"
@@ -128,7 +128,8 @@ class RRLLatestScraper(ScrapeManagerBase):
         updated_fictions = 0
         fictions = tree.xpath('//div[@class="fiction-list-item row"]')
         expected_fictions = len(fictions)
-        for element in fictions:
+        # reverse fictions so that the discovered timestamp is from oldest to newest
+        for element in reversed(fictions):
             try:
                 fiction = {}
                 fiction["pic_url"] = element.xpath("./figure/img/@src")[0]
@@ -137,10 +138,10 @@ class RRLLatestScraper(ScrapeManagerBase):
                 )[0]
                 path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
                 fiction["url"] = f"{self.BASE_URL}{path}"
-                fiction["remote_id"] = int(path.split("/")[2])
                 fiction["source"] = _Parser.objects.get(name="rrl novel")
+                fiction_remote_id = int(path.split("/")[2])
                 fic, created = _Fiction.objects.get_or_create(
-                    url=fiction["url"], defaults=fiction
+                    remote_id=fiction_remote_id, defaults=fiction
                 )
                 if created:
                     created_fictions += 1

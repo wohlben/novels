@@ -18,10 +18,14 @@
         ic-replace-target="true"
         ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"
         ic-trigger-on="load"></span>
+    <button class="btn btn-light"
+            title="jump to last read chapter"
+            onclick="document.getElementById('chapter-{{ last_read_chapter.id }}').scrollIntoView(false)"
+    >continue</button>
 </div>
 <ul class="list-group">
   {% for chapter in novel.chapter_set.all reversed %}
-  <li class="list-group-item">
+  <li id="chapter-{{ chapter.id }}" class="list-group-item">
     <a class="row chapter"
       {% if user.is_authenticated and user.internal_links %}
         href="{% url "novels:chapter" chapter_id=chapter.id %}"
@@ -39,7 +43,7 @@
                 {% if progress == "100 %" %}
                     <i title="finished reading on {{ chapter.timestamp }}" class="fa-check fa"></i>
                 {% elif progress != "" %}
-                    <span title="stopped reading on {{ chapter.timestamp }}"  class="read-progress">{% firstof progress '' %}</span>
+                    <span title="you read {{ progress }} on {{ chapter.timestamp }}"  class="read-progress">{{ progress }}</span>
                 {% else %}
                     <span class="read-progress"></span>
                 {% endif %}

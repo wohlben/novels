@@ -22,9 +22,9 @@ Profile: {{ request.user.username }}
     <br />
     Just bookmark the link to login.
   </p>
-  <a href="{% url 'login' %}?login_token={{ user.login_token }}">
+  <a href="{% url 'login' %}?login_token={{ user.username }}:{{ user.login_token }}">
     <div class="primary-text">
-      {{ user.login_token }}
+      {{ user.username }}:{{ user.login_token }}
     </div>
   </a>
   <hr />
@@ -37,7 +37,7 @@ Profile: {{ request.user.username }}
   <hr />
   <h4>Color Theme</h4>
   <p>
-    currently, all free <a href="https://bootswatch.com/" title="visit bootswatch themes preview">bootswatch themes</a> are supported.
+    currently, all free <a href="https://bootswatch.com/" title="visit bootswatch themes preview">bootswatch themes</a> are available.
     <br />
     you may choose any you'd like, though they'll probably look quite strange as i've created this with darkly
   </p>

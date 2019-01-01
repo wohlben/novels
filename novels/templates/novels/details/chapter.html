@@ -24,6 +24,11 @@
     {% endif %}
 
 </aside>
+    {% if chapter.content is not None %}
+        <div ic-replace-target="true"
+             ic-get-from="{% url "profiles:bulk-reading-progress" chapter_id=chapter.id %}"
+             ic-trigger-on="load"></div>
+    {% endif %}
 
 <hr />
     {% if chapter.content is None %}
