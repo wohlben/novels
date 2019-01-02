@@ -120,9 +120,9 @@ class Chapter(_models.Model):
 
             return (
                 Chapter.objects.filter(fiction=self.fiction)
-                .date_sorted()
+                .date_sorted(order="")
                 .filter(sort_date__gt=sort_date)
-                .last()  # date_sorted returns descending chapters!
+                .first()
             )
         except ValueError:
             return
@@ -135,9 +135,9 @@ class Chapter(_models.Model):
                 sort_date = self.discovered
             return (
                 Chapter.objects.filter(fiction=self.fiction)
-                .date_sorted()
+                .date_sorted(order="")
                 .filter(sort_date__lt=sort_date)
-                .first()
+                .last()
             )
         except ValueError:
             return
