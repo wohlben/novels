@@ -82,10 +82,13 @@ class Chapter(_models.Model):
     def __str__(self):
         return self.title
 
-    def get_unread_previous_chapters(self, user_id):
-        sort_date = self.published
-        if not sort_date:
-            sort_date = self.discovered
+    @property
+    def get_sort_date(self):
+        if self.published:
+            return self.published
+        return self.discovered
+
+    def get_relevant_chapters(self, user_id):
         return (
             Chapter.objects.filter(fiction=self.fiction)
             .date_sorted(order="")
@@ -94,8 +97,15 @@ class Chapter(_models.Model):
                 _models.Q(progress__lt=_models.F("total_progress"))
                 | _models.Q(progress=None)
             )
-            .filter(sort_date__lt=sort_date)
         )
+
+    def get_unread_following_chapters(self, user_id):
+        sort_date = self.get_sort_date
+        return self.get_relevant_chapters(user_id).filter(sort_date__gt=sort_date)
+
+    def get_unread_previous_chapters(self, user_id):
+        sort_date = self.get_sort_date
+        return self.get_relevant_chapters(user_id).filter(sort_date__lt=sort_date)
 
     @property
     def get_absolute_url(self):
