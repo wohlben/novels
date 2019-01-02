@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load values %}
 {% load divide %}
+{% block title %}
+    Newest Chapters
+{% endblock %}
 {% block content %}
-
 <ul class="list-group">
 {% for chapter in chapters %}
     <li class="list-group-item card">
@@ -35,10 +37,7 @@
     </li>
 {% endfor %}
 </ul>
-
-
 <hr />
-
 {% with object=chapters paginate_id="paginate2" %}
 {% include "pagination.html" %}
 {% endwith %}
