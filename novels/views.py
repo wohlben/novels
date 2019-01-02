@@ -71,7 +71,7 @@ class ChaptersListView(_TemplateView):
         qs = (
             _Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
-            .only("id", "title", "published", "fiction", "url", "discovered")
+            .only("id", "title", "published", "fiction", "url", "discovered", "total_progress")
         )
         if self.request.user.is_authenticated:
             qs = qs.add_progress(self.request.user.id)
