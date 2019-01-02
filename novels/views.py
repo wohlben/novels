@@ -147,4 +147,8 @@ class ChapterDetailView(_TemplateView):
             )
             if reading_progress.count() > 0:
                 context["progress"] = reading_progress.first()
+
+            context["following_chapters"] = chapter.get_unread_following_chapters(
+                self.request.user.id
+            ).count()
         return context
