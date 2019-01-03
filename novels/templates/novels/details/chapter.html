@@ -83,7 +83,8 @@
     {% else %}
     <button title="there is no previous chapter" class="btn btn-light">Last Chapter</button>
     {% endif %}
-    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
+    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-link">Fiction overview</button> </a>
+    <a href="{{ chapter.url }}"><button class="btn btn-link">source</button> </a>
     {% if chapter.get_next_chapter %}
     <a title="go to the next chapter"
        href="{{ chapter.get_next_chapter.get_absolute_url }}">

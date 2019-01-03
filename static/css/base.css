@@ -1,3 +1,8 @@
 .awesomplete > ul {
   color: black;
 }
+
+blockquote {
+    border-left: 5px solid lightgrey;
+    padding-left: 5px;
+}
