@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load subtract %}
 {% block title %}
     Novels overview
 {% endblock %}
@@ -29,6 +30,19 @@
             <span class="text-muted"> by {{  novel.author }}</span>
             {% endif %}
         </a>
+        {% if novel.read %}
+            {% with unread=novel.chapters|sub:novel.read %}
+                {% if unread == 0 %}
+                    <i class="fa fa-check" title="you read all of the {{ novel.chapters }} chapters"></i>
+                {% else %}
+                <span class="unread-count" title="{{ unread }} of {{ novel.chapters }} chapters are unread">{{ unread }}</span>
+                {% endif %}
+
+            {% endwith %}
+
+        {% else %}
+            <span class="chapters-count" title="there are {{ novel.chapters }} chapters">{{ novel.chapters }}</span>
+      {% endif %}
 
       </li>
     {% endfor %}

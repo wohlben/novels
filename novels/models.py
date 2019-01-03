@@ -4,8 +4,30 @@ from django.db import models as _models
 from profiles.models import ReadingProgress as _ReadingProgress
 
 
+class _FictionQS(_models.QuerySet):
+    def add_chapter_count(self):
+        return super().annotate(
+            chapters=_models.Count(
+                "chapter", filter=_models.Q(chapter__fiction=_models.F("id"))
+            )
+        )
+
+    def add_read_count(self, user_id):
+        return super().annotate(
+            read=_models.Count(
+                "chapter",
+                filter=_models.Q(
+                    chapter__fiction=_models.F("id"),
+                    chapter__readingprogress__user_id=user_id,
+                ),
+            )
+        )
+
+
 class Fiction(_models.Model):
     """Fiction database model."""
+
+    objects = _FictionQS.as_manager()
 
     pic_url = _models.TextField(blank=True, null=True)
     pic = _models.BinaryField(blank=True, null=True)
@@ -19,6 +41,16 @@ class Fiction(_models.Model):
     source = _models.ForeignKey(
         "scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True
     )
+
+    def unread_chapters(self, user_id):
+        return (
+            self.chapter_set.add_progress(user_id)
+            .filter(
+                _models.Q(progress__lt=_models.F("total_progress"))
+                | _models.Q(progress=None)
+            )
+            .count()
+        )
 
     def __str__(self):
         return self.title

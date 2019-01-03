@@ -71,7 +71,15 @@ class ChaptersListView(_TemplateView):
         qs = (
             _Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
-            .only("id", "title", "published", "fiction", "url", "discovered", "total_progress")
+            .only(
+                "id",
+                "title",
+                "published",
+                "fiction",
+                "url",
+                "discovered",
+                "total_progress",
+            )
         )
         if self.request.user.is_authenticated:
             qs = qs.add_progress(self.request.user.id)
@@ -88,7 +96,12 @@ class FictionListView(_TemplateView):
     template_name = "novels/lists/novels.html"
 
     def get_context_data(self, **kwargs):
-        qs = _Fiction.objects.order_by("title").values("id", "title", "author")
+        values = ["id", "title", "author", "chapters"]
+        qs = _Fiction.objects.add_chapter_count().order_by("title")
+        if self.request.user.is_authenticated:
+            values.append("read")
+            qs = qs.add_read_count(self.request.user.id)
+        qs = qs.values(*values)
         novels = _FictionFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
         ).qs
