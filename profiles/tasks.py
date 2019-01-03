@@ -8,8 +8,10 @@ _logger = _logging.getLogger("profiles.tasks")
 
 
 @_shared_task
-def match_provided_urls_to_fictions():
-    unprocessed = _ProvidedUrl.objects.filter(success=None)
+def match_provided_urls_to_fictions(filter_kwargs=None):
+    if filter_kwargs is None:
+        filter_kwargs = {"success": None}
+    unprocessed = _ProvidedUrl.objects.filter(**filter_kwargs)
     _logger.info(f"found {unprocessed.count()} urls to work match to fictions")
     for provided_url in unprocessed:
         existing_fiction = _Fiction.objects.filter(url=provided_url.url)
