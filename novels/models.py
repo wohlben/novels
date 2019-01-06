@@ -179,3 +179,6 @@ class Chapter(_models.Model):
 class Highlight(_models.Model):
     chapter = _models.ForeignKey("Chapter", on_delete=_models.CASCADE)
     sentence = _models.TextField()
+
+    def __str__(self):
+        return self.sentence
