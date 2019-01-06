@@ -19,6 +19,7 @@ markdown = "*"
 django-cors-headers = "*"
 gunicorn = "*"
 django-redis-cache = "*"
+spacy = "*"
 
 [dev-packages]
 pycodestyle = "*"

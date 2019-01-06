@@ -163,6 +163,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
+        "novels.tasks": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": True,
+        },
     },
 }
 
@@ -248,6 +253,10 @@ CELERY_BEAT_SCHEDULE = {
     "process_provided_urls": {
         "task": "profiles.tasks.match_provided_urls_to_fictions",
         "schedule": crontab(minute="*/10"),
+    },
+    "extract_highlights": {
+        "task": "novels.tasks.highlight_extractor_task",
+        "schedule": crontab(minute="*/15"),
     },
 }
 

@@ -109,6 +109,7 @@ class Chapter(_models.Model):
     published_relative = _models.TextField(blank=True, null=True)
     updated = _models.DateTimeField(auto_now=True)
     discovered = _models.DateTimeField(auto_now_add=True)
+    word_count = _models.IntegerField(blank=True, null=True)
     url = _models.TextField()
 
     def __str__(self):
@@ -173,3 +174,8 @@ class Chapter(_models.Model):
             )
         except ValueError:
             return
+
+
+class Highlight(_models.Model):
+    chapter = _models.ForeignKey("Chapter", on_delete=_models.CASCADE)
+    sentence = _models.TextField()
