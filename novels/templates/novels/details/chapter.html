@@ -3,9 +3,16 @@
 {% load read_inserter %}
 {% block title %}{{chapter.fiction.title }}: {{ chapter.title }}{% endblock %}
 {% block content %}
-<h6 class="text-center pt-1">{{ chapter.fiction.title }} by {{ chapter.fiction.author }}</h6>
-<h2 class="text-center">{{ chapter.title }}</h2>
-<p class="text-muted text-center">last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time></p>
+    <h6 class="text-center pt-1"><span title="fiction title">{{ chapter.fiction.title }}</span> by <span title="author name">{{ chapter.fiction.author }}</span></h6>
+<h2 class="text-center" title="chapter title">{{ chapter.title }}</h2>
+<p class="text-muted text-center">
+    last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time><br/>
+    published: <time title="date this chapter was published on the source">{{ chapter.published }}</time><br/>
+    {% if following_chapters > 0 %}
+    There are still {{ following_chapters }} unread chapters before you :)
+    {% endif %}
+
+</p>
 <aside class="d-flex justify-content-center text-center">
     <span title="refetch the chapter"
           id="requeue-component"
@@ -15,12 +22,22 @@
     <button class="btn btn-light" title="increase Text size" onclick="resizeText(true)">
         increase
     </button>
-    <button class="btn btn-light" title="increase Text size" onclick="resizeText(false)">
+    <button class="btn btn-light" title="decrease Text size" onclick="resizeText(false)">
        decrease
     </button>
     <a title="go back to the fiction overview" href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
-    {% if progress != None %}
-        <a title="go to the last progress event" onclick="document.getElementById('progress-{{ progress.progress }}').scrollIntoView(false)"><button class="btn button btn-light">continue</button></a>
+    {% if progress == None %}
+    {% elif progress.progress == chapter.total_progress %}
+            <div id="progress-{{ chapter.total_progress }}" ic-get-from=" ic-trigger-on="scrolled-into-view"></div>
+            <button title="reset progress" class="btn btn-primary"
+                    ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=0 %}"
+                    ic-replace-target="true"
+            >start over</button>
+    {% else %}
+        <a title="go to the last progress event"
+           onclick="document.getElementById('progress-{{ progress.progress }}').scrollIntoView(false)">
+            <button class="btn button btn-light">continue</button>
+        </a>
     {% endif %}
 
 </aside>
@@ -60,9 +77,22 @@
 <hr />
 
 <aside class="d-flex justify-content-center btn-group">
-    <a href="{{ chapter.get_previous_chapter.get_absolute_url }}"><button class="btn btn-light">Last Chapter</button></a>
-    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
-    <a href="{{ chapter.get_next_chapter.get_absolute_url }}"><button class="btn btn-light">Next Chapter</button></a>
+    {% if chapter.get_previous_chapter %}
+    <a title="go to the previous chapter"
+       href="{{ chapter.get_previous_chapter.get_absolute_url }}"><button class="btn btn-primary">Last Chapter</button></a>
+    {% else %}
+    <button title="there is no previous chapter" class="btn btn-light">Last Chapter</button>
+    {% endif %}
+    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-link">Fiction overview</button> </a>
+    <a href="{{ chapter.url }}"><button class="btn btn-link">source</button> </a>
+    {% if chapter.get_next_chapter %}
+    <a title="go to the next chapter"
+       href="{{ chapter.get_next_chapter.get_absolute_url }}">
+        <button class="btn btn-primary">Next Chapter</button>
+    </a>
+    {% else %}
+    <button title="there is no next chapter" class="btn btn-light">Next Chapter</button>
+    {% endif %}
 </aside>
 
 <script>

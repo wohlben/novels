@@ -4,8 +4,30 @@ from django.db import models as _models
 from profiles.models import ReadingProgress as _ReadingProgress
 
 
+class _FictionQS(_models.QuerySet):
+    def add_chapter_count(self):
+        return super().annotate(
+            chapters=_models.Count(
+                "chapter", filter=_models.Q(chapter__fiction=_models.F("id"))
+            )
+        )
+
+    def add_read_count(self, user_id):
+        return super().annotate(
+            read=_models.Count(
+                "chapter",
+                filter=_models.Q(
+                    chapter__fiction=_models.F("id"),
+                    chapter__readingprogress__user_id=user_id,
+                ),
+            )
+        )
+
+
 class Fiction(_models.Model):
     """Fiction database model."""
+
+    objects = _FictionQS.as_manager()
 
     pic_url = _models.TextField(blank=True, null=True)
     pic = _models.BinaryField(blank=True, null=True)
@@ -19,6 +41,16 @@ class Fiction(_models.Model):
     source = _models.ForeignKey(
         "scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True
     )
+
+    def unread_chapters(self, user_id):
+        return (
+            self.chapter_set.add_progress(user_id)
+            .filter(
+                _models.Q(progress__lt=_models.F("total_progress"))
+                | _models.Q(progress=None)
+            )
+            .count()
+        )
 
     def __str__(self):
         return self.title
@@ -77,15 +109,19 @@ class Chapter(_models.Model):
     published_relative = _models.TextField(blank=True, null=True)
     updated = _models.DateTimeField(auto_now=True)
     discovered = _models.DateTimeField(auto_now_add=True)
+    word_count = _models.IntegerField(blank=True, null=True)
     url = _models.TextField()
 
     def __str__(self):
         return self.title
 
-    def get_unread_previous_chapters(self, user_id):
-        sort_date = self.published
-        if not sort_date:
-            sort_date = self.discovered
+    @property
+    def get_sort_date(self):
+        if self.published:
+            return self.published
+        return self.discovered
+
+    def get_relevant_chapters(self, user_id):
         return (
             Chapter.objects.filter(fiction=self.fiction)
             .date_sorted(order="")
@@ -94,8 +130,15 @@ class Chapter(_models.Model):
                 _models.Q(progress__lt=_models.F("total_progress"))
                 | _models.Q(progress=None)
             )
-            .filter(sort_date__lt=sort_date)
         )
+
+    def get_unread_following_chapters(self, user_id):
+        sort_date = self.get_sort_date
+        return self.get_relevant_chapters(user_id).filter(sort_date__gt=sort_date)
+
+    def get_unread_previous_chapters(self, user_id):
+        sort_date = self.get_sort_date
+        return self.get_relevant_chapters(user_id).filter(sort_date__lt=sort_date)
 
     @property
     def get_absolute_url(self):
@@ -110,9 +153,9 @@ class Chapter(_models.Model):
 
             return (
                 Chapter.objects.filter(fiction=self.fiction)
-                .date_sorted()
+                .date_sorted(order="")
                 .filter(sort_date__gt=sort_date)
-                .last()  # date_sorted returns descending chapters!
+                .first()
             )
         except ValueError:
             return
@@ -125,9 +168,17 @@ class Chapter(_models.Model):
                 sort_date = self.discovered
             return (
                 Chapter.objects.filter(fiction=self.fiction)
-                .date_sorted()
+                .date_sorted(order="")
                 .filter(sort_date__lt=sort_date)
-                .first()
+                .last()
             )
         except ValueError:
             return
+
+
+class Highlight(_models.Model):
+    chapter = _models.ForeignKey("Chapter", on_delete=_models.CASCADE)
+    sentence = _models.TextField()
+
+    def __str__(self):
+        return self.sentence

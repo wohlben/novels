@@ -95,7 +95,9 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
                 defaults={"progress": reading_progress},
             )
             if not created:
-                if progress.progress < reading_progress or progress.progress == 0:
+                if reading_progress == 0:
+                    progress.delete()
+                elif progress.progress < reading_progress or progress.progress == 0:
                     progress.progress = reading_progress
                     progress.save()
             return _HttpResponse(status=204)

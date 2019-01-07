@@ -16,6 +16,7 @@ COPY .ci/startup.sh /startup.sh
 RUN useradd -d /novels -m --user-group django
 COPY requirements.txt /novels/requirements.txt
 RUN pip install -r /novels/requirements.txt
+RUN python -m spacy download en
 WORKDIR /novels
 COPY --chown=django:django . /novels/
 USER django
@@ -35,3 +36,4 @@ COPY .ci/static/nginx.conf /etc/nginx/nginx.conf
 ENV PORT=80
 ENV FQDN=localhost
 # CMD ["bash", "/entrypoint.sh"]
+

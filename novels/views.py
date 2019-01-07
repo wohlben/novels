@@ -71,8 +71,18 @@ class ChaptersListView(_TemplateView):
         qs = (
             _Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
-            .only("id", "title", "published", "fiction", "url", "discovered")
+            .only(
+                "id",
+                "title",
+                "published",
+                "fiction",
+                "url",
+                "discovered",
+                "total_progress",
+            )
         )
+        if self.request.user.is_authenticated:
+            qs = qs.add_progress(self.request.user.id)
         chapters = _ChapterFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
         ).qs
@@ -86,7 +96,12 @@ class FictionListView(_TemplateView):
     template_name = "novels/lists/novels.html"
 
     def get_context_data(self, **kwargs):
-        qs = _Fiction.objects.order_by("title").values("id", "title", "author")
+        values = ["id", "title", "author", "chapters"]
+        qs = _Fiction.objects.add_chapter_count().order_by("title")
+        if self.request.user.is_authenticated:
+            values.append("read")
+            qs = qs.add_read_count(self.request.user.id)
+        qs = qs.values(*values)
         novels = _FictionFilter(
             {"user": self.request.user, **self.request.GET}, queryset=qs
         ).qs
@@ -101,7 +116,7 @@ class FictionDetailView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prefetch_qs = _Chapter.objects.date_sorted()
+        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related('highlight_set')
         user = self.request.user
         if user.is_authenticated:
             prefetch = _Prefetch(
@@ -147,4 +162,8 @@ class ChapterDetailView(_TemplateView):
             )
             if reading_progress.count() > 0:
                 context["progress"] = reading_progress.first()
+
+            context["following_chapters"] = chapter.get_unread_following_chapters(
+                self.request.user.id
+            ).count()
         return context

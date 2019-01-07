@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load values %}
+{% load divide %}
+{% block title %}
+    Newest Chapters
+{% endblock %}
 {% block content %}
-
 <ul class="list-group">
 {% for chapter in chapters %}
     <li class="list-group-item card">
@@ -17,62 +20,24 @@
            class="card-body justify-content-between d-flex bg-light">
 
             <span class="chapter-title">{{  chapter.title }}</span>
+            {% with progress=chapter.progress|divide:chapter.total_progress|percent %}
+                {% if progress == '' %}
             <time title="time of publishing or discovered timestamp" class="badge badge-info">
                 {{  chapter.sort_date }}
             </time>
+                {% elif progress == '100 %' %}
+                   <i title="you read {{ progress }} since its release on {{ chapter.sort_date }}" class="fa fa-check"></i>
+                {% else %}
+                    <span title="you read {{ progress }} since its release on {{ chapter.sort_date }}" class="badge badge-info">
+                        {{ progress }}
+                    </span>
+                {% endif %}
+            {% endwith %}
         </a>
     </li>
 {% endfor %}
 </ul>
-
-<!--<div class="container">
-  <div class="row">
-    <a class="col text-center" onclick="setGetParam('watching', true);" title="only show watched novels">
-    {% if request.GET.watching %}
-      <div class="bg-light pb-2 active">show only chapters of watched novels</div>
-    {% else %}
-      <div class="pb-2">show only chapters of watched novels</div>
-    {% endif %}
-    </a>
-    <a class="col text-center" onclick="setGetParam('watching');" title="show all updates">
-    {% if request.GET.watching %}
-      <div class="pb-2"> show all new chapters</div>
-    {% else %}
-      <div class="pb-2 bg-light active"> show all new chapters</div>
-    {% endif %}
-    </a>
-  </div>
-  <hr />
-  <table class="table">
-    <thead>
-        <th>Releas Date</th>
-        <th>Fiction</th>
-        <th>Chapter</th>
-    </thead>
-    <tbody>
-    {% for chapter in chapters %}
-      <tr>
-        <td>
-          {% firstof chapter.published chapter.discovered %}
-        </div>
-        <td>
-          <a href="{{ chapter.fiction.get_absolute_url }}">{{ chapter.fiction.title }}</a>
-        </td>
-        <td title="Visit {{ chapter.fiction.title }}: {{ chapter.title }}">
-        {% if request.user.is_authenticated and request.user.internal_links %}
-          <a href="{{ chapter.get_absolute_url }}">{{ chapter.title }}</a>
-        {% else %}
-          <a href="{{ chapter.url }}">{{ chapter.title }}</a>
-        {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-</div>-->
-
 <hr />
-
 {% with object=chapters paginate_id="paginate2" %}
 {% include "pagination.html" %}
 {% endwith %}
