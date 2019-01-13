@@ -23,5 +23,7 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
         )
         context["failed_parses"] = _Parselog.objects.exclude(success=True)
         context["sourceless_fictions"] = _Fiction.objects.filter(source=None)
-        context["unprocessed_highlights"] = _Chapter.objects.exclude(content=None).filter(highlight=None).count()
+        context["unprocessed_highlights"] = (
+            _Chapter.objects.exclude(content=None).filter(highlight=None).count()
+        )
         return context

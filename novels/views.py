@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin as _LoginRequiredMixin
 from django.views.generic import TemplateView as _TemplateView, FormView as _FormView
 from django.db.models import Prefetch as _Prefetch
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from novels.forms import WatchingForm as _WatchingForm
+from profiles.models import ReadingProgress as _ReadingProgress
 from django.core.paginator import Paginator as _Paginator
 from django.urls import reverse_lazy as _reverse_lazy
 from django.http import (
@@ -10,12 +12,12 @@ from django.http import (
 )
 from .filters import FictionFilter as _FictionFilter, ChapterFilter as _ChapterFilter
 from scrapes.managers import (
-    RRLNovelScraper as __RRLNovelScraper,
-    RRLChapterScraper as __RRLChapterScraper,
+    RRLNovelScraper as _RRLNovelScraper,
+    RRLChapterScraper as _RRLChapterScraper,
 )
 
-_rrl_novel = __RRLNovelScraper()
-_rrl_chapter = __RRLChapterScraper()
+_rrl_novel = _RRLNovelScraper()
+_rrl_chapter = _RRLChapterScraper()
 
 
 class WatchComponent(_FormView):
@@ -116,7 +118,7 @@ class FictionDetailView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related('highlight_set')
+        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related("highlight_set")
         user = self.request.user
         if user.is_authenticated:
             prefetch = _Prefetch(
@@ -135,7 +137,7 @@ class FictionDetailView(_TemplateView):
         return context
 
 
-class ChapterDetailView(_TemplateView):
+class ChapterDetailView(_LoginRequiredMixin, _TemplateView):
     template_name = "novels/details/chapter.html"
 
     def get_context_data(self, **kwargs):
@@ -157,12 +159,11 @@ class ChapterDetailView(_TemplateView):
             context["scrape_queue_count"] = _rrl_novel.scrape_queue().count()
 
         if self.request.user.is_authenticated:
-            reading_progress = self.request.user.readingprogress_set.filter(
-                chapter_id=chapter.id
+            context["progress"], created = _ReadingProgress.objects.get_or_create(
+                chapter_id=chapter.id,
+                user_id=self.request.user.id,
+                defaults={"progress": 0},
             )
-            if reading_progress.count() > 0:
-                context["progress"] = reading_progress.first()
-
             context["following_chapters"] = chapter.get_unread_following_chapters(
                 self.request.user.id
             ).count()

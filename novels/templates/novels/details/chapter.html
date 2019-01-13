@@ -27,7 +27,7 @@
     </button>
     <a title="go back to the fiction overview" href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-light">Fiction overview</button> </a>
     {% if progress == None %}
-    {% elif progress.progress == chapter.total_progress %}
+    {% elif progress.progress == 100 %}
             <div id="progress-{{ chapter.total_progress }}" ic-get-from=" ic-trigger-on="scrolled-into-view"></div>
             <button title="reset progress" class="btn btn-primary"
                     ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=0 %}"
@@ -35,7 +35,7 @@
             >start over</button>
     {% else %}
         <a title="go to the last progress event"
-           onclick="document.getElementById('progress-{{ progress.progress }}').scrollIntoView(false)">
+           onclick="scrollToPercentage({{ progress.progress }})">
             <button class="btn button btn-light">continue</button>
         </a>
     {% endif %}
@@ -70,7 +70,7 @@
     </p>
     {% else %}
     <div id="chapter-content" class="pl-3 pr-3">
-        {{ chapter.content|read_inserter:chapter.id|safe  }}
+        {{ chapter.content|safe  }}
     </div>
     <div id="progress-{{ chapter.total_progress }}" ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=chapter.total_progress %}" ic-trigger-on="scrolled-into-view"></div>
     {% endif %}
@@ -94,25 +94,29 @@
     <button title="there is no next chapter" class="btn btn-light">Next Chapter</button>
     {% endif %}
 </aside>
-
+{% if user.is_authenticated %}
 <script>
-    try {
-        var fontSize = parseInt(Cookies.get("font-size"));
-        if (isNaN(fontSize.isNaN)){
-            fontSize = 100;
-        }
-    } catch (e) { var fontSize = 100; }
-    document.getElementById("chapter-content").style.fontSize = fontSize + '%';
-    function resizeText (bigger) {
-        if (bigger === true) {
-            step = 1;
-        } else {
-            step = -1;
-        }
-        fontSize = fontSize * Math.pow(1.2, step);
+    $(document).ready( () => {
+        resetTextSize();
+        window.progress_id = {{ progress.id }};
+        window.chapter_id = {{ chapter.id }};
+        window.last_position = {{ progress.progress }};
+        let timeout = null;
 
-        document.getElementById("chapter-content").style.fontSize = fontSize + '%';
-        Cookies.set('font-size', fontSize);
-    }
+        $(window).scroll(() => {
+            if (!timeout) {
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                    timeout = null;
+                    let position = getScrollPercentage();
+                    if (window.last_position + 1 < position) {
+                        window.last_position = position;
+                        submitScrollPosition();
+                    }
+                }, 2500);
+            }
+        });
+    });
 </script>
+{% endif %}
 {% endblock %}

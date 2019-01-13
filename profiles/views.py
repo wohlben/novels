@@ -89,6 +89,9 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
             except (ValueError, TypeError):
                 reading_progress = 0
 
+            chapter = _Chapter.objects.get(id=kwargs["chapter_id"])
+            reading_progress = int(reading_progress / chapter.total_progress * 100)
+
             progress, created = _ReadingProgress.objects.get_or_create(
                 user=request.user,
                 chapter_id=kwargs["chapter_id"],
