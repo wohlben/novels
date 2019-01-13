@@ -107,6 +107,19 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
         return _HttpResponse(status=403)
 
 
+class ReadingHistoryView(_LoginRequiredMixin, _TemplateView):
+    template_name = "novels/lists/chapters.html"
+
+    def get_context_data(self, **kwargs):
+        qs = _Chapter.objects.filter(readingprogress__user=self.request.user).add_progress(self.request.user.id).order_by('readingprogress__timestamp').prefetch_related('fiction')
+        context = super().get_context_data(**kwargs)
+        if self.request.GET.get('unfinished'):
+            context['chapters'] = qs.filter(readingprogress__progress__lt=100)
+        else:
+            context['chapters'] = qs
+        return context
+
+
 class BulkWatchProgress(_LoginRequiredMixin, _TemplateView):
     template_name = "profiles/details/bulk_watch_progress.html"
 

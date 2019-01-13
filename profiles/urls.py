@@ -6,6 +6,7 @@ app_name = "profiles"
 
 urlpatterns = [
     path("", views.ProfileView.as_view(), name="profile"),
+    path("history", views.ReadingHistoryView.as_view(), name="history"),
     path(
         "progress/<int:chapter_id>/<progress>",
         views.ReadingProgressView.as_view(),

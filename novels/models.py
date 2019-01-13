@@ -86,13 +86,12 @@ class _ChapterQS(_models.QuerySet):
         )
 
     def add_progress(self, user_id):
-        annotation = _ReadingProgress.objects.filter(
-            user=user_id, chapter=_models.OuterRef("id")
-        )
         return super().annotate(
-            progress=_models.Subquery(annotation.values("progress")),
-            timestamp=_models.Subquery(annotation.values("timestamp")),
+            progress=_models.Max("readingprogress__progress", filter=_models.Q(readingprogress__user_id=user_id, readingprogress__chapter_id=_models.F('id'))),
+            timestamp=_models.Max("readingprogress__timestamp", filter=_models.Q(readingprogress__user_id=user_id, readingprogress__chapter_id=_models.F('id')))
         )
+
+
 
 
 class Chapter(_models.Model):

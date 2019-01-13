@@ -20,14 +20,23 @@
         {% endif %}
       </li>
 
+      {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="historyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Profile</a>
+          <div class="dropdown-menu" aria-labelledby="historyDropdown">
+            <a class="dropdown-item" href="{% url "profiles:profile" %}">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url "profiles:history" %}">Last Read</a>
+            <a class="dropdown-item" href="{% url "profiles:history" %}?unfinished=true">Unfinished chapters</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item disabled" href="{% url 'logout' %}">Logout</a>
+          </div>
+        </li>
+      {% else %}
       <li class="nav-item active">
-        {% if user.is_authenticated %}
-          <a class="nav-link" href="{% url "profiles:profile" %}">Profile</a>
-        {% else %}
           <a class="nav-link" href="{% url "login" %}">Login</a>
-        {% endif %}
       </li>
-
+      {% endif %}
 
       {% if perms.scrapes.view_system %}
         <li class="nav-item dropdown">
@@ -45,7 +54,7 @@
       {% endif %}
       {% if user.is_authenticated %}
         <li class="nav-item">
-          <a class="nav-link disabled" href="{% url 'logout' %}">Logout</a>
+
         </li>
       {% endif %}
     </ul>

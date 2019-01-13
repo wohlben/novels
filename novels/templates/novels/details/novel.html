@@ -44,7 +44,7 @@
                 {% with progress=chapter.progress %}
                     {% if progress == 100 %}
                         <i title="finished reading on {{ chapter.timestamp }}" class="fa-check fa"></i>
-                    {% elif progress != "" %}
+                    {% elif progress is not None %}
                         <span title="you read {{ progress }}% on {{ chapter.timestamp }}"  class="read-progress">{{ progress }} %</span>
                     {% else %}
                         <span class="read-progress"></span>
