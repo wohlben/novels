@@ -111,12 +111,17 @@ class ReadingHistoryView(_LoginRequiredMixin, _TemplateView):
     template_name = "novels/lists/chapters.html"
 
     def get_context_data(self, **kwargs):
-        qs = _Chapter.objects.filter(readingprogress__user=self.request.user).add_progress(self.request.user.id).order_by('readingprogress__timestamp').prefetch_related('fiction')
         context = super().get_context_data(**kwargs)
-        if self.request.GET.get('unfinished'):
-            context['chapters'] = qs.filter(readingprogress__progress__lt=100)
-        else:
-            context['chapters'] = qs
+
+        filters = dict(readingprogress__user=self.request.user)
+        if self.request.GET.get("unfinished"):
+            filters["readingprogress__progress__lt"] = 100
+        context["chapters"] = (
+            _Chapter.objects.add_progress(self.request.user).add_published()
+            .filter(**filters)
+            .order_by("readingprogress__timestamp")
+            .prefetch_related("fiction")
+        )
         return context
 
 
