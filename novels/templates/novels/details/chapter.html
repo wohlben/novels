@@ -72,7 +72,6 @@
     <div id="chapter-content" class="pl-3 pr-3">
         {{ chapter.content|safe  }}
     </div>
-    <div id="progress-{{ chapter.total_progress }}" ic-get-from="{% url "profiles:reading-progress" chapter_id=chapter.id progress=chapter.total_progress %}" ic-trigger-on="scrolled-into-view"></div>
     {% endif %}
 <hr />
 
