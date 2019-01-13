@@ -44,7 +44,9 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
         context["previous_unread_chapters"] = chapter.get_unread_previous_chapters(
             self.request.user.id
         )
-        context["chapters_without_content"] = _Chapter.objects.filter(fiction_id=chapter.fiction.id, content=None).count()
+        context["chapters_without_content"] = _Chapter.objects.filter(
+            fiction_id=chapter.fiction.id, content=None
+        ).count()
         context["chapter"] = chapter
         if self.request.GET.get("show-all"):
             context["show_all"] = True
@@ -118,7 +120,8 @@ class ReadingHistoryView(_LoginRequiredMixin, _TemplateView):
         if self.request.GET.get("unfinished"):
             filters["readingprogress__progress__lt"] = 100
         context["chapters"] = (
-            _Chapter.objects.add_progress(self.request.user).add_published()
+            _Chapter.objects.add_progress(self.request.user)
+            .add_published()
             .filter(**filters)
             .order_by("readingprogress__timestamp")
             .prefetch_related("fiction")

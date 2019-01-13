@@ -74,17 +74,15 @@ class Fiction(_models.Model):
 
 class _ChapterQS(_models.QuerySet):
     def add_published(self):
-       return super().annotate(
-                sort_date=_models.Case(
-                    _models.When(published=None, then=_models.F("discovered")),
-                    default=_models.F("published"),
-                )
+        return super().annotate(
+            sort_date=_models.Case(
+                _models.When(published=None, then=_models.F("discovered")),
+                default=_models.F("published"),
             )
+        )
 
     def date_sorted(self, order="-"):
-        return (
-           self.add_published().order_by(f"{order}sort_date")
-        )
+        return self.add_published().order_by(f"{order}sort_date")
 
     def add_progress(self, user_id):
         return super().annotate(
