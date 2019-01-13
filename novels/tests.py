@@ -189,7 +189,11 @@ class ChapterViewTests(_TestCase):
         response = self.client.get(
             _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            302,
+            "unauthenticated users should get a login redirect",
+        )
 
     def test_authenticated_get(self):
         self.client.force_login(self.user)
