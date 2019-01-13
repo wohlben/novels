@@ -181,9 +181,6 @@ class ChapterViewTests(_TestCase):
         self.user, created = _User.objects.get_or_create(username="testuser")
         self.fic = _Fiction.objects.exclude(author=None).first()
         self.chap = _Chapter.objects.exclude(content=None).first()
-        if self.chap.total_progress is None:  # TODO: update fixture...
-            self.chap.total_progress = 20
-            self.chap.save()
 
     def test_unauthenticated_get(self):
         response = self.client.get(
@@ -201,24 +198,36 @@ class ChapterViewTests(_TestCase):
             _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
         )
         self.assertEqual(response.status_code, 200, "there should be a simple http ok")
-        self.assertContains(response, f"progress-{self.chap.total_progress}")
 
-    def test_reading_progress_get(self):
+    def test_finished_reading_progress_get(self):
         self.client.force_login(self.user)
         reading_progress, created = _ReadingProgress.objects.get_or_create(
-            user=self.user,
-            chapter=self.chap,
-            defaults={"progress": self.chap.total_progress},
+            user=self.user, chapter=self.chap, defaults={"progress": 100}
         )
 
         response = self.client.get(
             _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
         )
         self.assertEqual(response.status_code, 200, "there should be a simple http ok")
-        self.assertContains(response, f"progress-{self.chap.total_progress}")
+        self.assertContains(response, f"window.progress_id = {reading_progress.id};")
         self.assertContains(
-            response, f"continue"
-        )  # continue button should be available with a related reading_progress object
+            response, "start over"
+        )  # there should be a btn to reset progress
+
+    def test_unfinished_reading_progress_get(self):
+        self.client.force_login(self.user)
+        reading_progress, created = _ReadingProgress.objects.get_or_create(
+            user=self.user, chapter=self.chap, defaults={"progress": 20}
+        )
+
+        response = self.client.get(
+            _reverse("novels:chapter", kwargs={"chapter_id": self.chap.id})
+        )
+        self.assertEqual(response.status_code, 200, "there should be a simple http ok")
+        self.assertContains(response, f"{reading_progress.progress}")
+        self.assertContains(
+            response, "continue"
+        )  # there should be a btn to jump to last progress
 
     def test_chapter_without_content(self):
         self.client.force_login(self.user)
