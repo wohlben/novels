@@ -3,7 +3,6 @@ from novels.models import Chapter as _Chapter, Fiction as _Fiction
 from profiles.models import ReadingProgress as _ReadingProgress
 
 
-
 class ChapterSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter
