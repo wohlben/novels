@@ -44,6 +44,7 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
         context["previous_unread_chapters"] = chapter.get_unread_previous_chapters(
             self.request.user.id
         )
+        context["chapters_without_content"] = _Chapter.objects.filter(fiction_id=chapter.fiction.id, content=None).count()
         context["chapter"] = chapter
         if self.request.GET.get("show-all"):
             context["show_all"] = True

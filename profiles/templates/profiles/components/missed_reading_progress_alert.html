@@ -6,6 +6,9 @@
        {{ previous_unread_chapters|length }} previous chapters aren't marked as read yet.
     </p>
     {%  else %}
+        {% if chapters_without_content > 0 %}
+        <div class="alert alert-danger text-center">There are {{ chapters_without_content }} chapters without content. The following list is probably incorrect</div>
+        {% endif %}
     <p class="text-center">
         The following preceding chapters aren't marked as read yet!
     </p>
