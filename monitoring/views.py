@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import (
     PermissionRequiredMixin as _PermissionRequiredMixin,
 )
 from profiles.models import ProvidedUrl as _ProvidedUrls
-from scrapes.models import Scrapes as _Scrapes, ParseLog as _Parselog
+from scrapes.models import Scrapes as _Scrapes, ParseLog as _Parselog, Parser as _Parser
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 
 # Create your views here.
@@ -26,4 +26,5 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
         context["unprocessed_highlights"] = (
             _Chapter.objects.exclude(content=None).filter(highlight=None).count()
         )
+        context['parsers'] = _Parser.objects.all()
         return context

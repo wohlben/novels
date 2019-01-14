@@ -2,7 +2,7 @@
 
 {% block content %}
 <table class="table table-borderless">
-<thead></thead>
+    <thead></thead>
     <tbody>
         <tr>
             <td>unresolved provided URLS</td>
@@ -17,6 +17,17 @@
             <td>{{ failed_parses|length }}</td>
         </tr>
         <tr>
+            <td>delete parse log for</td>
+            <td>
+                <ul>
+                    {% for parser in parsers %}
+                        <button class="btn btn-danger" onclick="delete_last_parses({{ parser.id }})">{{ parser.name }}</button>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+
+        <tr>
             <td>fictions without source</td>
             <td>{{ sourceless_fictions|length }}</td>
         </tr>
@@ -26,4 +37,28 @@
         </tr>
     </tbody>
 </table>
+
+
+<script>
+
+function delete_last_parses(parser_id) {
+    const request = {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        url: '/api/parser/' + parser_id + '/delete_parses/',
+        type: 'POST',
+        data: JSON.stringify({}),
+        success: function(){
+            console.log('submitted deletion for ' + parser_id);
+        },
+        error: function (jqXhr, textStatus, errorThrown) {
+            console.log('failed to submit deletion');
+            return errorThrown;
+        }
+    };
+    $.ajax(request);
+}
+</script>
 {% endblock %}

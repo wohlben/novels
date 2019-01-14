@@ -95,7 +95,6 @@ class RRLLatestScraper(_ScrapeManagerBase):
         for element in chapters:
             try:
                 chapter = dict()
-                chapter["fiction"] = fiction
                 path = element.xpath("./a/@href")[0]
                 chapter["url"] = f"{self.BASE_URL}{path}"
                 chapter["remote_id"] = int(path.split("/")[5])
@@ -103,6 +102,7 @@ class RRLLatestScraper(_ScrapeManagerBase):
                 published_relative = element.xpath(".//time/text()")[0]
                 chap, created = _Chapter.objects.get_or_create(
                     remote_id=chapter["remote_id"],
+                    fiction=fiction,
                     defaults={**chapter, "published_relative": published_relative},
                 )
                 if created:
@@ -138,9 +138,9 @@ class RRLLatestScraper(_ScrapeManagerBase):
                 )[0]
                 path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
                 fiction["url"] = f"{self.BASE_URL}{path}"
-                fiction["source"] = _Parser.objects.get(name="rrl novel")
                 fiction_remote_id = int(path.split("/")[2])
                 fic, created = _Fiction.objects.get_or_create(
+                    source=_Parser.objects.get(name="rrl novel"),
                     remote_id=fiction_remote_id, defaults=fiction
                 )
                 if created:

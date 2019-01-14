@@ -103,7 +103,6 @@ class RRLChapterScraper(_ScrapeManagerBase):
 
     def _parse_chapter_scrape(self, scrape_id: int) -> bool:
         scrape = _Scrapes.objects.get(id=scrape_id)
-        # chapter = _Chapter.objects.get(url=scrape.url)  # TODO: get or create
         parse_log = _ParseLog.objects.create(
             scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now()
         )

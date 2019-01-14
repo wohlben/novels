@@ -1,7 +1,7 @@
 from . import APP_NAME
 from django.urls import path, include
 from rest_framework import routers
-from api.views import ChapterViewSet, FictionViewSet, ReadingProgressViewSet
+from api.views import ChapterViewSet, FictionViewSet, ReadingProgressViewSet, ParserViewSet
 
 app_name = APP_NAME
 
@@ -9,6 +9,7 @@ router = routers.DefaultRouter()
 router.register(r"chapters", ChapterViewSet)
 router.register(r"novels", FictionViewSet)
 router.register(r"progress", ReadingProgressViewSet, "progress-detail")
+router.register(r'parser', ParserViewSet, 'parsers')
 
 urlpatterns = [
     path("", include(router.urls)),
