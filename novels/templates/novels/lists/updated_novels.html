@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load subtract %}
+{% block title %}
+    Novels overview
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <a class="col text-center" onclick="setGetParam('populated', true);" title="show only novels with parsed chapters">
+      {% if request.GET.populated %}
+        <div class="hero bg-light pb-2">populated</div>
+      {% else %}
+        <div class="hero pb-2">populated</div>
+      {% endif %}
+    </a>
+    <a class="col text-center" onclick="setGetParam('populated');" title="show all novels">
+      {% if request.GET.populated %}
+        <div class="hero pb-2">all</div>
+      {% else %}
+        <div class="hero bg-light pb-2">all</div>
+      {% endif %}
+    </a>
+  </div>
+  <ul class="list-group">
+    {% for novel in novels %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="{% url "novels:novel" novel_id=novel.id %}">
+            <span class="novel-title">{{ novel.title }}</span>
+            {% if novel.author %}
+            <span class="text-muted"> by {{  novel.author }}</span>
+            {% endif %}
+        </a>
+
+        {% if novel.read %}
+            {% with unread=novel.chapters|sub:novel.read %}
+                {% if unread == 0 %}
+                    <i class="fa fa-check" title="you read all of the {{ novel.chapters }} chapters"></i>
+                {% else %}
+                <span class="unread-count" title="{{ unread }} of {{ novel.chapters }} chapters are unread">{{ unread }}
+                    <i class="fa fa-newspaper-o" title="latest chapter is from {{ novel.newest_chapter }}"> </i>
+                </span>
+                {% endif %}
+
+            {% endwith %}
+
+        {% else %}
+            <span class="chapters-count" title="there are {{ novel.chapters }} chapters">{{ novel.chapters }}
+                <i class="fa fa-newspaper-o" title="latest chapter is from {{ novel.newest_chapter }}"> </i>
+            </span>
+
+      {% endif %}
+
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% with object=novels paginate_id="paginate1" %}
+{% include "pagination.html" %}
+{% endwith %}
+{% endblock %}

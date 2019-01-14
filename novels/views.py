@@ -15,7 +15,7 @@ from scrapes.managers import (
     RRLNovelScraper as _RRLNovelScraper,
     RRLChapterScraper as _RRLChapterScraper,
 )
-
+from django.db.models import Max as _Max, Q as _Q
 _rrl_novel = _RRLNovelScraper()
 _rrl_chapter = _RRLChapterScraper()
 
@@ -99,7 +99,7 @@ class FictionListView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         values = ["id", "title", "author", "chapters"]
-        qs = _Fiction.objects.add_chapter_count().order_by("title")
+        qs = _Fiction.objects.add_chapter_count().order_by('title')
         if self.request.user.is_authenticated:
             values.append("read")
             qs = qs.add_read_count(self.request.user.id)
@@ -111,6 +111,28 @@ class FictionListView(_TemplateView):
         paginator = _Paginator(novels, 50)
         novels = paginator.get_page(page)
         return {"novels": novels}
+
+
+class UpdatedFictionListView(_TemplateView):
+    template_name = "novels/lists/updated_novels.html"
+
+    def get_context_data(self, **kwargs):
+        values = ["id", "title", "author", "chapters", "newest_chapter"]
+        qs = _Fiction.objects.add_chapter_count()
+        if self.request.user.is_authenticated:
+            values.append("read")
+            qs = qs.add_read_count(self.request.user.id)
+        qs = qs.annotate(newest_chapter=_Max('chapter__published'))
+        qs = qs.order_by('-newest_chapter')
+        qs = qs.values(*values)
+        novels = _FictionFilter(
+            {"user": self.request.user, **self.request.GET}, queryset=qs
+        ).qs
+        page = self.request.GET.get("page")
+        paginator = _Paginator(novels, 50)
+        novels = paginator.get_page(page)
+        return {"novels": novels}
+
 
 
 class FictionDetailView(_TemplateView):
