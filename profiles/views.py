@@ -60,9 +60,7 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
         chapter = _Chapter.objects.get(id=chapter_id)
         for chapter in chapter.get_unread_previous_chapters(self.request.user.id):
             progress_obj, created = _ReadingProgress.objects.get_or_create(
-                user=self.request.user,
-                chapter=chapter,
-                defaults={"progress": 100},
+                user=self.request.user, chapter=chapter, defaults={"progress": 100}
             )
             if not created:
                 progress_obj.progress = 100

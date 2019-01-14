@@ -193,7 +193,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                 chap_url = self.BASE_URL + chapter.xpath("./td/a/@href")[0]
                 chap_remote_id = chap_url.split("/")[-2]
                 chap, created = _Chapter.objects.get_or_create(
-                     fiction=fic, remote_id=chap_remote_id, defaults={'url': chap_url}
+                    fiction=fic, remote_id=chap_remote_id, defaults={"url": chap_url}
                 )
                 chap.title = (
                     chapter.xpath("./td/a/text()")[0]
