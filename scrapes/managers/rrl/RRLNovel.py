@@ -96,7 +96,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
             url_element = chapter.xpath("./td/a/@href")
             if len(url_element) == 0:
                 continue
-            chapter_dict = {"fiction": fiction}
+            chapter_dict = dict()
             chapter_dict["url"] = self.BASE_URL + url_element[0]
             chapter_dict["title"] = (
                 chapter.xpath("./td/a/text()")[0]
@@ -108,7 +108,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
             try:
                 remote_id = int(chapter_dict["url"].split("/")[-2])
                 chap, created = _Chapter.objects.get_or_create(
-                    remote_id=remote_id, defaults=chapter_dict
+                    fiction=fiction, remote_id=remote_id, defaults=chapter_dict
                 )
             except (ValueError, IndexError, TypeError):
                 self.logger.exception(
@@ -193,7 +193,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                 chap_url = self.BASE_URL + chapter.xpath("./td/a/@href")[0]
                 chap_remote_id = chap_url.split("/")[-2]
                 chap, created = _Chapter.objects.get_or_create(
-                    url=chap_url, fiction=fic, defaults={"remote_id": chap_remote_id}
+                     fiction=fic, remote_id=chap_remote_id, defaults={'url': chap_url}
                 )
                 chap.title = (
                     chapter.xpath("./td/a/text()")[0]
@@ -201,6 +201,8 @@ class RRLNovelScraper(_ScrapeManagerBase):
                     .decode("unicode_escape")
                     .strip()
                 )
+                if not created:
+                    chap.url = chap_url
                 chap.save()
                 created_chapters += 1
 

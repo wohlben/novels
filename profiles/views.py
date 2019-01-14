@@ -62,10 +62,10 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
             progress_obj, created = _ReadingProgress.objects.get_or_create(
                 user=self.request.user,
                 chapter=chapter,
-                defaults={"progress": chapter.total_progress},
+                defaults={"progress": 100},
             )
             if not created:
-                progress_obj.progress = chapter.total_progress
+                progress_obj.progress = 100
                 progress_obj.save()
 
         return _HttpResponseRedirect(
