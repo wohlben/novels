@@ -5,7 +5,7 @@ from api.serializers import (
     ChapterListSerializer as _ChapterListSerializer,
     ChapterSerializer as _ChapterSerializer,
     ReadingProgressSerializer as _ReadingProgressSerializer,
-    ParserSerializer as _ParserSerialzer
+    ParserSerializer as _ParserSerialzer,
 )
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from profiles.models import ReadingProgress as _ReadingProgress
@@ -61,7 +61,7 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
 class ParserViewSet(viewsets.ModelViewSet):
     serializer_class = _ParserSerialzer
     queryset = _Parser.objects.all()
-    http_method_names = ('get', 'post')
+    http_method_names = ("get", "post")
 
     def delete(self, request, *args, **kwargs):
         return HttpResponse(status=403)
@@ -72,20 +72,22 @@ class ParserViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return HttpResponse(status=403)
 
-
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def delete_all_parses(self, request, pk=None, days=1):
-        if request.user.has_perm('scrapes.view_system'):
-            _ParseLog.objects.filter(started__gt=_timezone.now()-_timedelta(days=days)).delete()
+        if request.user.has_perm("scrapes.view_system"):
+            _ParseLog.objects.filter(
+                started__gt=_timezone.now() - _timedelta(days=days)
+            ).delete()
             _parsers_task.apply_async(expires=600)
             return HttpResponse(status=204)
         return HttpResponse(status=403)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def delete_parses(self, request, pk=None, days=1):
-        if request.user.has_perm('scrapes.view_system'):
-            _ParseLog.objects.filter(parser_id=pk, started__gt=_timezone.now()-_timedelta(days=days)).delete()
+        if request.user.has_perm("scrapes.view_system"):
+            _ParseLog.objects.filter(
+                parser_id=pk, started__gt=_timezone.now() - _timedelta(days=days)
+            ).delete()
             _parsers_task.apply_async(expires=600)
             return HttpResponse(status=204)
         return HttpResponse(status=403)
-

@@ -1,4 +1,9 @@
-from rest_framework.serializers import ModelSerializer as _ModelSerializer, Serializer as _Serializer, PrimaryKeyRelatedField as _PrimaryKeyRelatedField, IntegerField as _IntegerField
+from rest_framework.serializers import (
+    ModelSerializer as _ModelSerializer,
+    Serializer as _Serializer,
+    PrimaryKeyRelatedField as _PrimaryKeyRelatedField,
+    IntegerField as _IntegerField,
+)
 from novels.models import Chapter as _Chapter, Fiction as _Fiction
 from profiles.models import ReadingProgress as _ReadingProgress
 from scrapes.models import Parser as _Parser
@@ -42,4 +47,4 @@ class ReadingProgressSerializer(_ModelSerializer):
 class ParserSerializer(_ModelSerializer):
     class Meta:
         model = _Parser
-        fields = ('id',)
+        fields = ("id",)

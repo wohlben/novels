@@ -141,7 +141,8 @@ class RRLLatestScraper(_ScrapeManagerBase):
                 fiction_remote_id = int(path.split("/")[2])
                 fic, created = _Fiction.objects.get_or_create(
                     source=_Parser.objects.get(name="rrl novel"),
-                    remote_id=fiction_remote_id, defaults=fiction
+                    remote_id=fiction_remote_id,
+                    defaults=fiction,
                 )
                 if created:
                     created_fictions += 1

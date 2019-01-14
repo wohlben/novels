@@ -175,7 +175,9 @@ class RRLNovelScraper(_ScrapeManagerBase):
     def _parse_fiction_page(self, element, url):
         try:
             remote_id = url.split("/")[-2]
-            fic, created = _Fiction.objects.get_or_create(remote_id=int(remote_id), source=self.get_parser_id())
+            fic, created = _Fiction.objects.get_or_create(
+                remote_id=int(remote_id), source=self.get_parser_id()
+            )
 
             chapters = element.xpath("//tr")
             created_chapters = 0

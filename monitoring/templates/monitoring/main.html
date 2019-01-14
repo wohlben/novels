@@ -21,7 +21,7 @@
             <td>
                 <ul>
                     {% for parser in parsers %}
-                        <button class="btn btn-danger" onclick="delete_last_parses({{ parser.id }})">{{ parser.name }}</button>
+                        <button class="btn btn-danger" onclick="delete_last_parses({{ parser.id }})" title="this will delete about {{ parser.parses }} parse attempts">{{ parser.name }}</button>
                     {% endfor %}
                 </ul>
             </td>

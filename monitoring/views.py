@@ -5,6 +5,9 @@ from django.contrib.auth.mixins import (
 from profiles.models import ProvidedUrl as _ProvidedUrls
 from scrapes.models import Scrapes as _Scrapes, ParseLog as _Parselog, Parser as _Parser
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
+from django.utils import timezone as _timezone
+from datetime import timedelta as _timedelta
+from django.db.models import Q as _Q, Count as _Count
 
 # Create your views here.
 
@@ -26,5 +29,17 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
         context["unprocessed_highlights"] = (
             _Chapter.objects.exclude(content=None).filter(highlight=None).count()
         )
-        context['parsers'] = _Parser.objects.all()
+        context["parsers"] = (
+            _Parser.objects.all()
+            .annotate(
+                parses=_Count(
+                    "parselog",
+                    filter=_Q(
+                        parselog__started__gt=_timezone.now() - _timedelta(days=1)
+                    ),
+                )
+            )
+            .values("parses", "name", "id")
+        )
+
         return context
