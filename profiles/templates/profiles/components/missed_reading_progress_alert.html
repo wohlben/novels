@@ -16,8 +16,8 @@
     {% for chapter in previous_unread_chapters %}
         <li class="list-group-item d-flex justify-content-between">
             <span class="chapter-name">{{ chapter }}</span>
-            {% with progress_display=chapter.progress|divide:chapter.total_progress|percent %}
-                {% if progress_display != '' %}
+            {% with progress_display=chapter.progress %}
+                {% if progress_display != None %}
                 <span class="badge badge-info" title="You read {{ progress_display }} on {{ chapter.timestamp }}">{{ progress_display }}</span>
                     {% else %}
                 <span class="badge badge-info"></span>
