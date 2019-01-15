@@ -72,6 +72,9 @@ class ReadingProgress(_models.Model):
     progress = _models.IntegerField()
     timestamp = _models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.progress} %"
+
     @property
     def get_absolute_url(self):
         _reverse(

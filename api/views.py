@@ -17,14 +17,19 @@ from datetime import timedelta as _timedelta
 from scrapes.models import ParseLog as _ParseLog, Parser as _Parser
 from django.http import HttpResponse
 from scrapes.tasks import parsers_task as _parsers_task
+from scrapes.managers import Managers as _Managers
+from rest_framework import mixins
+
+_managers = _Managers()
 
 
-class FictionViewSet(viewsets.ModelViewSet):
+class FictionViewSet(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
     queryset = _Fiction.objects.all().order_by("title")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("author",)
     pagination_class = VariablePagination
-    http_method_names = ("get",)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -32,18 +37,33 @@ class FictionViewSet(viewsets.ModelViewSet):
         else:
             return _FictionSerializer
 
+    @action(detail=True, methods=["post"])
+    def requeue(self, request, pk=None):
+        if request.user.has_perm("scrapes.view_system") and pk is not None:
+            _managers.rrl_novel.refetch_novel(pk)
+            return HttpResponse(status=204)
+        return HttpResponse(status=403)
 
-class ChapterViewSet(viewsets.ModelViewSet):
+
+class ChapterViewSet(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
     queryset = _Chapter.objects.all().order_by("-id")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
-    http_method_names = ("get",)
 
     def get_serializer_class(self):
         if self.action == "list":
             return _ChapterListSerializer
         else:
             return _ChapterSerializer
+
+    @action(detail=True, methods=["post"])
+    def requeue(self, request, pk=None):
+        if request.user.has_perm("scrapes.view_system") and pk is not None:
+            _managers.rrl_chapter.refetch_chapter(pk)
+            return HttpResponse(status=204)
+        return HttpResponse(status=403)
 
 
 class ReadingProgressViewSet(viewsets.ModelViewSet):
@@ -58,19 +78,12 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
         return _ReadingProgress.objects.none()
 
 
-class ParserViewSet(viewsets.ModelViewSet):
+class ParserViewSet(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
     serializer_class = _ParserSerialzer
     queryset = _Parser.objects.all()
     http_method_names = ("get", "post")
-
-    def delete(self, request, *args, **kwargs):
-        return HttpResponse(status=403)
-
-    def update(self, request, *args, **kwargs):
-        return HttpResponse(status=403)
-
-    def create(self, request, *args, **kwargs):
-        return HttpResponse(status=403)
 
     @action(detail=False, methods=["post"])
     def delete_all_parses(self, request, pk=None, days=1):

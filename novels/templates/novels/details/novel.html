@@ -13,11 +13,7 @@
         ic-replace-target="true"
         ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
         ic-trigger-on="load"></span>
-  <span title="refetch the novel"
-        id="requeue-component"
-        ic-replace-target="true"
-        ic-src="{% url "scrapes:requeue-novel" novel_id=novel.id %}"
-        ic-trigger-on="load"></span>
+    <button class="btn btn-dark" title="force a refetch on the server" ic-post-to="/api/novels/{{ novel.id }}/requeue/"><i class="fa fa-refresh"></i></button>
     <button class="btn btn-light"
             title="jump to last read chapter"
             onclick="document.getElementById('chapter-{{ last_read_chapter.id }}').scrollIntoView(false)"
