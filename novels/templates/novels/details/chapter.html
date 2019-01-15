@@ -40,11 +40,33 @@
                 <span id="client-progress">0 %</span>
             </button>
         </div>
-        <div class="btn-group">
-            <button class="btn btn-dark" title="force a refetch on the server" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/"><i class="fa fa-refresh"></i></button>
-            <button class="btn btn-dark" title="go to fiction">
-                <a title="go to fiction" href="{{ chapter.fiction.get_absolute_url }}"><i class="fa fa-book fa-lg"></i></a>
-            </button>
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="linkDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-link"></i> </a>
+            <div class="dropdown-menu" aria-labelledby="linkDropdown">
+                {% if perms.scrapes.view_system %}
+                <a class="dropdown-item" title="force a refetch on the server" ic-confirm="refetch this chapter?" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/">
+                    <i class="fa fa-refresh"></i>
+                    Refetch
+                </a>
+                <div class="dropdown-divider"></div>
+                {% endif %}
+                <a class="dropdown-item" title="go to fiction" href="{{ chapter.fiction.get_absolute_url }}">
+                    <i class="fa fa-book fa-lg"></i>
+                    {{ chapter.fiction.title }}
+                </a>
+                <div class="dropdown-divider"></div>
+                {% if chapter.get_previous_chapter %}
+                    <a class="dropdown-item" title="go to last chapter" href="{{ chapter.get_previous_chapter.get_absolute_url }}"><i class="fa fa-arrow-left fa-lg">last chapter</i></a>
+                {% endif %}
+                {% if chapter.get_next_chapter %}
+                    <a class="dropdown-item" title="go to next chapter" href="{{ chapter.get_next_chapter.get_absolute_url }}"><i class="fa fa-arrow-right fa-lg">next chapter</i></button>
+                {% endif %}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" title="go to latest chapters" href="{% url "novels:updates" %}?watching=true">
+                    <i class="fa fa-leanpub"></i>
+                    latest chapters
+                </a>
+            </div>
         </div>
         <div class="btn-group nav-item">
             <button class="btn btn-dark" title="increase text size" onclick="resizeText(true)"><i class="fa fa-plus-square-o fa-lg"></i></button>
@@ -105,7 +127,6 @@
     {% else %}
     <button title="there is no previous chapter" class="btn btn-light">Last Chapter</button>
     {% endif %}
-    <a href="{{ chapter.fiction.get_absolute_url }}"><button class="btn btn-link">Fiction overview</button> </a>
     <a href="{{ chapter.url }}"><button class="btn btn-link">source</button> </a>
     {% if chapter.get_next_chapter %}
     <a title="go to the next chapter"
