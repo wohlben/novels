@@ -135,7 +135,7 @@ class Chapter(_models.Model):
             .date_sorted(order="")
             .add_progress(user_id)
             .filter(
-                _models.Q(progress__lt=100))
+                _models.Q(progress__lt=100)
                 | _models.Q(progress=None)
             )
         )
