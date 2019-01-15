@@ -180,7 +180,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "scrapes:home"
+LOGIN_REDIRECT_URL = "home"
 SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
 SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True

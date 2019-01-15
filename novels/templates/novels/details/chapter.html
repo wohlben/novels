@@ -40,8 +40,9 @@
                 <span id="client-progress">0 %</span>
             </button>
         </div>
-        <div class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="linkDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-link"></i> </a>
+        <div class="btn-group nav-item">
+        <div class="dropdown">
+            <button class="btn btn-dark nav-link dropdown-toggle" href="#" id="linkDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-link fa-lg"></i> </button>
             <div class="dropdown-menu" aria-labelledby="linkDropdown">
                 {% if perms.scrapes.view_system %}
                 <a class="dropdown-item" title="force a refetch on the server" ic-confirm="refetch this chapter?" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/">
@@ -68,7 +69,7 @@
                 </a>
             </div>
         </div>
-        <div class="btn-group nav-item">
+
             <button class="btn btn-dark" title="increase text size" onclick="resizeText(true)"><i class="fa fa-plus-square-o fa-lg"></i></button>
             <button class="btn btn-dark" title="decrease text size" onclick="resizeText(false)"><i class="fa fa-minus-square-o fa-lg"></i> </button>
         </div>
