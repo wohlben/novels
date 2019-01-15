@@ -8,6 +8,7 @@ from django.views.generic import (
     UpdateView as _UpdateView,
     FormView as _FormView,
 )
+from django.core.paginator import Paginator as _Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin as _LoginRequiredMixin
 from .forms import (
     ProfileForm as _ProfileForm,
@@ -117,13 +118,16 @@ class ReadingHistoryView(_LoginRequiredMixin, _TemplateView):
         filters = dict(readingprogress__user=self.request.user)
         if self.request.GET.get("unfinished"):
             filters["readingprogress__progress__lt"] = 100
-        context["chapters"] = (
+        chapters = (
             _Chapter.objects.add_progress(self.request.user)
-            .add_published()
-            .filter(**filters)
-            .order_by("readingprogress__timestamp")
-            .prefetch_related("fiction")
+                .add_published()
+                .filter(**filters)
+                .order_by("readingprogress__timestamp")
+                .prefetch_related("fiction")
         )
+        page = self.request.GET.get("page")
+        paginator = _Paginator(chapters, 50)
+        context["chapters"] = paginator.get_page(page)
         return context
 
 
