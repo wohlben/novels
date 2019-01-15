@@ -21,7 +21,7 @@ from django.conf import settings
 urlpatterns = [
     path(
         "",
-        RedirectView.as_view(pattern_name="scrapes:home", permanent=False),
+        RedirectView.as_view(pattern_name="novels:updates", permanent=False),
         name="home",
     ),
     path("novels/", include("novels.urls")),

@@ -4,7 +4,6 @@ from profiles.models import User as _User, ReadingProgress as _ReadingProgress
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from scrapes.models import Parser as _Parser
 from django.contrib.auth.models import Permission as _Permission
-from django.shortcuts import get_object_or_404 as _get_object_or_404
 
 
 class WatchComponentTests(_TestCase):
@@ -210,9 +209,6 @@ class ChapterViewTests(_TestCase):
         )
         self.assertEqual(response.status_code, 200, "there should be a simple http ok")
         self.assertContains(response, f"window.progress_id = {reading_progress.id};")
-        self.assertContains(
-            response, "start over"
-        )  # there should be a btn to reset progress
 
     def test_unfinished_reading_progress_get(self):
         self.client.force_login(self.user)
