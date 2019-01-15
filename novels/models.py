@@ -134,10 +134,7 @@ class Chapter(_models.Model):
             Chapter.objects.filter(fiction=self.fiction)
             .date_sorted(order="")
             .add_progress(user_id)
-            .filter(
-                _models.Q(progress__lt=100)
-                | _models.Q(progress=None)
-            )
+            .filter(_models.Q(progress__lt=100) | _models.Q(progress=None))
         )
 
     def get_unread_following_chapters(self, user_id):

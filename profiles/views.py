@@ -120,10 +120,10 @@ class ReadingHistoryView(_LoginRequiredMixin, _TemplateView):
             filters["readingprogress__progress__lt"] = 100
         chapters = (
             _Chapter.objects.add_progress(self.request.user)
-                .add_published()
-                .filter(**filters)
-                .order_by("readingprogress__timestamp")
-                .prefetch_related("fiction")
+            .add_published()
+            .filter(**filters)
+            .order_by("readingprogress__timestamp")
+            .prefetch_related("fiction")
         )
         page = self.request.GET.get("page")
         paginator = _Paginator(chapters, 50)
