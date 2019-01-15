@@ -21,7 +21,7 @@
             <td>
                 <ul>
                     {% for parser in parsers %}
-                        <button class="btn btn-danger" onclick="delete_last_parses({{ parser.id }})" title="this will delete about {{ parser.parses }} parse attempts">{{ parser.name }}</button>
+                        <button class="btn btn-danger" ic-post-to="/api/parser/{{ parser.id }}/delete_parses/" title="this will retry parsing about {{ parser.parses }} parse attempts">{{ parser.name }}</button>
                     {% endfor %}
                 </ul>
             </td>
@@ -37,28 +37,4 @@
         </tr>
     </tbody>
 </table>
-
-
-<script>
-
-function delete_last_parses(parser_id) {
-    const request = {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        url: '/api/parser/' + parser_id + '/delete_parses/',
-        type: 'POST',
-        data: JSON.stringify({}),
-        success: function(){
-            console.log('submitted deletion for ' + parser_id);
-        },
-        error: function (jqXhr, textStatus, errorThrown) {
-            console.log('failed to submit deletion');
-            return errorThrown;
-        }
-    };
-    $.ajax(request);
-}
-</script>
 {% endblock %}

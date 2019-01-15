@@ -91,7 +91,7 @@ class ParserViewSet(
             _ParseLog.objects.filter(
                 started__gt=_timezone.now() - _timedelta(days=days)
             ).delete()
-            _parsers_task.apply_async(expires=600)
+            _parsers_task()
             return HttpResponse(status=204)
         return HttpResponse(status=403)
 
@@ -101,6 +101,6 @@ class ParserViewSet(
             _ParseLog.objects.filter(
                 parser_id=pk, started__gt=_timezone.now() - _timedelta(days=days)
             ).delete()
-            _parsers_task.apply_async(expires=600)
+            _parsers_task()
             return HttpResponse(status=204)
         return HttpResponse(status=403)
