@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load values %}
 {% load divide %}
-
+{% block title %}{{ novel.title }}{% endblock %}
 {% block content %}
 <h1 class="display-4 novel-title text-center">{{ novel.title }}</h1>
 {% if novel.author %}
@@ -15,15 +15,19 @@
         ic-trigger-on="load"></span>
     <button class="btn btn-dark" title="force a refetch on the server" ic-post-to="/api/novels/{{ novel.id }}/requeue/"><i class="fa fa-refresh"></i></button>
     <a class="btn btn-dark" href="{{ novel.url }}">source</a>
-    <button class="btn btn-light"
-            title="jump to last read chapter"
-            onclick="document.getElementById('chapter-{{ last_read_chapter.id }}').scrollIntoView(false)"
-    >continue</button>
-
 </div>
+    <hr />
+    <button id="read-chapters-btn" class="btn btn-dark text-center container-fluid" onclick="$('.read-chapter').toggle()">Toggle</span><span id="read-chapters-count"></span> read chapters</button>
 <ul class="list-group">
   {% for chapter in novel.chapter_set.all reversed %}
-  <li id="chapter-{{ chapter.id }}" class="list-group-item row">
+  <li
+{% if chapter.progress == 100 %}
+    style="display: none"
+    class="chapter list-group-item row read-chapter"
+  {% else %}
+    class="chapter list-group-item row "
+    {% endif %}
+    id="chapter-{{ chapter.id }}">
         <time title="time of publishing or discovered timestamp"
               class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
             {% firstof chapter.published chapter.discovered %}
@@ -65,9 +69,17 @@
   </li>
   {% endfor %}
 </ul>
-    <script>
+<script>
     $('.popover-dismiss').popover({
-  trigger: 'focus'
-})
+        trigger: 'focus'
+    });
+    function toggle_read_chapters() {
+
+    }
+    var hidden_chapters = $('.read-chapter').length;
+    if(hidden_chapters >= 0) {
+        $('#read-chapters-btn').show();
+        $("#read-chapters-count").text(hidden_chapters);
+    }
     </script>
 {% endblock %}
