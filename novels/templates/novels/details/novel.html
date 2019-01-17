@@ -14,10 +14,12 @@
         ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
         ic-trigger-on="load"></span>
     <button class="btn btn-dark" title="force a refetch on the server" ic-post-to="/api/novels/{{ novel.id }}/requeue/"><i class="fa fa-refresh"></i></button>
+    <a class="btn btn-dark" href="{{ novel.url }}">source</a>
     <button class="btn btn-light"
             title="jump to last read chapter"
             onclick="document.getElementById('chapter-{{ last_read_chapter.id }}').scrollIntoView(false)"
     >continue</button>
+
 </div>
 <ul class="list-group">
   {% for chapter in novel.chapter_set.all reversed %}

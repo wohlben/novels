@@ -44,6 +44,19 @@ class FictionViewSet(
             return HttpResponse(status=204)
         return HttpResponse(status=403)
 
+    @action(detail=True, methods=["post"])
+    def watch(self, request, pk=None):
+        if request.user.is_authenticated:
+            user = request.user
+            fiction = self.get_object()
+            watching = user.fiction_set.filter(id=pk).count()
+            if watching >= 1:
+                fiction.watching.remove(user)
+            else:
+                fiction.watching.add(user)
+            return HttpResponse(status=204)
+        return HttpResponse(status=403)
+
 
 class ChapterViewSet(
     mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
