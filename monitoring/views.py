@@ -25,6 +25,10 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
             http_code=None
         )
         context["failed_parses"] = _Parselog.objects.exclude(success=True)
+        context["total_scrapes"] = _Scrapes.objects.exclude(content=None).count()
+        context["total_fetches"] = _Scrapes.objects.all().count()
+        context["unparsed_scrapes"] = _Scrapes.objects.filter(parselog=None).exclude(content=None).count()
+        context["scrape_queue"] = _Scrapes.objects.filter(http_code=None).count()
         context["sourceless_fictions"] = _Fiction.objects.filter(source=None)
         context["unprocessed_highlights"] = (
             _Chapter.objects.exclude(content=None).filter(highlight=None).count()
