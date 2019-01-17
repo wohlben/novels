@@ -21,7 +21,7 @@
     <script src="{% static "js/chapter.js" %}"></script>
 </head>
 <body>
-    <nav class="navbar fixed-top navbar-expand-md navbar-light bg-light">
+    <nav class="fixed-top navbar navbar-expand-md navbar-light bg-light">
         <button class="nav-item btn btn-dark"
                     {% if progress.progress != 0 %}
                     title="continue to progress saved on server"
@@ -38,42 +38,65 @@
                 <i class="fa fa-cloud-upload"></i>
                 <span id="client-progress">0 %</span>
         </button>
-        <div class="dropdown">
-            <button class="btn btn-dark nav-link dropdown-toggle" href="#" id="linkDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-link fa-lg"></i> </button>
-            <div class="dropdown-menu" aria-labelledby="linkDropdown">
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
                 {% if perms.scrapes.view_system %}
-                <a class="dropdown-item" title="force a refetch on the server" ic-confirm="refetch this chapter?" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/">
-                    <i class="fa fa-refresh"></i>
-                    Refetch
-                </a>
-                <div class="dropdown-divider"></div>
+                <li class="nav-item">
+                    <button class="btn btn-light nav-link container-fluid" title="force a refetch on the server" ic-confirm="refetch this chapter?" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/">
+                        <i class="fa fa-refresh"></i>
+                        Refetch
+                    </button>
+                </li>
                 {% endif %}
-                <a class="dropdown-item" title="go to fiction" href="{{ chapter.fiction.get_absolute_url }}">
-                    <i class="fa fa-book fa-lg"></i>
-                    {{ chapter.fiction.title }}
-                </a>
-                <div class="dropdown-divider"></div>
+                <li class="nav-item text-center">
+                    <a class="nav-link container-fluid" title="go to fiction" href="{{ chapter.fiction.get_absolute_url }}">
+                            <i class="fa fa-book fa-lg"></i>
+                            {{ chapter.fiction.title }}
+                    </a>
+                </li>
+
+                <li class="nav-item d-flex justify-content-between">
                 {% if chapter.get_previous_chapter %}
-                    <a class="dropdown-item" title="go to last chapter" href="{{ chapter.get_previous_chapter.get_absolute_url }}"><i class="fa fa-arrow-left fa-lg">last chapter</i></a>
+                    <a class="container-fluid btn btn-dark" title="go to last chapter" href="{{ chapter.get_previous_chapter.get_absolute_url }}">
+                        <i class="fa fa-arrow-left fa-lg"></i>
+                    </a>
+                {% else %}
+                    <a class="container-fluid btn btn-dark disabled" title="go to last chapter" href="#">
+                        <i class="fa fa-arrow-left fa-lg text-muted"></i>
+                    </a>
+
                 {% endif %}
+                <span class="btn btn-dark container-fluid disabled">chapter</span>
                 {% if chapter.get_next_chapter %}
-                    <a class="dropdown-item" title="go to next chapter" href="{{ chapter.get_next_chapter.get_absolute_url }}"><i class="fa fa-arrow-right fa-lg">next chapter</i></button>
+                    <a class="container-fluid btn btn-dark" title="go to next chapter" href="{{ chapter.get_next_chapter.get_absolute_url }}">
+                        <i class="fa fa-arrow-right fa-lg"></i>
+                    </a>
+                {% else %}
+                     <a class="container-fluid btn btn-dark disabled" title="go to next chapter">
+                        <i class="fa fa-arrow-right fa-lg text-muted"></i>
+                    </a>
                 {% endif %}
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" title="go to latest chapters" href="{% url "novels:updates" %}?watching=true">
-                    <i class="fa fa-leanpub"></i>
-                    latest chapters
-                </a>
-                <div class="dropdown-divider"></div>
-                <button class="btn btn-dark" title="decrease text size" onclick="resizeText(false)">
-                    <i class="fa fa-minus-square-o fa-lg"></i>
-                    increase text
-                </button>
-                <button class="btn btn-dark" title="increase text size" onclick="resizeText(true)">
-                    <i class="fa fa-plus-square-o fa-lg"></i>
-                    decrease text
-                </button>
-            </div>
+                </li>
+                <li class="nav-item text-center">
+                    <a class="nav-link container-fluid" title="go to latest chapters" href="{% url "novels:updates" %}?watching=true">
+                        <i class="fa fa-leanpub"></i>
+                        latest chapters
+                    </a>
+                </li>
+                <li class="nav-item d-flex justify-content-between container">
+                    <button class="btn btn-dark container-fluid" title="decrease text size" onclick="resizeText(false)">
+                        <i class="fa fa-minus-square-o fa-lg"></i>
+                    </button>
+                    <span class="btn btn-dark container-fluid disabled">text size</span>
+                    <button class="btn btn-dark container-fluid" title="increase text size" onclick="resizeText(true)">
+                        <i class="fa fa-plus-square-o fa-lg"></i>
+                    </button>
+                </li>
+            </ul>
         </div>
     </nav>
 
@@ -163,11 +186,12 @@
                         window.current_position = position;
                         $('#client-progress').text(window.current_position + ' %');
                     }
-                    if (position % 20 === 0 || window.last_position + 20 < position) {
-                        window.last_position = position;
-                        submitScrollPosition();
+                    if (window.last_position + 20 < position) {
+                        submitScrollPosition(position);
+                    } else if (position > 97){
+                        submitScrollPosition(100);
                     }
-                }, 1000);
+                }, 2000);
             }
         });
     });

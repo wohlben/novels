@@ -36,8 +36,10 @@ function scrollToPercentage(percentage){
     $(window).scrollTop(target_position);
 }
 
-function submitScrollPosition(callback=null) {
-    const position = getScrollPercentage();
+function submitScrollPosition(position=null) {
+    if (position === null){
+        position = getScrollPercentage();
+    }
     const reading_progress = window.progress_id;
     const request = {
         headers: {
@@ -48,7 +50,8 @@ function submitScrollPosition(callback=null) {
         type: 'PATCH',
         data: JSON.stringify({'chapter_id': window.chapter_id, 'progress': position}),
         success: function(){
-            $('#server-progress').text(window.current_position + ' %');
+            $('#server-progress').text(position + ' %');
+            window.last_position = position;
         },
         error: function (jqXhr, textStatus, errorThrown) {
             console.log('couldnt update progress');
