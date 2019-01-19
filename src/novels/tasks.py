@@ -18,3 +18,14 @@ def highlight_extractor_task():
         ranker.extract_highlights(chapter["id"])
     _logger.info(f"finished extracting highlights from {len(chapters)} chapters")
     return True
+
+
+@_shared_task
+def character_extractor_task():
+    _logger.info("starting periodic character extraction")
+    chapters = (
+        _Chapter.objects.exclude(content=None).filter(characters=None).values("id")[:50]
+    )
+    for chapter in chapters:
+        ranker.extract_characters(chapter["id"])
+    _logger.info(f"finished extracting characters from {len(chapters)} chapters")

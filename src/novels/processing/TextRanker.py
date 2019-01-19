@@ -1,20 +1,24 @@
 import en_core_web_sm as _en_core_web_sm
 from operator import itemgetter as _itemgetter
 from lxml import html as _html
-from novels.models import Chapter as _Chapter, Highlight as _Highlight, Character as _Character
+from novels.models import (
+    Chapter as _Chapter,
+    Highlight as _Highlight,
+    Character as _Character,
+)
 from django.db.models import F as _F
 import logging as _logging
 import unicodedata as _unicodedata
 from .utilites import set_custom_boundaries as _set_custom_boundaries
 
 
-__all__ = ['TextRanker']
+__all__ = ["TextRanker"]
 
 
 class TextRanker(object):
     def __init__(self, target_sentences=3, logger="novels.tasks"):
         self.nlp = _en_core_web_sm.load()
-        self.nlp.add_pipe(_set_custom_boundaries, before='parser')
+        self.nlp.add_pipe(_set_custom_boundaries, before="parser")
         self.target_sentences = target_sentences
         self._logger = _logging.getLogger(logger)
         self.document = None
@@ -37,9 +41,7 @@ class TextRanker(object):
             new_highlights.append(
                 _Highlight.objects.create(chapter_id=chapter_id, sentence=sentence).id
             )
-        self._logger.info(
-            f"created the highlights {new_highlights} for {chapter.id}"
-        )
+        self._logger.info(f"created the highlights {new_highlights} for {chapter.id}")
 
     def extract_characters(self, chapter_id):
         chapter = _Chapter.objects.get(id=chapter_id)
@@ -48,7 +50,7 @@ class TextRanker(object):
         characters = self._score_characters(document)
         highlighted_characters = list()
         for character, rank in reversed(characters):
-            if rank > characters[-1][1]/2:
+            if rank > characters[-1][1] / 2:
                 highlighted_characters.append(character)
             else:
                 break
@@ -108,7 +110,11 @@ class TextRanker(object):
     def _score_characters(self, document):
         occurrences = self._count_occurrences(document)
         all_characters = list(set([ent.text.lower() for ent in document.ents]))
-        ranked_characters = [(char, occurrences.get(char)) for char in all_characters if occurrences.get(char) is not None]
+        ranked_characters = [
+            (char, occurrences.get(char))
+            for char in all_characters
+            if occurrences.get(char) is not None
+        ]
         ranked_characters.sort(key=_itemgetter(1))
         return ranked_characters
 

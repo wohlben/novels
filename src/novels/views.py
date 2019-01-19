@@ -140,7 +140,9 @@ class FictionDetailView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related("highlight_set", "characters")
+        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related(
+            "highlight_set", "characters"
+        )
         user = self.request.user
         if user.is_authenticated:
             prefetch = _Prefetch(
@@ -153,7 +155,9 @@ class FictionDetailView(_TemplateView):
             id=kwargs.get("novel_id")
         )
 
-        context["chars"] = novel.character_set.annotate(appearances=_Count("chapter")).order_by('-appearances')[:5]
+        context["chars"] = novel.character_set.annotate(
+            appearances=_Count("chapter")
+        ).order_by("-appearances")[:5]
         context["novel"] = novel
         if user.is_authenticated:
             context["last_read_chapter"] = novel.get_last_read_chapter(user.id)

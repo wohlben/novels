@@ -260,6 +260,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "novels.tasks.highlight_extractor_task",
         "schedule": crontab(minute="*/15"),
     },
+    "extract_characters": {
+        "task": "novels.tasks.character_extractor_task",
+        "schedule": crontab(minute="*/15"),
+    },
 }
 
 GRAPHENE = {"SCHEMA": "app.schema.schema"}  # Where your Graphene schema lives
