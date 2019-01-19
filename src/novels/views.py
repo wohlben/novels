@@ -140,7 +140,7 @@ class FictionDetailView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related("highlight_set")
+        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related("highlight_set", "characters")
         user = self.request.user
         if user.is_authenticated:
             prefetch = _Prefetch(

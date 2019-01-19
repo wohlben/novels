@@ -119,6 +119,7 @@ class Chapter(_models.Model):
     discovered = _models.DateTimeField(auto_now_add=True)
     word_count = _models.IntegerField(blank=True, null=True)
     url = _models.TextField()
+    characters = _models.ManyToManyField("Character")
 
     def __str__(self):
         return self.title
@@ -187,3 +188,12 @@ class Highlight(_models.Model):
 
     def __str__(self):
         return self.sentence
+
+
+class Character(_models.Model):
+    class Meta:
+        unique_together = ("fiction", "name")
+
+    fiction = _models.ForeignKey("Fiction", on_delete=_models.CASCADE)
+    name = _models.TextField(blank=False)
+

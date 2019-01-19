@@ -24,9 +24,9 @@
 {% if chapter.progress == 100 %}
     style="display: none"
     class="chapter list-group-item row read-chapter"
-  {% else %}
+{% else %}
     class="chapter list-group-item row "
-    {% endif %}
+{% endif %}
     id="chapter-{{ chapter.id }}">
         <time title="time of publishing or discovered timestamp"
               class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
@@ -64,7 +64,25 @@
                         </a>
                     {% endif %}
                 {% endwith %}
+                {% with characters=chapter.characters.all %}
+                    {% if characters|length > 0 %}
+
+                        <a class="popover-dismiss"
+                           role="button"
+                           tabindex="0"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           data-content="{% for char in characters %} {{ char.name|capfirst }} {% endfor %}">
+                            <i class="fa fa-user-circle" title="most named characters as a popover">{{ characters|length }}</i>
+                        </a>
+                        {% else %}
+                        FAIL
+                    {% endif %}
+                {% endwith %}
             </span>
+            {% for character in chapter.characters.all %}
+                {{ character.capitalize }}
+            {% endfor %}
         </div>
   </li>
   {% endfor %}

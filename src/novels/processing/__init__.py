@@ -5,5 +5,6 @@ if _environ.get("CI") == "true":
     __all__ = []
 else:
     from .TextRanker import TextRanker
+    from .utilites import set_custom_boundaries
 
-    __all__ = ["TextRanker"]
+    __all__ = ["TextRanker", "set_custom_boundaries"]
