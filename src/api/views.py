@@ -73,6 +73,7 @@ class ChapterViewSet(
 
     @action(detail=True, methods=["post"])
     def requeue(self, request, pk=None):
+        self.request.POST.get()
         if request.user.has_perm("scrapes.view_system") and pk is not None:
             _managers.rrl_chapter.refetch_chapter(pk)
             return HttpResponse(status=204)
