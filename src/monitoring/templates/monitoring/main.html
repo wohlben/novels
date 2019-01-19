@@ -8,14 +8,17 @@
             <td>unresolved provided URLS</td>
             <td>{{ unresolved_provided_urls|length }}</td>
         </tr>
+        
         <tr>
             <td>failed fetches</td>
             <td>{{ failed_fetches|length }}</td>
         </tr>
+
        <tr>
             <td title="all planned and finished website downloads">total fetches</td>
             <td>{{ total_fetches }}</td>
         </tr>
+
         <tr>
             <td title="all successful website downloads">total scrapes</td>
             <td>{{ total_scrapes }}</td>
@@ -30,6 +33,7 @@
             <td title="successful website downloads which failed in processing">failed parses</td>
             <td>{{ failed_parses|length }}</td>
         </tr>
+
         <tr>
             <td title="successful website downloads which haven't been processed yet">unparsed scrapes</td>
             <td>{{ unparsed_scrapes }}</td>
@@ -39,9 +43,15 @@
             <td title="fiction without a source relation. Programming error if it occurs">fictions without source</td>
             <td>{{ sourceless_fictions|length }}</td>
         </tr>
+
         <tr>
             <td title="chapters which haven't had their highlights extracted yet">chapters without highlights</td>
             <td>{{ unprocessed_highlights }}</td>
+        </tr>
+
+        <tr>
+            <td title="chapters which haven't had their top characters extracted yet">chapters without characters</td>
+            <td>{{ unprocessed_characters }}</td>
         </tr>
 
         <tr>

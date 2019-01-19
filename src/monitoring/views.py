@@ -33,6 +33,9 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
         context["unprocessed_highlights"] = (
             _Chapter.objects.exclude(content=None).filter(highlight=None).count()
         )
+        context["unprocessed_characters"] = (
+            _Chapter.objects.exclude(content=None).filter(characters=None).count()
+        )
         context["parsers"] = (
             _Parser.objects.all()
             .annotate(
