@@ -17,6 +17,15 @@
     <a class="btn btn-dark" href="{{ novel.url }}">source</a>
 </div>
     <hr />
+    <div class="card">
+        <div class="card-header"> noteable characters</div>
+        <ul class="list-group card-body">
+        {% for char in chars %}
+            <li class="list-group-item">{{ char }} appeared in {{ char.appearances }} chapters</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <hr />
     <button id="read-chapters-btn" class="btn btn-dark text-center container-fluid" onclick="$('.read-chapter').toggle()">Toggle</span><span id="read-chapters-count"></span> read chapters</button>
 <ul class="list-group">
   {% for chapter in novel.chapter_set.all reversed %}
@@ -66,7 +75,6 @@
                 {% endwith %}
                 {% with characters=chapter.characters.all %}
                     {% if characters|length > 0 %}
-
                         <a class="popover-dismiss"
                            role="button"
                            tabindex="0"
@@ -75,8 +83,6 @@
                            data-content="{% for char in characters %} {{ char.name|capfirst }} {% endfor %}">
                             <i class="fa fa-user-circle" title="most named characters as a popover">{{ characters|length }}</i>
                         </a>
-                        {% else %}
-                        FAIL
                     {% endif %}
                 {% endwith %}
             </span>

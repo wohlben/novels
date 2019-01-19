@@ -197,3 +197,6 @@ class Character(_models.Model):
     fiction = _models.ForeignKey("Fiction", on_delete=_models.CASCADE)
     name = _models.TextField(blank=False)
 
+    def __str__(self):
+        return self.name.capitalize()
+

@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin as _LoginRequiredMixin
 from django.views.generic import TemplateView as _TemplateView, FormView as _FormView
-from django.db.models import Prefetch as _Prefetch
+from django.db.models import Prefetch as _Prefetch, Count as _Count
 from novels.models import Fiction as _Fiction, Chapter as _Chapter
 from novels.forms import WatchingForm as _WatchingForm
 from profiles.models import ReadingProgress as _ReadingProgress
@@ -153,6 +153,7 @@ class FictionDetailView(_TemplateView):
             id=kwargs.get("novel_id")
         )
 
+        context["chars"] = novel.character_set.annotate(appearances=_Count("chapter")).order_by('-appearances')[:5]
         context["novel"] = novel
         if user.is_authenticated:
             context["last_read_chapter"] = novel.get_last_read_chapter(user.id)
