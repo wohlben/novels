@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load values %}
+{% load divide %}
+{% block title %}
+    Newest Chapters
+{% endblock %}
+{% block content %}
+<ul class="list-group">
+{% for chapter in chapters %}
+    <li class="list-group-item card">
+        <a href="{{  chapter.fiction.get_absolute_url }}">
+            <h6 class="card-header">{{  chapter.fiction.title }} <span class="text-muted">by {{ chapter.fiction.author }}</span></h6>
+        </a>
+        <a title="go to '{{  chapter.title }}' from '{{ chapter.fiction.title }}'"
+        {% if user.is_authenticated and user.internal_links %}
+            href="{% url "novels:chapter" chapter_id=chapter.id %}"
+        {% else %}
+            href="{{ chapter.url }}"
+        {% endif %}
+           class="card-body justify-content-between d-flex bg-light">
+
+            <span class="chapter-title">{{  chapter.title }}</span>
+            {% with progress=chapter.progress %}
+                {% if progress is None %}
+            <time title="time of publishing or discovered timestamp" class="badge badge-info">
+                {{  chapter.sort_date }}
+            </time>
+                {% elif progress == 100 %}
+                   <i title="you read {{ progress }}% since its release on {{ chapter.sort_date }}" class="fa fa-check"></i>
+                {% else %}
+                    <span title="you read {{ progress }}% since its release on {{ chapter.sort_date }}" class="badge badge-info">
+                        {{ progress }} %
+                    </span>
+                {% endif %}
+            {% endwith %}
+        </a>
+    </li>
+{% endfor %}
+</ul>
+<hr />
+{% with object=chapters paginate_id="paginate2" %}
+{% include "pagination.html" %}
+{% endwith %}
+{% endblock %}

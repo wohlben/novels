@@ -1,0 +1,70 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url "novels:novels" %}">Novels</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url "novels:novels" %}?watching=true">Watching</a>
+      </li>
+      <li class="nav-item active">
+        {% if user.is_authenticated %}
+        <a class="nav-link" href="{% url 'novels:updates'%}?watching=true">Updates</a>
+        {% else %}
+        <a class="nav-link" href="{% url 'novels:updates'%}">Updates</a>
+        {% endif %}
+      </li>
+        <li class="nav-item active">
+            {% if user.is_authenticated %}
+            <a class="nav-link" href="{% url 'novels:updated-novels' %}?watching=true">Novel Updates</a>
+            {% else %}
+            <a class="nav-link" href="{% url 'novels:updated-novels' %}">Novel Updates</a>
+            {% endif %}
+        </li>
+
+      {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="historyDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Profile</a>
+          <div class="dropdown-menu" aria-labelledby="historyDropdown">
+            <a class="dropdown-item" href="{% url "profiles:profile" %}">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url "profiles:history" %}">Last Read</a>
+            <a class="dropdown-item" href="{% url "profiles:history" %}?unfinished=true">Unfinished chapters</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item disabled" href="{% url 'logout' %}">Logout</a>
+          </div>
+        </li>
+      {% else %}
+      <li class="nav-item active">
+          <a class="nav-link" href="{% url "login" %}">Login</a>
+      </li>
+      {% endif %}
+
+      {% if perms.scrapes.view_system %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            System
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url "scrapes:queue" %}">Queue</a>
+            <a class="dropdown-item" href="{% url "scrapes:history" %}">History</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url "scrapes:log" %}">Log</a>
+              <a class="dropdown-item" href="{% url "monitoring:monitoring" %}">health checks</a>
+          </div>
+        </li>
+      {% endif %}
+      {% if user.is_authenticated %}
+        <li class="nav-item">
+
+        </li>
+      {% endif %}
+    </ul>
+    <input ic-replace-target=true ic-src="{% url "novels:search" %}" ic-trigger-on="load">
+  </div>
+</nav>

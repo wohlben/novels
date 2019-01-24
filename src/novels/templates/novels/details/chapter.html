@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{chapter.fiction.title }}: {{ chapter.title }}</title>
+    <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+    {% if user.is_authenticated %}
+      <link rel="stylesheet" href="{% static 'bootswatch/dist' %}/{{ user.color_theme }}/bootstrap.css" >
+    {% else %}
+      <link rel="stylesheet" href="{% static 'bootswatch/dist/darkly/bootstrap.css' %}">
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chapter.css' %}">
+    <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
+    <script src="{% static "js-cookie/src/js.cookie.js" %}"></script>
+    <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
+    <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
+    <script src="{% static "js/base.js" %}"></script>
+    <script src="{% static "js/chapter.js" %}"></script>
+</head>
+<body>
+    <nav class="fixed-top navbar navbar-collapse navbar-light bg-light">
+        <button class="nav-item btn btn-dark"
+                    {% if progress.progress != 0 %}
+                    title="continue to progress saved on server"
+                    {% else %}
+                    title="progress saved on server"
+                    {% endif %}
+                    onclick="scrollToPercentage({{ progress.progress }})">
+                <i class="fa fa-cloud-download"></i>
+                <span id="server-progress">{{ progress }}</span>
+        </button>
+        <button class="btn btn-dark nav-item"
+                    title="upload current progress to server"
+                    onclick="submitScrollPosition()">
+                <i class="fa fa-cloud-upload"></i>
+                <span id="client-progress">0 %</span>
+        </button>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                {% if perms.scrapes.view_system %}
+                <li class="nav-item">
+                    <button class="btn btn-light nav-link container-fluid" title="force a refetch on the server" ic-confirm="refetch this chapter?" ic-post-to="/api/chapters/{{ chapter.id }}/requeue/">
+                        <i class="fa fa-refresh"></i>
+                        Refetch
+                    </button>
+                </li>
+                {% endif %}
+                <li class="nav-item text-center">
+                    <a class="nav-link container-fluid" title="go to fiction" href="{{ chapter.fiction.get_absolute_url }}">
+                            <i class="fa fa-book fa-lg"></i>
+                            {{ chapter.fiction.title }}
+                    </a>
+                </li>
+
+                <li class="nav-item d-flex justify-content-between">
+                {% if chapter.get_previous_chapter %}
+                    <a class="container-fluid btn btn-dark" title="go to last chapter" href="{{ chapter.get_previous_chapter.get_absolute_url }}">
+                        <i class="fa fa-arrow-left fa-lg"></i>
+                    </a>
+                {% else %}
+                    <a class="container-fluid btn btn-dark disabled" title="go to last chapter" href="#">
+                        <i class="fa fa-arrow-left fa-lg text-muted"></i>
+                    </a>
+
+                {% endif %}
+                <span class="btn btn-dark container-fluid disabled">chapter</span>
+                {% if chapter.get_next_chapter %}
+                    <a class="container-fluid btn btn-dark" title="go to next chapter" href="{{ chapter.get_next_chapter.get_absolute_url }}">
+                        <i class="fa fa-arrow-right fa-lg"></i>
+                    </a>
+                {% else %}
+                     <a class="container-fluid btn btn-dark disabled" title="go to next chapter">
+                        <i class="fa fa-arrow-right fa-lg text-muted"></i>
+                    </a>
+                {% endif %}
+                </li>
+                <li class="nav-item text-center">
+                    <a class="nav-link container-fluid" title="go to latest chapters" href="{% url "novels:updates" %}?watching=true">
+                        <i class="fa fa-leanpub"></i>
+                        latest chapters
+                    </a>
+                </li>
+                <li class="nav-item d-flex justify-content-between container">
+                    <button class="btn btn-dark container-fluid" title="decrease text size" onclick="resizeText(false)">
+                        <i class="fa fa-minus-square-o fa-lg"></i>
+                    </button>
+                    <span class="btn btn-dark container-fluid disabled">text size</span>
+                    <button class="btn btn-dark container-fluid" title="increase text size" onclick="resizeText(true)">
+                        <i class="fa fa-plus-square-o fa-lg"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <h6 class="text-center pt-1"><span title="fiction title">{{ chapter.fiction.title }}</span> by <span title="author name">{{ chapter.fiction.author }}</span></h6>
+    <h2 class="text-center" title="chapter title">{{ chapter.title }}</h2>
+    <p class="text-muted text-center">
+        last fetch: <time title="time of the last fetch">{{ chapter.updated }}</time><br/>
+        published: <time title="date this chapter was published on the source">{{ chapter.published }}</time><br/>
+        {% if following_chapters > 0 %}
+        There are still {{ following_chapters }} unread chapters before you <i class="fa fa-smile-o"></i>
+        {% endif %}
+
+    </p>
+    {% if chapter.content is not None %}
+        <div ic-replace-target="true"
+             ic-get-from="{% url "profiles:bulk-reading-progress" chapter_id=chapter.id %}"
+             ic-trigger-on="load"></div>
+    {% endif %}
+
+    <hr />
+    {% if chapter.content is None %}
+    <p class="jumbotron text-center">
+        this chapter hasn't been fetched yet
+    {% if perms.scrapes.force_fetch %}
+      , but you do have permission to <a href="{{ chapter.get_absolute_url }}?force-fetch=true">force a fetch</a>
+    {% else %}
+      and you don't have the permission to force a fetch
+    {% endif %}
+      <br />
+        You could always go to the original source, which you probably
+        should've done to begin with...
+      <br/>
+        cheers mate
+      <br />
+      <a href="{{ chapter.url }}">source</a>
+      <br />
+        the scrape queue is currently ... {{ scrape_queue_count }} items long. <br />
+        waiting is probably not worth it!
+
+    </p>
+    {% else %}
+    <div id="chapter-content" class="pl-3 pr-3">
+        {{ chapter.content|safe  }}
+    </div>
+    {% endif %}
+
+    <hr />
+
+<aside class="d-flex justify-content-center btn-group">
+    {% if chapter.get_previous_chapter %}
+    <a title="go to the previous chapter"
+       href="{{ chapter.get_previous_chapter.get_absolute_url }}"><button class="btn btn-primary">Last Chapter</button></a>
+    {% else %}
+    <button title="there is no previous chapter" class="btn btn-light">Last Chapter</button>
+    {% endif %}
+    <a href="{{ chapter.url }}"><button class="btn btn-link">source</button> </a>
+    {% if chapter.get_next_chapter %}
+    <a title="go to the next chapter"
+       href="{{ chapter.get_next_chapter.get_absolute_url }}">
+        <button class="btn btn-primary">Next Chapter</button>
+    </a>
+    {% else %}
+    <button title="there is no next chapter" class="btn btn-light">Next Chapter</button>
+    {% endif %}
+</aside>
+{% if user.is_authenticated %}
+<script>
+    $(document).ready( () => {
+        resetTextSize();
+        window.progress_id = {{ progress.id }};
+        window.chapter_id = {{ chapter.id }};
+        window.last_position = {{ progress.progress }};
+        window.current_position = getScrollPercentage();
+        $('#client-progress').text(window.current_position + ' %');
+
+        let timeout = null;
+
+        $(window).scroll(() => {
+            if (!timeout) {
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                    timeout = null;
+                    let position = getScrollPercentage();
+
+                    if (position !== window.current_position){
+                        window.current_position = position;
+                        $('#client-progress').text(window.current_position + ' %');
+                    }
+                    if (window.last_position + 20 < position) {
+                        submitScrollPosition(position);
+                    } else if (position > 97){
+                        submitScrollPosition(100);
+                    }
+                }, 2000);
+            }
+        });
+    });
+</script>
+{% endif %}
+</body>
+</html>

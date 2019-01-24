@@ -1,0 +1,54 @@
+{% load divide %}
+{% if previous_unread_chapters|length > 0 %}
+<div id="previous-progress-notification" class="alert alert-primary" role="alert">
+    {% if previous_unread_chapters|length > 10 and not show_all %}
+    <p class="text-center">
+       {{ previous_unread_chapters|length }} previous chapters aren't marked as read yet.
+    </p>
+    {%  else %}
+        {% if chapters_without_content > 0 %}
+        <div class="alert alert-danger text-center">There are {{ chapters_without_content }} chapters without content. The following list is probably incorrect</div>
+        {% endif %}
+    <p class="text-center">
+        The following preceding chapters aren't marked as read yet!
+    </p>
+    <ul class="list-group">
+    {% for chapter in previous_unread_chapters %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span class="chapter-name">{{ chapter }}</span>
+            {% with progress_display=chapter.progress %}
+                {% if progress_display != None %}
+                <span class="badge badge-info" title="You read {{ progress_display }} on {{ chapter.timestamp }}">{{ progress_display }}</span>
+                    {% else %}
+                <span class="badge badge-info"></span>
+                {% endif %}
+            {% endwith %}
+        </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    <br />
+    <form class="center-block text-center">
+        {% csrf_token %}
+        <button
+                title="mark all previous chapters as read"
+                class="btn btn-danger"
+                ic-post-to="{% url "profiles:bulk-reading-progress" chapter_id=chapter.id %}"
+                ic-target="#previous-progress-notification"
+                ic-replace-target="true">
+            Mark all previous chapters as read
+        </button>
+        {% if previous_unread_chapters|length > 10 and not show_all %}
+        <button title="show list of previous unread chapters"
+                class="btn btn-success"
+                ic-get-from="{% url "profiles:bulk-reading-progress" chapter_id=chapter.id %}?show-all=True"
+                ic-target="#previous-progress-notification"
+                ic-replace-target="true"
+        >
+            Show me that silly long list before I decide!
+        </button>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+

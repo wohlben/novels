@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load values %}
+{% load divide %}
+{% block title %}{{ novel.title }}{% endblock %}
+{% block content %}
+<h1 class="display-4 novel-title text-center">{{ novel.title }}</h1>
+{% if novel.author %}
+    <p class="lead text-center">a novel by <span class="novel-author">{{ novel.author }}</span></p>
+{% endif %}
+<div class="d-flex justify-content-center">
+  <span title="watch the novel"
+        id="watch-component"
+        ic-replace-target="true"
+        ic-src="{% url "novels:watch-component" novel_id=novel.id %}"
+        ic-trigger-on="load"></span>
+    <button class="btn btn-dark" title="force a refetch on the server" ic-post-to="/api/novels/{{ novel.id }}/requeue/"><i class="fa fa-refresh"></i></button>
+    <a class="btn btn-dark" href="{{ novel.url }}">source</a>
+</div>
+    <hr />
+    <div class="card">
+        <div class="card-header"> noteable characters</div>
+        <ul class="list-group card-body">
+        {% for char in chars %}
+            <li class="list-group-item">{{ char }} appeared in {{ char.appearances }} chapters</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <hr />
+    <button id="read-chapters-btn" class="btn btn-dark text-center container-fluid" onclick="$('.read-chapter').toggle()">Toggle</span><span id="read-chapters-count"></span> read chapters</button>
+<ul class="list-group">
+  {% for chapter in novel.chapter_set.all reversed %}
+  <li
+{% if chapter.progress == 100 %}
+    style="display: none"
+    class="chapter list-group-item row read-chapter"
+{% else %}
+    class="chapter list-group-item row "
+{% endif %}
+    id="chapter-{{ chapter.id }}">
+        <time title="time of publishing or discovered timestamp"
+              class="col-sm-12 col-md-3 col-lg-2 col-xl-2 badge badge-primary chapter-published">
+            {% firstof chapter.published chapter.discovered %}
+        </time>
+        <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8 lead d-flex justify-content-between">
+            <a
+              {% if user.is_authenticated and user.internal_links %}
+                href="{% url "novels:chapter" chapter_id=chapter.id %}"
+              {% else %}
+                href="{{ chapter.url }}"
+              {% endif %}
+              title="open {{ chapter.title }} from {{ novel.title }}">
+              <span class="chapter-title">{{ chapter.title }}</span>
+            </a>
+            <span>
+                {% with progress=chapter.progress %}
+                    {% if progress == 100 %}
+                        <i title="finished reading on {{ chapter.timestamp }}" class="fa-check fa"></i>
+                    {% elif progress is not None %}
+                        <span title="you read {{ progress }}% on {{ chapter.timestamp }}"  class="read-progress">{{ progress }} %</span>
+                    {% else %}
+                        <span class="read-progress"></span>
+                {% endif %}
+                {% endwith %}
+                {% with highlights=chapter.highlight_set.all %}
+                    {% if highlights|length > 0 %}
+                        <a class="popover-dismiss"
+                           role="button"
+                           tabindex="0"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           data-content="{{  highlights|random }}">
+                            <i class="fa fa-comment" title="a random highlight from the chapter as a popover"></i>
+                        </a>
+                    {% endif %}
+                {% endwith %}
+                {% with characters=chapter.characters.all %}
+                    {% if characters|length > 0 %}
+                        <a class="popover-dismiss"
+                           role="button"
+                           tabindex="0"
+                           data-toggle="popover"
+                           data-trigger="focus"
+                           data-content="{% for char in characters %} {{ char.name|capfirst }} {% endfor %}">
+                            <i class="fa fa-user-circle" title="most named characters as a popover">{{ characters|length }}</i>
+                        </a>
+                    {% endif %}
+                {% endwith %}
+            </span>
+            {% for character in chapter.characters.all %}
+                {{ character.capitalize }}
+            {% endfor %}
+        </div>
+  </li>
+  {% endfor %}
+</ul>
+<script>
+    $('.popover-dismiss').popover({
+        trigger: 'focus'
+    });
+    function toggle_read_chapters() {
+
+    }
+    var hidden_chapters = $('.read-chapter').length;
+    if(hidden_chapters >= 0) {
+        $('#read-chapters-btn').show();
+        $("#read-chapters-count").text(hidden_chapters);
+    }
+    </script>
+{% endblock %}
