@@ -13,6 +13,14 @@ pipeline:
       - pipenv run coverage report -m
     environment:
       - PIPENV_VENV_IN_PROJECT=true
+  code_analysis:
+    image: newtmitch/sonar-scanner
+    commands:
+      - sonar-scanner -Dsonar.projectKey=wohlben_novels -Dsonar.organization=wohlben-github -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_KEY
+    environment:
+      SONAR_KEY:
+        from_secret: sonar_key
+
 
 services:
   database:
