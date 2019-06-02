@@ -6,12 +6,16 @@ def fix_contents(apps, schema_editor):
     Scrapes = apps.get_model("scrapes", "Scrapes")
     all_scrapes = Scrapes.objects.exclude(content=None)
     for scrape in all_scrapes:
-        scrape.content = (
-            scrape.content
-            .encode("raw-unicode-escape")
-            .decode("utf-8")
-        )
-        scrape.save()
+        try:
+            scrape.content = (
+                scrape.content
+                .encode("raw-unicode-escape")
+                .decode("utf-8")
+            )
+            scrape.save()
+        except UnicodeDecodeError:
+            print(f"failed to decode {scrape.id}")
+        
         
 
 
