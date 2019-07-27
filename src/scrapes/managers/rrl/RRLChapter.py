@@ -122,6 +122,13 @@ class RRLChapterScraper(_ScrapeManagerBase):
 
             tree = _html.fromstring(scrape.content)
 
+            chapter_headers = tree.xpath('//div[@class="page-content"]//h3/text()')
+            if "Access Denied" in chapter_headers:
+                parse_log.success = True
+                parse_log.save()
+                self.logger.warning("skipping further parsing on possibly deleted chapter")
+                return False
+
             chapter_content = ""
             chapter_content_element = tree.cssselect(".chapter-content")
             for i in chapter_content_element:
