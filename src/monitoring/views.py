@@ -51,4 +51,5 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
             .values("parses", "name", "id")
         )
 
+        context['duplicates'] = _Chapter.objects.exclude(remote_id=None).values('remote_id').annotate(ri_count=_Count('remote_id')).filter(ri_count__gt=1).count()
         return context
