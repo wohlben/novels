@@ -155,7 +155,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
 
         success_monitor = True
 
-        for scrape in pending_parses:
+        for scrape in pending_parses[:50]:
             self.logger.info(f"parsing {scrape.id}")
 
             tree = _html.fromstring(scrape.content)
