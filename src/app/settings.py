@@ -278,3 +278,12 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = env_variable("cors_whitelist", "").split()
+
+if env_variable('SENTRY_DSN', False):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    sentry_sdk.init(
+        dsn=env_variable('SENTRY_DSN'),
+        integrations=[DjangoIntegration()]
+    )
+
