@@ -22,6 +22,7 @@ django-cors-headers = "^3.0"
 gunicorn = "^19.9"
 django-redis-cache = "^2.0"
 spacy = "^2.1"
+sentry_sdk = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pycodestyle = "^2.5"
@@ -31,10 +32,7 @@ coverage = "^4.5"
 python-language-server = "^0.28.0"
 django-coverage-plugin = "^1.6"
 django-debug-toolbar = "^2.0"
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+pylint = "^2.3"
 
 [tool.black]
 line-length = 88
@@ -58,3 +56,7 @@ exclude = '''
 
 )/
 '''
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
