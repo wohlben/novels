@@ -164,9 +164,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
     @staticmethod
     def _clean_chapter_content(content):
         content = (
-            content.decode("unicode-escape")
-            .encode("raw-unicode-escape")
-            .decode("utf-8")
+            content.decode("utf-8")
         )
         removed_scripts = _re.sub(r"<script.*?</script>", "", str(content))
         return removed_scripts

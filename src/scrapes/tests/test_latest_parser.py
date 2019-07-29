@@ -8,7 +8,7 @@ rrl_latest = RRLLatestScraper()
 
 
 class ParseLatestTestCase(TestCase):
-    fixtures = ["2018_10_14_scrapes.json"]
+    fixtures = ["2019_07_27_scrapes.json"]
     parser_id = int
 
     @classmethod
@@ -43,7 +43,7 @@ class ParseLatestTestCase(TestCase):
         )
         self.assertEquals(
             pending_parses,
-            2,
+            1,
             f"didn't find the expected amount of testing data -- found {pending_parses}",
         )
 
@@ -58,7 +58,7 @@ class ParseLatestTestCase(TestCase):
     def test_fixture_data_available_fictions(self):
         available_fictions = self.available_fictions()
         self.assertEqual(
-            0,
+            1,
             available_fictions,
             f"found {available_fictions} fictions after import, tests will be inconclusive",
         )

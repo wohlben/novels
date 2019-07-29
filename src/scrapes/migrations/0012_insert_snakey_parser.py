@@ -8,14 +8,6 @@ def insert_parser(apps, schema_editor):
     Scrapes = apps.get_model("scrapes", "Scrapes")
 
     parser = Parser.objects.create(name="snek_report", weight=10)
-    urls = (
-        "https://thesnekreport.com/book-ii/",
-        "https://thesnekreport.com/book-ii-second-draft/",
-        "https://thesnekreport.com/book-i/",
-    )
-    for url in urls:
-        Scrapes.objects.create(url=url, parser_type_id=parser.id)
-
 
 def delete_parser(apps, schema_editor):  # pragma: no cover
     Parser = apps.get_model("scrapes", "Parser")

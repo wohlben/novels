@@ -192,8 +192,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                 )
                 chap.title = (
                     chapter.xpath("./td/a/text()")[0]
-                    .encode("raw-unicode-escape")
-                    .decode("unicode_escape")
+                    .decode('utf-8')
                     .strip()
                 )
                 if not created:
