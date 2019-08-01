@@ -1,8 +1,3 @@
-FROM node as npm_builder
-COPY package.json /novels/package.json
-COPY package-lock.json /novels/package-lock.json
-WORKDIR /novels
-RUN npm install
 
 FROM alpine as wfi_profider
 RUN apk add curl
@@ -12,6 +7,17 @@ RUN chmod 755 /bin/wait-for-it
 FROM alpine as spacy_provider
 RUN apk add curl
 RUN curl -o /spacy_model.tar.gz https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz --verbose --location
+
+FROM node as npm_builder
+COPY src/assets/package.json /novels/assets/package.json
+COPY src/assets/package-lock.json /novels/assets/package-lock.json
+WORKDIR /novels/assets
+RUN npm install --no-progress --ignore-optinal
+
+FROM npm_builder as webpack_processor
+ADD src/assets /novels/assets
+WORKDIR /novels/assets
+RUN npx webpack
 
 FROM python:3.7 as django_base
 COPY --from=wfi_profider /bin/wait-for-it /bin/wait-for-it
@@ -34,7 +40,7 @@ FROM django_base as migrations_manager
 COPY .ci/open_port.py /open_port.py
 
 FROM django_base as static_collector
-COPY --chown=django:django --from=npm_builder /novels/node_modules /novels/node_modules
+COPY --chown=django:django --from=webpack_processor /novels/static/dist /novels/static/dist
 RUN poetry run python manage.py collectstatic
 
 FROM nginx as static_server
