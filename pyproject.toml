@@ -23,6 +23,8 @@ gunicorn = "^19.9"
 django-redis-cache = "^2.0"
 spacy = "^2.1"
 sentry_sdk = "^0.10.2"
+django-webpack-loader = "^0.6.0"
+django-dotenv = "^1.4"
 
 [tool.poetry.dev-dependencies]
 pycodestyle = "^2.5"

@@ -9,9 +9,6 @@ from django.utils import timezone as _timezone
 from datetime import timedelta as _timedelta
 from django.db.models import Q as _Q, Count as _Count
 
-# Create your views here.
-
-
 class MonitoringView(_PermissionRequiredMixin, _TemplateView):
     template_name = "monitoring/main.html"
     permission_required = "scrapes.view_system"
