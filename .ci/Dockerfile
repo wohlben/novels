@@ -14,12 +14,7 @@ COPY src/assets/package-lock.json /novels/assets/package-lock.json
 WORKDIR /novels/assets
 RUN npm install --no-progress --ignore-optinal
 
-FROM npm_builder as webpack_processor
-ADD src/assets /novels/assets
-WORKDIR /novels/assets
-RUN npx webpack
-
-FROM python:3.7 as django_base
+FROM python:3.7 as django_builder
 COPY --from=wfi_profider /bin/wait-for-it /bin/wait-for-it
 COPY .ci/startup.sh /startup.sh
 RUN useradd -d /novels -m --user-group django
@@ -36,11 +31,19 @@ USER django
 WORKDIR /novels/src
 CMD ["bash", "/startup.sh"]
 
+FROM npm_builder as static_builder
+ADD src/assets /novels/assets
+WORKDIR /novels/assets
+RUN npx webpack
+
+FROM django_builder as django_base
+COPY --chown=django:django . /novels/
+
 FROM django_base as migrations_manager
 COPY .ci/open_port.py /open_port.py
 
 FROM django_base as static_collector
-COPY --chown=django:django --from=webpack_processor /novels/static/dist /novels/static/dist
+COPY --chown=django:django --from=static_builder /novels/static/dist /novels/src/static/dist
 RUN poetry run python manage.py collectstatic
 
 FROM nginx as static_server
