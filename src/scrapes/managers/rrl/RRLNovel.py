@@ -155,7 +155,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
 
         success_monitor = True
 
-        for scrape in pending_parses:
+        for scrape in pending_parses[:50]:
             self.logger.info(f"parsing {scrape.id}")
 
             tree = _html.fromstring(scrape.content)
@@ -193,7 +193,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                 chap.title = (
                     chapter.xpath("./td/a/text()")[0]
                     .encode("raw-unicode-escape")
-                    .decode("unicode_escape")
+                    .decode("unicode-escape")
                     .strip()
                 )
                 if not created:

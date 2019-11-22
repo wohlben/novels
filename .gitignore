@@ -12,3 +12,5 @@ requirements.txt
 node_modules
 static_root/*
 .venv/*
+
+src/static/dist/*

@@ -9,9 +9,6 @@ from django.utils import timezone as _timezone
 from datetime import timedelta as _timedelta
 from django.db.models import Q as _Q, Count as _Count
 
-# Create your views here.
-
-
 class MonitoringView(_PermissionRequiredMixin, _TemplateView):
     template_name = "monitoring/main.html"
     permission_required = "scrapes.view_system"
@@ -51,4 +48,5 @@ class MonitoringView(_PermissionRequiredMixin, _TemplateView):
             .values("parses", "name", "id")
         )
 
+        context['duplicates'] = _Chapter.objects.exclude(remote_id=None).values('remote_id').annotate(ri_count=_Count('remote_id')).filter(ri_count__gt=1).count()
         return context

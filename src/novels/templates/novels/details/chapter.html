@@ -6,17 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{{chapter.fiction.title }}: {{ chapter.title }}</title>
-    <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/font-awesome/css/font-awesome.min.css' %}">
     {% if user.is_authenticated %}
-      <link rel="stylesheet" href="{% static 'bootswatch/dist' %}/{{ user.color_theme }}/bootstrap.css" >
+      <link rel="stylesheet" href="{% static 'dist/css/bootswatch' %}/{{ user.color_theme }}/bootstrap.css" >
     {% else %}
-      <link rel="stylesheet" href="{% static 'bootswatch/dist/darkly/bootstrap.css' %}">
+      <link rel="stylesheet" href="{% static 'dist/css/bootswatch/darkly/bootstrap.css' %}">
     {% endif %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/chapter.css' %}">
-    <script src="{% static "jquery/dist/jquery.min.js" %}"></script>
-    <script src="{% static "js-cookie/src/js.cookie.js" %}"></script>
-    <script src="{% static "bootstrap/dist/js/bootstrap.bundle.min.js" %}"></script>
-    <script src="{% static "intercooler/dist/intercooler.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/chapter.css' %}">
+    <script src="{% static "dist/js/jquery.min.js" %}"></script>
+    <script src="{% static "dist/js/js.cookie.js" %}"></script>
+    <script src="{% static "dist/js/bootstrap.bundle.min.js" %}"></script>
+    <script src="{% static "dist/js/intercooler.js" %}"></script>
     <script src="{% static "js/base.js" %}"></script>
     <script src="{% static "js/chapter.js" %}"></script>
 </head>
