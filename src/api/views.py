@@ -41,8 +41,8 @@ class FictionViewSet(
     def requeue(self, request, pk=None):
         if request.user.has_perm("scrapes.view_system") and pk is not None:
             _managers.rrl_novel.refetch_novel(pk)
-            return HttpResponse(status=204)
-        return HttpResponse(status=403)
+            return HttpResponse(status=204, reason="queued novel anew")
+        return HttpResponse(status=403, reason="missing system permissions")
 
     @action(detail=True, methods=["post"])
     def watch(self, request, pk=None):
@@ -52,10 +52,10 @@ class FictionViewSet(
             watching = user.fiction_set.filter(id=pk).count()
             if watching >= 1:
                 fiction.watching.remove(user)
-            else:
-                fiction.watching.add(user)
-            return HttpResponse(status=204)
-        return HttpResponse(status=403)
+                return HttpResponse(status=204, reason="removed from watching")
+            fiction.watching.add(user)
+            return HttpResponse(status=204, reason="added to watching")
+        return HttpResponse(status=401, reason="not logged in")
 
 
 class ChapterViewSet(
@@ -73,10 +73,12 @@ class ChapterViewSet(
 
     @action(detail=True, methods=["post"])
     def requeue(self, request, pk=None):
-        if request.user.has_perm("scrapes.view_system") and pk is not None:
-            _managers.rrl_chapter.refetch_chapter(pk)
-            return HttpResponse(status=204)
-        return HttpResponse(status=403)
+        if request.user.has_perm("scrapes.view_system"):
+            if pk is not None:
+                _managers.rrl_chapter.refetch_chapter(pk)
+                return HttpResponse(status=204, reason="queued chapter anew")
+            return HttpResponse(status=400, reason="missing pk")
+        return HttpResponse(status=403, reason="missing system permissions")
 
 
 class ReadingProgressViewSet(viewsets.ModelViewSet):
@@ -106,7 +108,7 @@ class ParserViewSet(
             ).delete()
             _parsers_task()
             return HttpResponse(status=204)
-        return HttpResponse(status=403)
+        return HttpResponse(status=403, reason="missing system permission")
 
     @action(detail=True, methods=["post"])
     def delete_parses(self, request, pk=None, days=1):
@@ -116,4 +118,4 @@ class ParserViewSet(
             ).delete()
             _parsers_task()
             return HttpResponse(status=204)
-        return HttpResponse(status=403)
+        return HttpResponse(status=403, reason="missing system permission")
