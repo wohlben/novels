@@ -28,9 +28,13 @@ class ChapterListSerializer(_ModelSerializer):
         model = _Chapter
         fields = ("id", "title", "published", "fiction", "discovered")
 
+class FictionChapterListSerializer(_ModelSerializer):
+    class Meta:
+        model = _Chapter
+        fields = ("id", "title", "published")
 
 class FictionSerializer(_ModelSerializer):
-    chapters = ChapterListSerializer(many=True, source="chapter_set")
+    chapters = FictionChapterListSerializer(many=True, source="chapter_set")
 
     class Meta:
         model = _Fiction

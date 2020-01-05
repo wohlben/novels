@@ -32,7 +32,7 @@ from django.contrib.auth.views import (
     LogoutView as _LogoutViewBase,
     LoginView as _LoginViewBase,
 )
-
+from rest_framework.authtoken.models import Token
 
 class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
     template_name = "profiles/components/missed_reading_progress_alert.html"
@@ -213,6 +213,12 @@ class ProfileView(_LoginRequiredMixin, _UpdateView):
     model = _User
     template_name = "profiles/details/profile.html"
     success_url = _reverse_lazy("profiles:profile")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['api_token'], created = Token.objects.get_or_create(user=self.request.user)
+        print(created)
+        return context
 
     def get_object(self, queryset=None):
         return self.request.user
