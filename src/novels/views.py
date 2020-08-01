@@ -15,7 +15,7 @@ from scrapes.managers import (
     RRLNovelScraper as _RRLNovelScraper,
     RRLChapterScraper as _RRLChapterScraper,
 )
-from django.db.models import Max as _Max, Q as _Q
+from django.db.models import Max as _Max
 
 _rrl_novel = _RRLNovelScraper()
 _rrl_chapter = _RRLChapterScraper()
@@ -44,11 +44,7 @@ class WatchComponent(_FormView):
                 else:
                     fiction.watching.remove(request.user)
                 _rrl_novel.add_queue_events(user=request.user)
-                return _HttpResponseRedirect(
-                    _reverse_lazy(
-                        "novels:watch-component", kwargs={"novel_id": fiction.id}
-                    )
-                )
+                return _HttpResponseRedirect(_reverse_lazy("novels:watch-component", kwargs={"novel_id": fiction.id}))
         return _HttpResponse(status=403)
 
 
@@ -56,9 +52,7 @@ class SearchComponent(_TemplateView):
     template_name = "novels/components/search.html"
 
     def get_context_data(self, **kwargs):
-        context = {
-            "novels": _Fiction.objects.all().order_by("title").values("id", "title")
-        }
+        context = {"novels": _Fiction.objects.all().order_by("title").values("id", "title")}
         if self.request.GET.get("ic-request") != "true":
             context["debug_search"] = True
         return context
@@ -68,27 +62,15 @@ class ChaptersListView(_TemplateView):
     template_name = "novels/lists/chapters.html"
 
     def get_context_data(self, **kwargs):
-        prefetch = _Prefetch(
-            "fiction", queryset=_Fiction.objects.only("title", "author")
-        )
+        prefetch = _Prefetch("fiction", queryset=_Fiction.objects.only("title", "author", "id"))
         qs = (
             _Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
-            .only(
-                "id",
-                "title",
-                "published",
-                "fiction",
-                "url",
-                "discovered",
-                "total_progress",
-            )
+            .only("id", "title", "published", "fiction", "url", "discovered", "total_progress",)
         )
         if self.request.user.is_authenticated:
             qs = qs.add_progress(self.request.user.id)
-        chapters = _ChapterFilter(
-            {"user": self.request.user, **self.request.GET}, queryset=qs
-        ).qs
+        chapters = _ChapterFilter({"user": self.request.user, **self.request.GET}, queryset=qs).qs
         page = self.request.GET.get("page")
         paginator = _Paginator(chapters, 50)
         chapters = paginator.get_page(page)
@@ -105,9 +87,7 @@ class FictionListView(_TemplateView):
             values.append("read")
             qs = qs.add_read_count(self.request.user.id)
         qs = qs.values(*values)
-        novels = _FictionFilter(
-            {"user": self.request.user, **self.request.GET}, queryset=qs
-        ).qs
+        novels = _FictionFilter({"user": self.request.user, **self.request.GET}, queryset=qs).qs
         page = self.request.GET.get("page")
         paginator = _Paginator(novels, 50)
         novels = paginator.get_page(page)
@@ -126,9 +106,7 @@ class UpdatedFictionListView(_TemplateView):
         qs = qs.annotate(newest_chapter=_Max("chapter__published"))
         qs = qs.order_by("-newest_chapter")
         qs = qs.values(*values)
-        novels = _FictionFilter(
-            {"user": self.request.user, **self.request.GET}, queryset=qs
-        ).qs
+        novels = _FictionFilter({"user": self.request.user, **self.request.GET}, queryset=qs).qs
         page = self.request.GET.get("page")
         paginator = _Paginator(novels, 50)
         novels = paginator.get_page(page)
@@ -140,24 +118,16 @@ class FictionDetailView(_TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related(
-            "highlight_set", "characters"
-        )
+        prefetch_qs = _Chapter.objects.date_sorted().prefetch_related("highlight_set", "characters")
         user = self.request.user
         if user.is_authenticated:
-            prefetch = _Prefetch(
-                "chapter_set", queryset=prefetch_qs.add_progress(self.request.user.id)
-            )
+            prefetch = _Prefetch("chapter_set", queryset=prefetch_qs.add_progress(self.request.user.id))
         else:
             prefetch = _Prefetch("chapter_set", queryset=prefetch_qs)
 
-        novel = _Fiction.objects.prefetch_related(prefetch).get(
-            id=kwargs.get("novel_id")
-        )
+        novel = _Fiction.objects.prefetch_related(prefetch).get(id=kwargs.get("novel_id"))
 
-        context["chars"] = novel.character_set.annotate(
-            appearances=_Count("chapter")
-        ).order_by("-appearances")[:5]
+        context["chars"] = novel.character_set.annotate(appearances=_Count("chapter")).order_by("-appearances")[:5]
         context["novel"] = novel
         if user.is_authenticated:
             context["last_read_chapter"] = novel.get_last_read_chapter(user.id)
@@ -187,11 +157,7 @@ class ChapterDetailView(_LoginRequiredMixin, _TemplateView):
 
         if self.request.user.is_authenticated:
             context["progress"], created = _ReadingProgress.objects.get_or_create(
-                chapter_id=chapter.id,
-                user_id=self.request.user.id,
-                defaults={"progress": 0},
+                chapter_id=chapter.id, user_id=self.request.user.id, defaults={"progress": 0},
             )
-            context["following_chapters"] = chapter.get_unread_following_chapters(
-                self.request.user.id
-            ).count()
+            context["following_chapters"] = chapter.get_unread_following_chapters(self.request.user.id).count()
         return context

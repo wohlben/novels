@@ -1,13 +1,16 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from api.serializers import (
     FictionListSerializer as _FictionListSerializer,
+    UpdatedSerializer as _UpdatedSerializer,
     FictionSerializer as _FictionSerializer,
     ChapterListSerializer as _ChapterListSerializer,
     ChapterSerializer as _ChapterSerializer,
     ReadingProgressSerializer as _ReadingProgressSerializer,
     ParserSerializer as _ParserSerialzer,
+    AuthorSerializer,
 )
-from novels.models import Fiction as _Fiction, Chapter as _Chapter
+from novels.filters import ChapterFilter as _ChapterFilter
+from novels.models import Fiction as _Fiction, Chapter as _Chapter, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -19,13 +22,41 @@ from django.http import HttpResponse
 from scrapes.tasks import parsers_task as _parsers_task
 from scrapes.managers import Managers as _Managers
 from rest_framework import mixins
+from django.db.models import Max as _Max, Prefetch as _Prefetch, Subquery
+
+from django.db import connection
 
 _managers = _Managers()
 
 
-class FictionViewSet(
-    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
-):
+class WatchingFictionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    pagination_class = VariablePagination
+    serializer_class = _UpdatedSerializer
+
+    def get_queryset(self):
+        prefetch = _Prefetch(
+            "fiction", queryset=_Fiction.objects.only("title", "author", "id").prefetch_related("author")
+        )
+
+        qs = (
+            _Chapter.objects.date_sorted()
+            .prefetch_related(prefetch)
+            .only("id", "title", "published", "fiction", "url", "discovered", "total_progress",)
+        )
+        qs = qs.add_progress(self.request.user.id)
+        qs = qs.filter(fiction_id__in=Subquery(_Fiction.objects.filter(watching=self.request.user).only("id")))
+        return qs
+
+
+class AuthorViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = _Author.objects.all().order_by("name")
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ("name",)
+    pagination_class = VariablePagination
+    serializer_class = AuthorSerializer
+
+
+class FictionViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = _Fiction.objects.all().order_by("title")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("author",)
@@ -58,9 +89,7 @@ class FictionViewSet(
         return HttpResponse(status=401, reason="not logged in")
 
 
-class ChapterViewSet(
-    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
-):
+class ChapterViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = _Chapter.objects.all().order_by("-id")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
@@ -93,9 +122,7 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
         return _ReadingProgress.objects.none()
 
 
-class ParserViewSet(
-    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
-):
+class ParserViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = _ParserSerialzer
     queryset = _Parser.objects.all()
     http_method_names = ("get", "post")
@@ -103,9 +130,7 @@ class ParserViewSet(
     @action(detail=False, methods=["post"])
     def delete_all_parses(self, request, pk=None, days=1):
         if request.user.has_perm("scrapes.view_system"):
-            _ParseLog.objects.filter(
-                started__gt=_timezone.now() - _timedelta(days=days)
-            ).delete()
+            _ParseLog.objects.filter(started__gt=_timezone.now() - _timedelta(days=days)).delete()
             _parsers_task()
             return HttpResponse(status=204)
         return HttpResponse(status=403, reason="missing system permission")
@@ -113,9 +138,7 @@ class ParserViewSet(
     @action(detail=True, methods=["post"])
     def delete_parses(self, request, pk=None, days=1):
         if request.user.has_perm("scrapes.view_system"):
-            _ParseLog.objects.filter(
-                parser_id=pk, started__gt=_timezone.now() - _timedelta(days=days)
-            ).delete()
+            _ParseLog.objects.filter(parser_id=pk, started__gt=_timezone.now() - _timedelta(days=days)).delete()
             _parsers_task()
             return HttpResponse(status=204)
         return HttpResponse(status=403, reason="missing system permission")

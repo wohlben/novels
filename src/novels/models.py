@@ -4,22 +4,24 @@ from django.db import models as _models
 from profiles.models import ReadingProgress as _ReadingProgress
 
 
+class Author(_models.Model):
+    name = _models.TextField()
+    remote_id = _models.TextField(unique=True)
+    url = _models.URLField()
+
+    def __string__(self):
+        return self.name
+
+
 class _FictionQS(_models.QuerySet):
     def add_chapter_count(self):
-        return super().annotate(
-            chapters=_models.Count(
-                "chapter", filter=_models.Q(chapter__fiction=_models.F("id"))
-            )
-        )
+        return self.annotate(chapters=_models.Count("chapter", filter=_models.Q(chapter__fiction=_models.F("id"))))
 
     def add_read_count(self, user_id):
-        return super().annotate(
+        return self.annotate(
             read=_models.Count(
                 "chapter",
-                filter=_models.Q(
-                    chapter__fiction=_models.F("id"),
-                    chapter__readingprogress__user_id=user_id,
-                ),
+                filter=_models.Q(chapter__fiction=_models.F("id"), chapter__readingprogress__user_id=user_id,),
             )
         )
 
@@ -34,21 +36,16 @@ class Fiction(_models.Model):
     title = _models.TextField(blank=True)
     url = _models.TextField()
     remote_id = _models.TextField(blank=True, null=True)
-    author = _models.TextField(blank=True, null=True)
+    author = _models.ForeignKey("Author", blank=True, null=True, on_delete=_models.SET_NULL)
 
     watching = _models.ManyToManyField("profiles.User")
 
-    source = _models.ForeignKey(
-        "scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True
-    )
+    source = _models.ForeignKey("scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True)
 
     def unread_chapters(self, user_id):
         return (
             self.chapter_set.add_progress(user_id)
-            .filter(
-                _models.Q(progress__lt=_models.F("total_progress"))
-                | _models.Q(progress=None)
-            )
+            .filter(_models.Q(progress__lt=_models.F("total_progress")) | _models.Q(progress=None))
             .count()
         )
 
@@ -56,12 +53,7 @@ class Fiction(_models.Model):
         return self.title
 
     def get_last_read_chapter(self, user_id):
-        qs = (
-            Chapter.objects.filter(fiction=self)
-            .date_sorted(order="")
-            .add_progress(user_id)
-            .exclude(progress=None)
-        )
+        qs = Chapter.objects.filter(fiction=self).date_sorted(order="").add_progress(user_id).exclude(progress=None)
         if len(qs) >= 1:
             return qs.last()
         else:
@@ -74,10 +66,9 @@ class Fiction(_models.Model):
 
 class _ChapterQS(_models.QuerySet):
     def add_published(self):
-        return super().annotate(
+        return self.annotate(
             sort_date=_models.Case(
-                _models.When(published=None, then=_models.F("discovered")),
-                default=_models.F("published"),
+                _models.When(published=None, then=_models.F("discovered")), default=_models.F("published"),
             )
         )
 
@@ -85,26 +76,23 @@ class _ChapterQS(_models.QuerySet):
         return self.add_published().order_by(f"{order}sort_date")
 
     def add_progress(self, user_id):
-        return super().annotate(
+        return self.annotate(
             progress=_models.Max(
                 "readingprogress__progress",
-                filter=_models.Q(
-                    readingprogress__user_id=user_id,
-                    readingprogress__chapter_id=_models.F("id"),
-                ),
+                filter=_models.Q(readingprogress__user_id=user_id, readingprogress__chapter_id=_models.F("id"),),
             ),
             timestamp=_models.Max(
                 "readingprogress__timestamp",
-                filter=_models.Q(
-                    readingprogress__user_id=user_id,
-                    readingprogress__chapter_id=_models.F("id"),
-                ),
+                filter=_models.Q(readingprogress__user_id=user_id, readingprogress__chapter_id=_models.F("id"),),
             ),
         )
 
 
 class Chapter(_models.Model):
     """Chapter database model."""
+
+    class Meta:
+        indexes = [_models.Index(fields=["-published"])]
 
     objects = _ChapterQS.as_manager()
 
@@ -132,9 +120,9 @@ class Chapter(_models.Model):
 
     def get_relevant_chapters(self, user_id):
         return (
-            Chapter.objects.filter(fiction=self.fiction)
-            .date_sorted(order="")
+            Chapter.objects.date_sorted(order="")
             .add_progress(user_id)
+            .filter(fiction=self.fiction)
             .filter(_models.Q(progress__lt=100) | _models.Q(progress=None))
         )
 
@@ -158,8 +146,8 @@ class Chapter(_models.Model):
                 sort_date = self.discovered
 
             return (
-                Chapter.objects.filter(fiction=self.fiction)
-                .date_sorted(order="")
+                Chapter.objects.date_sorted(order="")
+                .filter(fiction=self.fiction)
                 .filter(sort_date__gt=sort_date)
                 .first()
             )

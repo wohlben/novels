@@ -2,7 +2,7 @@ from scrapes.managers.ScrapeManagerBase import ScrapeManagerBase as _ScrapeManag
 from scrapes.models import Scrapes as _Scrapes, ParseLog as _ParseLog
 from django.db.models import Subquery as _Subquery
 from lxml import html as _html
-from novels.models import Fiction as _Fiction, Chapter as _Chapter
+from novels.models import Fiction as _Fiction, Chapter as _Chapter, Author as _Author
 from django.utils import timezone as _timezone
 
 
@@ -18,9 +18,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
 
     def pending_fetches(self):
         """Return Scrape urls of parser_type_id."""
-        return _Scrapes.objects.filter(
-            parser_type_id=self.get_parser_id(), content=None
-        )
+        return _Scrapes.objects.filter(parser_type_id=self.get_parser_id(), content=None)
 
     def missing_novels(self, *args, **kwargs):
         """Return monitored Fiction objects that should to be fetched."""
@@ -48,9 +46,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
         try:
             for novel in self.missing_novels(*args, **kwargs):
                 self.logger.info(f"adding '{novel.title}' to the pending fetches")
-                _Scrapes.objects.create(
-                    url=novel.url, parser_type_id=self.get_parser_id()
-                )
+                _Scrapes.objects.create(url=novel.url, parser_type_id=self.get_parser_id())
 
             return True
         except Exception:  # pragma: no cover
@@ -62,9 +58,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
             return False
 
         parse_log_dict = {"parser_id": self.get_parser_id(), "started": _timezone.now()}
-        parse_log, created = _ParseLog.objects.get_or_create(
-            scrape=scrape, defaults=parse_log_dict
-        )
+        parse_log, created = _ParseLog.objects.get_or_create(scrape=scrape, defaults=parse_log_dict)
         if not created:
             _ParseLog.objects.filter(id=parse_log.id).update(**parse_log_dict)
             parse_log.refresh_from_db()
@@ -78,14 +72,23 @@ class RRLNovelScraper(_ScrapeManagerBase):
             self.logger.exception("couldn't determine remote id of the fiction")
             raise
         except _Fiction.MultipleObjectsReturned:
-            self.logger.exception(
-                f"There were multiple fictions in the queryset. Failing on possible parsing error"
-            )
+            self.logger.exception(f"There were multiple fictions in the queryset. Failing on possible parsing error")
             raise
 
         tree = _html.fromstring(scrape.content)
 
-        fiction.author = tree.xpath('//h4[@property="author"]//a/text()')[0]
+        try:
+            author_name = tree.xpath('//h4[@property="author"]//a/text()')[0]
+            author_url = tree.xpath('//h4[@property="author"]//a/@href')[0]
+            author_remote_id = author_url.split("/")[-1]
+
+            author, author_created = _Author.objects.get_or_create(
+                remote_id=author_remote_id, defaults={"name": author_name, "url": author_url}
+            )
+            fiction.author = author
+        except Exception as e:
+            self.logger.exception(e)
+            raise
         fiction.title = tree.xpath('//h1[@property="name"]/text()')[0]
         fiction.save()
 
@@ -99,10 +102,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
             chapter_dict = dict()
             chapter_dict["url"] = self.BASE_URL + url_element[0]
             chapter_dict["title"] = (
-                chapter.xpath("./td/a/text()")[0]
-                .encode("raw-unicode-escape")
-                .decode("unicode_escape")
-                .strip()
+                chapter.xpath("./td/a/text()")[0].encode("raw-unicode-escape").decode("unicode_escape").strip()
             )
 
             try:
@@ -111,9 +111,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                     fiction=fiction, remote_id=remote_id, defaults=chapter_dict
                 )
             except (ValueError, IndexError, TypeError):
-                self.logger.exception(
-                    f"couldn't determine remote id of the chapter {chapter_dict['url']})"
-                )
+                self.logger.exception(f"couldn't determine remote id of the chapter {chapter_dict['url']})")
                 raise
 
             modified = False
@@ -138,9 +136,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
         }
         parse_log.modified_object = modified_objects
         parse_log.save()
-        self.logger.info(
-            f"modified  {len(modified_objects['chapters'])} for {fiction.title}"
-        )
+        self.logger.info(f"modified  {len(modified_objects['chapters'])} for {fiction.title}")
         return
 
     def novel_extractor(self):
@@ -160,9 +156,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
 
             tree = _html.fromstring(scrape.content)
 
-            parse_log = _ParseLog.objects.create(
-                scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now()
-            )
+            parse_log = _ParseLog.objects.create(scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now())
             data_extracted = self._parse_fiction_page(tree, scrape.url)
             parse_log.finished = _timezone.now()
             if data_extracted:
@@ -175,9 +169,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
     def _parse_fiction_page(self, element, url):
         try:
             remote_id = url.split("/")[-2]
-            fic, created = _Fiction.objects.get_or_create(
-                remote_id=int(remote_id), source=self.get_parser_id()
-            )
+            fic, created = _Fiction.objects.get_or_create(remote_id=int(remote_id), source=self.get_parser_id())
 
             chapters = element.xpath("//tr")
             created_chapters = 0
@@ -191,10 +183,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
                     fiction=fic, remote_id=chap_remote_id, defaults={"url": chap_url}
                 )
                 chap.title = (
-                    chapter.xpath("./td/a/text()")[0]
-                    .encode("raw-unicode-escape")
-                    .decode("unicode-escape")
-                    .strip()
+                    chapter.xpath("./td/a/text()")[0].encode("raw-unicode-escape").decode("unicode-escape").strip()
                 )
                 if not created:
                     chap.url = chap_url
@@ -204,9 +193,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
             fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
             fic.title = element.xpath('//h1[@property="name"]/text()')[0]
             fic.save()
-            self.logger.info(
-                f'updated content of "{fic.title}" and added {created_chapters}'
-            )
+            self.logger.info(f'updated content of "{fic.title}" and added {created_chapters}')
             return True
         except Exception:  # pragma: no cover
             self.logger.exception("failed to parse chapter")

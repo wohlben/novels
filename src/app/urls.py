@@ -19,11 +19,7 @@ from profiles.views import LoginView, ProfileView, LogoutView
 from django.conf import settings
 
 urlpatterns = [
-    path(
-        "",
-        RedirectView.as_view(pattern_name="novels:updates", permanent=False),
-        name="home",
-    ),
+    path("", RedirectView.as_view(pattern_name="novels:updates", permanent=False), name="home",),
     path("novels/", include("novels.urls")),
     path("scrapes/", include("scrapes.urls")),
     path("monitoring/", include("monitoring.urls")),
@@ -31,9 +27,9 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", include("profiles.urls")),
-    path("auth/", include("social_django.urls", namespace="social")),
     path("api-auth/", include("rest_framework.urls")),
 ]
+
 
 if settings.DEBUG:  # pragma: no cover
     print("importing debug toolbar")

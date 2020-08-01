@@ -1,0 +1,23 @@
+[packages]
+django = "*"
+celery = "*"
+django-celery-results = "*"
+requests = "*"
+redis = "*"
+psycopg2-binary = "*"
+lxml = "*"
+cssselect = "*"
+django-filter = "*"
+djangorestframework = "*"
+markdown = "*"
+django-cors-headers = "*"
+gunicorn = "*"
+django-redis-cache = "*"
+sentry-sdk = "*"
+django-dotenv = "*"
+cryptography = "*"
+
+[dev-packages]
+httmock = "*"
+python-language-server = "*"
+django-debug-toolbar = "*"

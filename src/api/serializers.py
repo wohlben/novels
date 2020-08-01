@@ -1,12 +1,14 @@
-from rest_framework.serializers import (
-    ModelSerializer as _ModelSerializer,
-    Serializer as _Serializer,
-    PrimaryKeyRelatedField as _PrimaryKeyRelatedField,
-    IntegerField as _IntegerField,
-)
-from novels.models import Chapter as _Chapter, Fiction as _Fiction
+from rest_framework.fields import CharField
+from rest_framework.serializers import ModelSerializer as _ModelSerializer
+from novels.models import Chapter as _Chapter, Fiction as _Fiction, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
 from scrapes.models import Parser as _Parser
+
+
+class AuthorSerializer(_ModelSerializer):
+    class Meta:
+        model = _Author
+        fields = ("id", "name", "url")
 
 
 class ChapterSerializer(_ModelSerializer):
@@ -21,6 +23,35 @@ class FictionListSerializer(_ModelSerializer):
         fields = ("id", "title", "author")
 
 
+class FictionTitleAuthor(_ModelSerializer):
+    internal_url = CharField(source="get_absolute_url")
+    author = AuthorSerializer()
+
+    class Meta:
+        model = _Fiction
+        fields = ("title", "author", "id", "internal_url")
+
+
+class UpdatedSerializer(_ModelSerializer):
+    internal_url = CharField(source="get_absolute_url")
+    external_url = CharField(source="url")
+    fiction = FictionTitleAuthor(many=False)
+
+    class Meta:
+        model = _Chapter
+        fields = (
+            "id",
+            "title",
+            "published",
+            "external_url",
+            "discovered",
+            "total_progress",
+            "internal_url",
+            "fiction",
+        )
+        read_only_fields = fields
+
+
 class ChapterListSerializer(_ModelSerializer):
     fiction = FictionListSerializer()
 
@@ -28,10 +59,12 @@ class ChapterListSerializer(_ModelSerializer):
         model = _Chapter
         fields = ("id", "title", "published", "fiction", "discovered")
 
+
 class FictionChapterListSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter
         fields = ("id", "title", "published")
+
 
 class FictionSerializer(_ModelSerializer):
     chapters = FictionChapterListSerializer(many=True, source="chapter_set")

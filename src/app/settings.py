@@ -29,7 +29,6 @@ if env_variable("CI", False):
     DEBUG = True
 else:
     DEBUG = env_variable("django_debug", False) == "True"
-
 print(f"starting with debug: {DEBUG}")
 
 TESTING = "test" in sys.argv
@@ -45,11 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    'rest_framework.authtoken',
     "django_filters",
     "django_celery_results",
-    "social_django",
-    "webpack_loader",
     "utils",
     "profiles",
     "novels",
@@ -66,6 +62,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.auth.middleware.RemoteUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -86,8 +83,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "social_django.context_processors.backends",
-                "social_django.context_processors.login_redirect",
             ],
             "debug": DEBUG,
         },
@@ -95,9 +90,7 @@ TEMPLATES = [
 ]
 
 if DEBUG:
-    TEMPLATES[0]["OPTIONS"]["context_processors"].insert(
-        0, "django.template.context_processors.debug"
-    )
+    TEMPLATES[0]["OPTIONS"]["context_processors"].insert(0, "django.template.context_processors.debug")
 
 WSGI_APPLICATION = "app.wsgi.application"
 
@@ -113,20 +106,14 @@ DATABASES = {
         "USER": env_variable("database_user", "django"),
         "PASSWORD": env_variable("database_pass", "django"),
         "HOST": env_variable("database_host", "database"),
+        "CONN_MAX_AGE": None,
     }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    # },
-    # {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    # {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    # {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
+AUTH_PASSWORD_VALIDATORS = []
 AUTH_USER_MODEL = "profiles.User"
 
 
@@ -146,51 +133,25 @@ USE_TZ = True
 LOGGING = {
     "version": 1,
     "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
-            "style": "{",
-        },
+        "verbose": {"format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}", "style": "{",},
         "simple": {"format": "{levelname} {message}", "style": "{"},
     },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        }
-    },
+    "handlers": {"console": {"level": "INFO", "class": "logging.StreamHandler", "formatter": "verbose",}},
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO", "propagate": True},
         "scrapes.tasks": {"handlers": ["console"], "level": "INFO", "propagate": True},
-        "profiles.token_auth": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "novels.tasks": {
-            "handlers": ["console"],
-            "level": "WARNING",
-            "propagate": True,
-        },
+        "profiles.token_auth": {"handlers": ["console"], "level": "INFO", "propagate": True,},
+        "novels.tasks": {"handlers": ["console"], "level": "WARNING", "propagate": True,},
     },
 }
 
 AUTHENTICATION_BACKENDS = (
-    "social_core.backends.github.GithubOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
     "profiles.backends.TokenAuthBackend",
+    "profiles.backends.BearerAuth",
 )
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
-SOCIAL_AUTH_GITHUB_KEY = env_variable("github_auth_key", "unknown")
-SOCIAL_AUTH_GITHUB_SECRET = env_variable("github_auth_secret", "unknown")
-SOCIAL_AUTH_POSTGRES_JSONFIELD = True
-
-if (
-    SOCIAL_AUTH_GITHUB_KEY == "unknown" or SOCIAL_AUTH_GITHUB_SECRET == "unknown"
-):  # pragma: no cover
-    print("logging in won't be possible without github auth")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -205,16 +166,8 @@ STATICFILES_DIRS = [
 
 
 CACHES = {
-    "default": {
-        "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "redis://cache:6379/3",
-        "KEY_PREFIX": "django_",
-    },
-    "pages": {
-        "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "redis://cache:6379/3",
-        "KEY_PREFIX": "pages_",
-    },
+    "default": {"BACKEND": "redis_cache.RedisCache", "LOCATION": "redis://cache:6379/3", "KEY_PREFIX": "django_",},
+    "pages": {"BACKEND": "redis_cache.RedisCache", "LOCATION": "redis://cache:6379/3", "KEY_PREFIX": "pages_",},
 }
 
 GENERIC_CACHE_TIME = 60 * 15
@@ -241,43 +194,16 @@ if DEBUG:
     fetch_time = {"minute": "15"}
 
 CELERY_BEAT_SCHEDULE = {
-    "minutely_fetch": {
-        "task": "scrapes.tasks.fetch_content",
-        "schedule": crontab(**fetch_time),
-    },
-    "generators": {
-        "task": "scrapes.tasks.generators_task",
-        "schedule": crontab(minute="*/5"),
-    },
-    "parsers": {
-        "task": "scrapes.tasks.parsers_task",
-        "schedule": crontab(minute="*/5"),
-    },
-    "process_provided_urls": {
-        "task": "profiles.tasks.match_provided_urls_to_fictions",
-        "schedule": crontab(minute="*/10"),
-    },
-    "extract_highlights": {
-        "task": "novels.tasks.highlight_extractor_task",
-        "schedule": crontab(minute="*/15"),
-    },
-    "extract_characters": {
-        "task": "novels.tasks.character_extractor_task",
-        "schedule": crontab(minute="*/15"),
-    },
+    "minutely_fetch": {"task": "scrapes.tasks.fetch_content", "schedule": crontab(**fetch_time),},
+    "generators": {"task": "scrapes.tasks.generators_task", "schedule": crontab(minute="*/5"),},
+    "parsers": {"task": "scrapes.tasks.parsers_task", "schedule": crontab(minute="*/5"),},
 }
-
-GRAPHENE = {"SCHEMA": "app.schema.schema"}  # Where your Graphene schema lives
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-
-    ],
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ["profiles.backends.APIBearerAuth"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -286,27 +212,10 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_WHITELIST = env_variable("cors_whitelist", "").split()
 
-if env_variable('SENTRY_DSN', False):
+if env_variable("SENTRY_DSN", False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
-    sentry_sdk.init(
-        dsn=env_variable('SENTRY_DSN'),
-        integrations=[DjangoIntegration()]
-    )
 
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': '//', # must end with slash
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        'TIMEOUT': None,
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
-    }
-}
+    sentry_sdk.init(dsn=env_variable("SENTRY_DSN"), integrations=[DjangoIntegration()])
 
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG
-    }
-}
+    sentry_sdk.init(dsn=env_variable("SENTRY_DSN"), integrations=[DjangoIntegration()])
