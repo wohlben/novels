@@ -43,17 +43,13 @@ class Fiction(_models.Model):
     source = _models.ForeignKey("scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True)
 
     def unread_chapters(self, user_id):
-        return (
-            self.chapter_set.add_progress(user_id)
-            .filter(_models.Q(progress__lt=_models.F("total_progress")) | _models.Q(progress=None))
-            .count()
-        )
+        return self.chapter_set.add_progress(user_id).filter(_models.Q(progress=None)).count()
 
     def __str__(self):
         return self.title
 
     def get_last_read_chapter(self, user_id):
-        qs = Chapter.objects.filter(fiction=self).date_sorted(order="").add_progress(user_id).exclude(progress=None)
+        qs = Chapter.objects.add_progress(user_id).date_sorted(order="").filter(fiction=self).exclude(progress=None)
         if len(qs) >= 1:
             return qs.last()
         else:

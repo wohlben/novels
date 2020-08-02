@@ -22,14 +22,13 @@ from django.http import HttpResponse
 from scrapes.tasks import parsers_task as _parsers_task
 from scrapes.managers import Managers as _Managers
 from rest_framework import mixins
-from django.db.models import Max as _Max, Prefetch as _Prefetch, Subquery
+from django.db.models import Prefetch as _Prefetch, Subquery
 
-from django.db import connection
 
 _managers = _Managers()
 
 
-class WatchingFictionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class WatchingFictionViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = VariablePagination
     serializer_class = _UpdatedSerializer
 
@@ -37,30 +36,46 @@ class WatchingFictionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         prefetch = _Prefetch(
             "fiction", queryset=_Fiction.objects.only("title", "author", "id").prefetch_related("author")
         )
-
         qs = (
             _Chapter.objects.date_sorted()
             .prefetch_related(prefetch)
-            .only("id", "title", "published", "fiction", "url", "discovered", "total_progress",)
+            .add_progress(self.request.user.id)
+            .only("id", "title", "published", "fiction", "url", "discovered")
         )
-        qs = qs.add_progress(self.request.user.id)
         qs = qs.filter(fiction_id__in=Subquery(_Fiction.objects.filter(watching=self.request.user).only("id")))
         return qs
 
 
-class AuthorViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Author.objects.all().order_by("name")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("name",)
     pagination_class = VariablePagination
     serializer_class = AuthorSerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.prefetch_related("fiction_set")
 
-class FictionViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+
+class FictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Fiction.objects.all().order_by("title")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("author",)
     pagination_class = VariablePagination
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action != "list":
+            prefetch = _Prefetch(
+                "chapter_set",
+                queryset=_Chapter.objects.only("title", "published", "id")
+                .add_progress(self.request.user.id)
+                .date_sorted(""),
+            )
+            qs = qs.prefetch_related(prefetch, "author")
+        # qs = qs.filter(fiction_id__in=Subquery(_Fiction.objects.filter(watching=self.request.user).only("id")))
+        return qs
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -89,10 +104,22 @@ class FictionViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.
         return HttpResponse(status=401, reason="not logged in")
 
 
-class ChapterViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = _Chapter.objects.all().order_by("-id")
+class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = _Chapter.objects.date_sorted("-").all()
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.add_progress(self.request.user.id)
+
+        if self.action != "list":
+            chapter_prefetch = _Prefetch(
+                "chapter_set", queryset=_Chapter.objects.date_sorted("").add_progress(self.request.user.id)
+            )
+            prefetch = _Prefetch("fiction", queryset=_Fiction.objects.prefetch_related("author", chapter_prefetch))
+            qs = qs.prefetch_related(prefetch).only("id", "title", "published", "fiction", "url", "discovered",)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -122,7 +149,7 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
         return _ReadingProgress.objects.none()
 
 
-class ParserViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+class ParserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = _ParserSerialzer
     queryset = _Parser.objects.all()
     http_method_names = ("get", "post")
