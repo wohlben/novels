@@ -9,7 +9,7 @@ class Author(_models.Model):
     remote_id = _models.TextField(unique=True)
     url = _models.URLField()
 
-    def __string__(self):
+    def __str__(self):
         return self.name
 
 

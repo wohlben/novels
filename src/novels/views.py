@@ -37,7 +37,7 @@ class WatchComponent(_FormView):
         if request.user.is_authenticated:
             form = self.form_class(request.POST)
             if form.is_valid():
-                novel_id = kwargs.get("novel_id")
+                novel_id = self.kwargs.get("novel_id")
                 fiction = _Fiction.objects.get(id=novel_id)
                 if request.user.fiction_set.filter(id=fiction.id).count() == 0:
                     fiction.watching.add(request.user)
@@ -125,7 +125,7 @@ class FictionDetailView(_TemplateView):
         else:
             prefetch = _Prefetch("chapter_set", queryset=prefetch_qs)
 
-        novel = _Fiction.objects.prefetch_related(prefetch).get(id=kwargs.get("novel_id"))
+        novel = _Fiction.objects.prefetch_related(prefetch).get(id=self.kwargs.get("novel_id"))
 
         context["chars"] = novel.character_set.annotate(appearances=_Count("chapter")).order_by("-appearances")[:5]
         context["novel"] = novel
@@ -138,7 +138,7 @@ class ChapterDetailView(_LoginRequiredMixin, _TemplateView):
     template_name = "novels/details/chapter.html"
 
     def get_context_data(self, **kwargs):
-        chapter_id = kwargs["chapter_id"]
+        chapter_id = self.kwargs.get("chapter_id")
         chapter = _Chapter.objects.prefetch_related("fiction").get(id=chapter_id)
 
         if (

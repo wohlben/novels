@@ -30,7 +30,7 @@ if env_variable("CI", False):
 else:
     DEBUG = env_variable("django_debug", False) == "True"
 print(f"starting with debug: {DEBUG}")
-DEBUG = False
+# DEBUG = False
 TESTING = "test" in sys.argv
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
