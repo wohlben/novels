@@ -190,7 +190,20 @@ class RRLNovelScraper(_ScrapeManagerBase):
                 chap.save()
                 created_chapters += 1
 
-            fic.author = element.xpath('//h4[@property="author"]//a/text()')[0]
+            if fic.author is None:
+                try:
+
+                    author_name = element.xpath('//h4[@property="author"]//a/text()')[0]
+                    author_url = element.xpath('//h4[@property="author"]//a/@href')[0]
+                    author_remote_id = author_url.split("/")[-1]
+
+                    author, author_created = _Author.objects.get_or_create(
+                        remote_id=author_remote_id, defaults={"name": author_name, "url": author_url}
+                    )
+                    fic.author = author
+                except Exception as e:
+                    self.logger.exception(e)
+
             fic.title = element.xpath('//h1[@property="name"]/text()')[0]
             fic.save()
             self.logger.info(f'updated content of "{fic.title}" and added {created_chapters}')

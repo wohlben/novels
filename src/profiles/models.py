@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.shortcuts import reverse as _reverse
 from django.db import models as _models
 from django.contrib.auth.models import AbstractUser as _AbstractUser
@@ -59,14 +60,14 @@ class ReadingProgress(_models.Model):
 
     chapter = _models.ForeignKey("novels.Chapter", on_delete=_models.CASCADE)
     user = _models.ForeignKey("User", on_delete=_models.CASCADE)
-    progress = _models.IntegerField()
+    progress = _models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     timestamp = _models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.progress} %"
+        if self.progress:
+            return f"{self.progress} %"
+        return ""
 
     @property
     def get_absolute_url(self):
-        _reverse(
-            "profiles:progress", kwargs={"chapter_id": self.id, "progress": self.progress},
-        )
+        return _reverse("profiles:progress", kwargs={"chapter_id": self.id, "progress": self.progress},)
