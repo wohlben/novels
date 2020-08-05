@@ -145,7 +145,7 @@ class UpdatedSerializer(_ModelSerializer):
 class ReadingProgressSerializer(_ModelSerializer):
     class Meta:
         model = _ReadingProgress
-        fields = ("id", "progress", "chapter", "timestamp")
+        fields = ("progress", "chapter", "timestamp")
 
 
 class ParserSerializer(_ModelSerializer):

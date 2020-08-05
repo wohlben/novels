@@ -61,8 +61,7 @@ class TokenAuthBackend(_ModelBackend):
         except _UserModel.DoesNotExist:
             return None
 
-    def authenticate(self, request, **kwargs):
-        login_token = kwargs.get("login_token")
+    def authenticate(self, login_token, **kwargs):
         try:
             username, token = login_token.split(":")
             user_qs = _UserModel.objects.filter(username=username)

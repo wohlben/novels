@@ -4,9 +4,9 @@ RUN apk add curl
 RUN curl --silent -o /bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
 RUN chmod 755 /bin/wait-for-it
 
-FROM alpine as spacy_provider
-RUN apk add curl
-RUN curl -o /spacy_model.tar.gz https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz --verbose --location
+#FROM alpine as spacy_provider
+#RUN apk add curl
+#RUN curl -o /spacy_model.tar.gz https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz --verbose --location
 
 FROM node as npm_builder
 COPY src/assets/package.json /novels/assets/package.json
@@ -14,18 +14,18 @@ COPY src/assets/package-lock.json /novels/assets/package-lock.json
 WORKDIR /novels/assets
 RUN npm install --no-progress --ignore-optinal
 
-FROM python:3.7 as django_builder
+FROM python:3.8 as django_builder
+ENV PIPENV_VENV_IN_PROJECT true
 COPY --from=wfi_profider /bin/wait-for-it /bin/wait-for-it
 COPY .ci/startup.sh /startup.sh
 RUN useradd -d /novels -m --user-group django
-RUN pip install poetry
-RUN poetry config settings.virtualenvs.in-project true
-ADD pyproject.toml /novels/pyproject.toml
-ADD poetry.lock /novels/poetry.lock
+RUN pip install pipenv
+ADD Pipfile /novels/Pipfile
+ADD Pipfile.lock /novels/Pipfile.lock
 WORKDIR /novels
-RUN poetry install
-COPY --from=spacy_provider /spacy_model.tar.gz /tmp/spacy_model.tar.gz
-RUN poetry run pip install /tmp/spacy_model.tar.gz && rm /tmp/spacy_model.tar.gz
+RUN pipenv sync
+#COPY --from=spacy_provider /spacy_model.tar.gz /tmp/spacy_model.tar.gz
+#RUN pipenv run pip install /tmp/spacy_model.tar.gz && rm /tmp/spacy_model.tar.gz
 COPY --chown=django:django . /novels/
 USER django
 WORKDIR /novels/src
@@ -44,7 +44,7 @@ COPY .ci/open_port.py /open_port.py
 
 FROM django_base as static_collector
 COPY --chown=django:django --from=static_builder /novels/static/dist /novels/src/static/dist
-RUN poetry run python manage.py collectstatic
+RUN pipenv run python manage.py collectstatic
 
 FROM nginx as static_server
 RUN rm /usr/share/nginx/html/index.html

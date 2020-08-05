@@ -19,9 +19,7 @@ class RRLLatestScraper(_ScrapeManagerBase):
 
     def _pending_fetches(self):
         """Return quantity of pending fetches relating to this module."""
-        return _Scrapes.objects.filter(
-            http_code=None, content=None, parser_type_id=self.get_parser_id()
-        ).count()
+        return _Scrapes.objects.filter(http_code=None, content=None, parser_type_id=self.get_parser_id()).count()
 
     def _last_fetch(self):
         """Return the last fetch object for modifications."""
@@ -33,26 +31,19 @@ class RRLLatestScraper(_ScrapeManagerBase):
             pending_scrapes = self._pending_fetches()
 
             if pending_scrapes > 0:
-                self.logger.warning(
-                    f'found {pending_scrapes} pending scrapes for "rrl latest" -- skipping queue'
-                )
+                self.logger.warning(f'found {pending_scrapes} pending scrapes for "rrl latest" -- skipping queue')
                 return False
 
             last_scrape = self._last_fetch()
 
-            if last_scrape and last_scrape.last_change > _timezone.now() - _timedelta(
-                minutes=15
-            ):
-                self.logger.warning(
-                    f"last scrape was within 15 minutes ({last_scrape.last_change}) -- skipping queue"
-                )
+            if last_scrape and last_scrape.last_change > _timezone.now() - _timedelta(minutes=15):
+                self.logger.warning(f"last scrape was within 15 minutes ({last_scrape.last_change}) -- skipping queue")
                 return False
 
             self.logger.info('adding new "rrl latest" to the scrape queue')
 
             _Scrapes.objects.create(
-                url="https://www.royalroad.com/fictions/latest-updates",
-                parser_type_id=self.get_parser_id(),
+                url="https://www.royalroad.com/fictions/latest-updates", parser_type_id=self.get_parser_id(),
             )
             return True
         except Exception:  # pragma: no cover
@@ -73,9 +64,7 @@ class RRLLatestScraper(_ScrapeManagerBase):
 
             tree = _html.fromstring(scrape.content)
 
-            parse_log = _ParseLog.objects.create(
-                scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now()
-            )
+            parse_log = _ParseLog.objects.create(scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now())
 
             novels = self._parse_fictions(tree)
 
@@ -114,9 +103,7 @@ class RRLLatestScraper(_ScrapeManagerBase):
             except Exception:  # pragma: no cover
                 self.logger.exception(f"failed to parse a chapter in {fiction}")
         if added_chapters + updated_chapters == len(chapters):
-            self.logger.info(
-                f"added {added_chapters} and updated {updated_chapters} for {fiction.title}"
-            )
+            self.logger.info(f"added {added_chapters} and updated {updated_chapters} for {fiction.title}")
         else:  # pragma: no cover
             self.logger.warning(
                 f"expected {len(chapters)}, but only got {added_chapters} adds and {updated_chapters} updates for {fiction.title}"
@@ -132,17 +119,13 @@ class RRLLatestScraper(_ScrapeManagerBase):
         for element in reversed(fictions):
             try:
                 fiction = {}
-                fiction["pic_url"] = element.xpath("./figure/img/@src")[0]
-                fiction["title"] = element.xpath(
-                    './/h2[@class="fiction-title"]/a/text()'
-                )[0]
+                fiction["pic_url"] = element.xpath("./figure//img/@src")[0]
+                fiction["title"] = element.xpath('.//h2[@class="fiction-title"]/a/text()')[0]
                 path = element.xpath('.//h2[@class="fiction-title"]/a/@href')[0]
                 fiction["url"] = f"{self.BASE_URL}{path}"
                 fiction_remote_id = int(path.split("/")[2])
                 fic, created = _Fiction.objects.get_or_create(
-                    source=_Parser.objects.get(name="rrl novel"),
-                    remote_id=fiction_remote_id,
-                    defaults=fiction,
+                    source=_Parser.objects.get(name="rrl novel"), remote_id=fiction_remote_id, defaults=fiction,
                 )
                 if created:
                     created_fictions += 1

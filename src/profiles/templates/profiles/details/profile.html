@@ -16,9 +16,6 @@ Profile: {{ request.user.username }}
 
   <hr />
 
-  <h4>api token</h4>
-  <p>your api token is <span>{{ api_token|default:'undefined' }}</span></p>
-
   <h4>Login Token</h4>
   <p>
     The following url can be used to skip authentication entirely if the access token has been enabled.

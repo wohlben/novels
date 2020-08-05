@@ -14,3 +14,7 @@ static_root/*
 .venv/*
 
 src/static/dist/*
+
+pgdata
+redis
+webpack-stats.json

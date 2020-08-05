@@ -30,7 +30,7 @@ if env_variable("CI", False):
 else:
     DEBUG = env_variable("django_debug", False) == "True"
 print(f"starting with debug: {DEBUG}")
-
+DEBUG = False
 TESTING = "test" in sys.argv
 
 ALLOWED_HOSTS = env_variable("allowed_hosts", "127.0.0.1 localhost").split()
@@ -106,9 +106,11 @@ DATABASES = {
         "USER": env_variable("database_user", "django"),
         "PASSWORD": env_variable("database_pass", "django"),
         "HOST": env_variable("database_host", "database"),
+        "PORT": env_variable("database_port", 5432),
         "CONN_MAX_AGE": None,
     }
 }
+print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -166,8 +168,16 @@ STATICFILES_DIRS = [
 
 
 CACHES = {
-    "default": {"BACKEND": "redis_cache.RedisCache", "LOCATION": "redis://cache:6379/3", "KEY_PREFIX": "django_",},
-    "pages": {"BACKEND": "redis_cache.RedisCache", "LOCATION": "redis://cache:6379/3", "KEY_PREFIX": "pages_",},
+    "default": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": env_variable("cache", "redis://cache:6379") + "/3",
+        "KEY_PREFIX": "django_",
+    },
+    "pages": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": env_variable("cache", "redis://cache:6379") + "/3",
+        "KEY_PREFIX": "pages_",
+    },
 }
 
 GENERIC_CACHE_TIME = 60 * 15
@@ -211,7 +221,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_WHITELIST = env_variable("cors_whitelist", "").split()
-
+print(CORS_ORIGIN_WHITELIST)
 if env_variable("SENTRY_DSN", False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration

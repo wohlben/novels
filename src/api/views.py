@@ -136,6 +136,20 @@ class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
             return HttpResponse(status=400, reason="missing pk")
         return HttpResponse(status=403, reason="missing system permissions")
 
+    @action(detail=True, methods=["post"])
+    def progress(self, request, pk=None):
+        serializer = _ReadingProgressSerializer(data=request.data)
+        if serializer.is_valid() and pk is not None:
+            progress, created = _ReadingProgress.objects.get_or_create(
+                chapter_id=pk, user=self.request.user, defaults={"progress": serializer.data["progress"]}
+            )
+            if not created:
+                progress.progress = serializer.data["progress"]
+                progress.save()
+                return HttpResponse(status=204, reason="updated")
+            return HttpResponse(status=201, reason="created")
+        return HttpResponse(status=400, reason="invalid data or missing pk")
+
 
 class ReadingProgressViewSet(viewsets.ModelViewSet):
     serializer_class = _ReadingProgressSerializer

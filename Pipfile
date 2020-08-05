@@ -16,6 +16,7 @@ django-redis-cache = "*"
 sentry-sdk = "*"
 django-dotenv = "*"
 cryptography = "*"
+pyjwt = "*"
 
 [dev-packages]
 httmock = "*"

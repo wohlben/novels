@@ -47,7 +47,7 @@ services:
     image: redis
     volumes:
       - type: bind
-        source: /srv/redis
+        source: ./redis
         target: /data
 
   database:
@@ -56,7 +56,7 @@ services:
       - .env
     volumes:
       - type: bind
-        source: /srv/pgdata
+        source: ./pgdata
         target: /var/lib/postgresql/data
 
     # environment:

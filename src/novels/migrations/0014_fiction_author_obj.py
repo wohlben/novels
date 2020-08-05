@@ -14,7 +14,7 @@ def set_author_obj(apps, schema_editor):
     Parser = apps.get_model("scrapes", "Parser")
     novelParser = Parser.objects.get(name="rrl novel")
 
-    for fic in Fiction.objects.exclude(author=None).iterator():
+    for fic in Fiction.objects.filter(source=novelParser).exclude(author=None).iterator():
         try:
             author = Author.objects.get(name=fic.author)
             fic.author_obj = author
