@@ -14,6 +14,9 @@ class Author(_models.Model):
 
 
 class _FictionQS(_models.QuerySet):
+    def add_watched(self, user):
+        return self.annotate(watched=_models.Exists(user.fiction_set.filter(id=_models.OuterRef("id"))))
+
     def add_chapter_count(self):
         return self.annotate(chapters=_models.Count("chapter", filter=_models.Q(chapter__fiction=_models.F("id"))))
 
@@ -37,9 +40,7 @@ class Fiction(_models.Model):
     url = _models.TextField()
     remote_id = _models.TextField(blank=True, null=True)
     author = _models.ForeignKey("Author", blank=True, null=True, on_delete=_models.SET_NULL)
-
     watching = _models.ManyToManyField("profiles.User")
-
     source = _models.ForeignKey("scrapes.Parser", on_delete=_models.SET_NULL, blank=True, null=True)
 
     def unread_chapters(self, user_id):

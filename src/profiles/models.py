@@ -47,6 +47,7 @@ class User(_AbstractUser):
         ("united", "united"),
         ("yeti", "yeti"),
     )
+
     oidc_id = _models.CharField(max_length=64, unique=True, null=True, blank=True)
     login_token = _models.UUIDField(default=_uuid4, blank=True, null=True, editable=False)
     enable_login_token = _models.BooleanField(default=False)

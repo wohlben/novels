@@ -1,145 +1,93 @@
-from rest_framework.fields import CharField, IntegerField
+from datetime import datetime
+
+from rest_framework.fields import CharField, IntegerField, ModelField, BooleanField, Field, TimeField, DateTimeField
+from rest_framework.relations import HyperlinkedRelatedField, PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer, ListField
 from novels.models import Chapter as _Chapter, Fiction as _Fiction, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
 from scrapes.models import Parser as _Parser
 
 
+class TimestampField(DateTimeField):
+    def to_representation(self, value):
+        if value:
+            return int(value.timestamp() * 1000)
+        return 0
+
+
+class StringifyPrimaryRelated(PrimaryKeyRelatedField):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        value = super().to_representation(value)
+        if value:
+            return str(value)
+        return value
+
+
 class AuthorSerializer(_ModelSerializer):
     class Meta:
         model = _Author
-        fields = ("id", "name", "url", "fictions")
+        fields = ("id", "name")
 
-    class SimpleFictionSerializer(_ModelSerializer):
-        class Meta:
-            model = _Fiction
-            depth = 1
-            fields = ("id", "title", "author", "chapters")
-
-        class SimpleChapterSerializer(_ModelSerializer):
-            class Meta:
-                model = _Chapter
-                fields = ("id", "title", "published")
-
-        chapters = SimpleChapterSerializer(many=True, source="chapter_set")
-
-    fictions = SimpleFictionSerializer(many=True, source="fiction_set")
+    id = CharField()
 
 
 class ChapterListSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter
-        fields = ("id", "title", "published", "fiction", "discovered")
+        fields = ("id", "fictionId", "title", "published", "discovered", "progress")
 
-    class SimpleFictionSerializer(_ModelSerializer):
-        class SimpleAuthorSerializer(_ModelSerializer):
-            class Meta:
-                model = _Author
-                fields = ("id", "name")
-
-        author = SimpleAuthorSerializer()
-
-        class Meta:
-            model = _Fiction
-            fields = ("id", "title", "author", "chapters")
-
-    fiction = SimpleFictionSerializer()
+    id = CharField()
+    fictionId = CharField(source="fiction.id")
+    # authorId = CharField(source="fiction.author.id", default=None, required=False)
+    progress = IntegerField(default=0, required=False)
+    discovered = TimestampField()
+    published = TimestampField()
 
 
-class ChapterSerializer(_ModelSerializer):
+class ChapterSerializer(ChapterListSerializer):
     class Meta:
         model = _Chapter
-        fields = ("id", "published", "title", "content", "fiction", "reading_progress")
-
-    class SimpleFictionSerializer(_ModelSerializer):
-        class Meta:
-            model = _Fiction
-            fields = ("id", "title", "author", "chapters")
-
-        class SimpleAuthorSerializer(_ModelSerializer):
-            class Meta:
-                model = _Author
-                fields = ("id", "name")
-
-        class SimpleChapterSerializer(_ModelSerializer):
-            reading_progress = IntegerField(source="progress")
-
-            class Meta:
-                model = _Chapter
-                fields = ("id", "title", "published", "reading_progress")
-
-        author = SimpleAuthorSerializer()
-        chapters = SimpleChapterSerializer(many=True, source="chapter_set")
-
-    reading_progress = IntegerField(source="progress")
-    fiction = SimpleFictionSerializer()
-
-
-class FictionSerializer(_ModelSerializer):
-    class Meta:
-        model = _Fiction
-        fields = ("id", "title", "author", "chapters")
-
-    class SimpleAuthorSerializer(_ModelSerializer):
-        class Meta:
-            model = _Author
-            fields = ("id", "name")
-
-    class SimpleChapterSerializer(_ModelSerializer):
-        reading_progress = IntegerField(source="progress")
-
-        class Meta:
-            model = _Chapter
-            fields = ("id", "title", "published", "reading_progress")
-
-    author = SimpleAuthorSerializer()
-    chapters = SimpleChapterSerializer(many=True, source="chapter_set")
+        fields = ("id", "fictionId", "title", "published", "discovered", "progress", "content")
 
 
 class FictionListSerializer(_ModelSerializer):
     class Meta:
         model = _Fiction
-        fields = ("id", "title", "author")
+        fields = (
+            "id",
+            "title",
+            "authorId",
+            "watched",
+        )
 
-    class SimpleAuthorSerializer(_ModelSerializer):
-        class Meta:
-            model = _Fiction
-            fields = ("id", "name")
+    id = CharField()
+    authorId = CharField(source="author_id", default=None)
+    watched = BooleanField()
 
-    author = SimpleAuthorSerializer()
+
+class FictionSerializer(FictionListSerializer):
+    class Meta:
+        model = _Fiction
+        fields = ("id", "title", "authorId", "watched", "chapters")
+
+    chapters = StringifyPrimaryRelated(many=True, source="chapter_set", read_only=True)
 
 
 class UpdatedSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter
-        fields = (
-            "id",
-            "title",
-            "published",
-            "external_url",
-            "discovered",
-            "internal_url",
-            "fiction",
-            "reading_progress",
-        )
+        fields = ("id", "title", "published", "externalUrl", "discovered", "internalUrl", "fictionId", "progress")
 
-    class SimpleFictionSerializer(_ModelSerializer):
-        class Meta:
-            model = _Fiction
-            fields = ("title", "author", "id", "internal_url")
-
-        class SimpleAuthorSerializer(_ModelSerializer):
-            class Meta:
-                model = _Author
-                fields = ("id", "name")
-
-        internal_url = CharField(source="get_absolute_url")
-        author = SimpleAuthorSerializer()
-
-    reading_progress = IntegerField(source="progress")
-    internal_url = CharField(source="get_absolute_url")
-    external_url = CharField(source="url")
-    fiction = SimpleFictionSerializer(many=False)
+    id = CharField()
+    fictionId = CharField(source="fiction_id")
+    progress = IntegerField(default=0)
+    internalUrl = CharField(source="get_absolute_url")
+    externalUrl = CharField(source="url")
+    discovered = TimestampField()
+    published = TimestampField()
 
 
 class ReadingProgressSerializer(_ModelSerializer):

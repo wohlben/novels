@@ -107,7 +107,7 @@ DATABASES = {
         "PASSWORD": env_variable("database_pass", "django"),
         "HOST": env_variable("database_host", "database"),
         "PORT": env_variable("database_port", 5432),
-        "CONN_MAX_AGE": None,
+        "CONN_MAX_AGE": 5,
     }
 }
 print(DATABASES)
@@ -212,8 +212,11 @@ CELERY_BEAT_SCHEDULE = {
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
-    "DEFAULT_AUTHENTICATION_CLASSES": ["profiles.backends.APIBearerAuth"],
+    # "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "profiles.backends.APIBearerAuth",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",

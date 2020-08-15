@@ -1,4 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
+
+from api.filters import MultipleFictionsFilter, MultipleAuthorsFilter, MultipleChaptersFilter, WatchingFilter
 from api.serializers import (
     FictionListSerializer as _FictionListSerializer,
     UpdatedSerializer as _UpdatedSerializer,
@@ -6,10 +8,9 @@ from api.serializers import (
     ChapterListSerializer as _ChapterListSerializer,
     ChapterSerializer as _ChapterSerializer,
     ReadingProgressSerializer as _ReadingProgressSerializer,
-    ParserSerializer as _ParserSerialzer,
+    ParserSerializer as _ParserSerializer,
     AuthorSerializer,
 )
-from novels.filters import ChapterFilter as _ChapterFilter
 from novels.models import Fiction as _Fiction, Chapter as _Chapter, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
 from rest_framework import viewsets
@@ -21,8 +22,6 @@ from scrapes.models import ParseLog as _ParseLog, Parser as _Parser
 from django.http import HttpResponse
 from scrapes.tasks import parsers_task as _parsers_task
 from scrapes.managers import Managers as _Managers
-from rest_framework import mixins
-from django.db.models import Prefetch as _Prefetch, Subquery
 
 
 _managers = _Managers()
@@ -31,18 +30,18 @@ _managers = _Managers()
 class WatchingFictionViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = VariablePagination
     serializer_class = _UpdatedSerializer
+    filter_backends = (DjangoFilterBackend,)
+
+    filter_class = WatchingFilter
 
     def get_queryset(self):
-        prefetch = _Prefetch(
-            "fiction", queryset=_Fiction.objects.only("title", "author", "id").prefetch_related("author")
-        )
         qs = (
             _Chapter.objects.date_sorted()
-            .prefetch_related(prefetch)
+            .prefetch_related("fiction")
             .add_progress(self.request.user.id)
             .only("id", "title", "published", "fiction", "url", "discovered")
         )
-        qs = qs.filter(fiction_id__in=Subquery(_Fiction.objects.filter(watching=self.request.user).only("id")))
+        qs = qs.filter(fiction__watching=self.request.user)
         return qs
 
 
@@ -50,6 +49,7 @@ class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Author.objects.all().order_by("name")
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("name",)
+    filter_class = MultipleAuthorsFilter
     pagination_class = VariablePagination
     serializer_class = AuthorSerializer
 
@@ -61,20 +61,18 @@ class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
 class FictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Fiction.objects.all().order_by("title")
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ("author",)
+    filter_fields = (
+        "author",
+        "id",
+    )
+    filter_class = MultipleFictionsFilter
     pagination_class = VariablePagination
 
     def get_queryset(self):
         qs = super().get_queryset()
         if self.action != "list":
-            prefetch = _Prefetch(
-                "chapter_set",
-                queryset=_Chapter.objects.only("title", "published", "id")
-                .add_progress(self.request.user.id)
-                .date_sorted(""),
-            )
-            qs = qs.prefetch_related(prefetch, "author")
-        # qs = qs.filter(fiction_id__in=Subquery(_Fiction.objects.filter(watching=self.request.user).only("id")))
+            qs = qs.prefetch_related("chapter_set")
+        qs = qs.add_watched(self.request.user)
         return qs
 
     def get_serializer_class(self):
@@ -105,20 +103,18 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = _Chapter.objects.date_sorted("-").all()
+    queryset = _Chapter.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
+    pagination_class = VariablePagination
+    filter_class = MultipleChaptersFilter
 
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.add_progress(self.request.user.id)
-
-        if self.action != "list":
-            chapter_prefetch = _Prefetch(
-                "chapter_set", queryset=_Chapter.objects.date_sorted("").add_progress(self.request.user.id)
-            )
-            prefetch = _Prefetch("fiction", queryset=_Fiction.objects.prefetch_related("author", chapter_prefetch))
-            qs = qs.prefetch_related(prefetch).only("id", "title", "published", "fiction", "url", "discovered",)
+        if self.action == "list":
+            qs = qs.prefetch_related("fiction")
+            qs = qs.only("id", "title", "published", "discovered", "fiction")
         return qs
 
     def get_serializer_class(self):
@@ -164,7 +160,7 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
 
 
 class ParserViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = _ParserSerialzer
+    serializer_class = _ParserSerializer
     queryset = _Parser.objects.all()
     http_method_names = ("get", "post")
 
