@@ -42,9 +42,7 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
         chapter_id = int(self.request.resolver_match.kwargs.get("chapter_id"))
         chapter = _Chapter.objects.get(id=chapter_id)
         context = super().get_context_data(**kwargs)
-        context["previous_unread_chapters"] = chapter.get_unread_previous_chapters(
-            self.request.user.id
-        )
+        context["previous_unread_chapters"] = chapter.get_unread_previous_chapters(self.request.user.id)
         context["chapters_without_content"] = _Chapter.objects.filter(
             fiction_id=chapter.fiction.id, content=None
         ).count()
@@ -67,11 +65,7 @@ class MissedReadingProgressAlertView(_LoginRequiredMixin, _FormView):
                 progress_obj.progress = 100
                 progress_obj.save()
 
-        return _HttpResponseRedirect(
-            _reverse_lazy(
-                "profiles:bulk-reading-progress", kwargs={"chapter_id": chapter.id}
-            )
-        )
+        return _HttpResponseRedirect(_reverse_lazy("profiles:bulk-reading-progress", kwargs={"chapter_id": chapter.id}))
 
 
 class ReadingProgressView(_LoginRequiredMixin, _FormView):
@@ -79,9 +73,7 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
     form_class = _ReadingProgressForm
 
     def get_context_data(self, **kwargs):
-        context = dict(
-            **self.request.resolver_match.kwargs, **super().get_context_data(**kwargs)
-        )
+        context = dict(**self.request.resolver_match.kwargs, **super().get_context_data(**kwargs))
         return context
 
     def post(self, request, *args, **kwargs):
@@ -89,15 +81,10 @@ class ReadingProgressView(_LoginRequiredMixin, _FormView):
             try:
                 reading_progress = int(kwargs.get("progress"))
             except (ValueError, TypeError):
-                reading_progress = 0
-
-            chapter = _Chapter.objects.get(id=kwargs["chapter_id"])
-            reading_progress = int(reading_progress / chapter.total_progress * 100)
+                return _HttpResponse(status=400)
 
             progress, created = _ReadingProgress.objects.get_or_create(
-                user=request.user,
-                chapter_id=kwargs["chapter_id"],
-                defaults={"progress": reading_progress},
+                user=request.user, chapter_id=kwargs["chapter_id"], defaults={"progress": reading_progress},
             )
             if not created:
                 if reading_progress == 0:
@@ -168,9 +155,7 @@ class BulkWatchComponent(_LoginRequiredMixin, _FormView):
                 if provided_url.parser:
 
                     if _Scrapes.objects.filter(url=url).count() == 0:
-                        scrape = _Scrapes.objects.create(
-                            url=url, parser_type=provided_url.parser
-                        )
+                        scrape = _Scrapes.objects.create(url=url, parser_type=provided_url.parser)
                     provided_url.scrape = scrape
                     provided_url.save()
                     continue
@@ -184,9 +169,7 @@ class BulkWatchComponent(_LoginRequiredMixin, _FormView):
                 print(f"failed to process {url}")
                 raise
 
-        return _HttpResponseRedirect(
-            _reverse_lazy("profiles:bulk-watch-progress", kwargs={"job_id": job.id})
-        )
+        return _HttpResponseRedirect(_reverse_lazy("profiles:bulk-watch-progress", kwargs={"job_id": job.id}))
 
 
 class LogoutView(_LogoutViewBase):

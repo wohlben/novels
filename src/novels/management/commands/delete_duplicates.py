@@ -9,7 +9,13 @@ class Commands(_BaseCommand):
     help = "delete duplicate novels in the database"
 
     def handle(self, *args, **options):
-        dups = _Scrapes.objects.exclude(content=None).exclude(url="https://www.royalroad.com/fictions/latest-updates").values('url').annotate(url_count=_Count('url')).filter(url_count__gt=1)
+        dups = (
+            _Scrapes.objects.exclude(content=None)
+            .exclude(url="https://www.royalroad.com/fictions/latest-updates")
+            .values("url")
+            .annotate(url_count=_Count("url"))
+            .filter(url_count__gt=1)
+        )
         while dups.count() > 0:
-            urls = [c['url'] for c in dups]
+            urls = [c["url"] for c in dups]
             [_Scrapes.objects.filter(url=u).first().delete() for u in urls]

@@ -1,6 +1,5 @@
 """Database definitions for the Scrapes app."""
 from django.db import models as _models
-from django.contrib.postgres.fields import JSONField as _JSONField
 
 
 class Scrapes(_models.Model):
@@ -19,11 +18,7 @@ class Scrapes(_models.Model):
     http_code = _models.IntegerField(blank=True, null=True)
     parser_type = _models.ForeignKey("Parser", on_delete=_models.CASCADE)
     added_by = _models.ForeignKey(
-        "ParseLog",
-        null=True,
-        blank=True,
-        related_name="added_by",
-        on_delete=_models.SET_NULL,
+        "ParseLog", null=True, blank=True, related_name="added_by", on_delete=_models.SET_NULL,
     )
     added_reason = _models.TextField(blank=True, null=True)
 
@@ -49,4 +44,4 @@ class ParseLog(_models.Model):
     started = _models.DateTimeField(blank=True, null=True)
     finished = _models.DateTimeField(blank=True, null=True)
     success = _models.BooleanField(default=False)
-    modified_object = _JSONField(blank=True, null=True)
+    modified_object = _models.JSONField(blank=True, null=True)

@@ -6,7 +6,10 @@ from api.views import (
     FictionViewSet,
     ReadingProgressViewSet,
     ParserViewSet,
+    WatchingFictionViewSet as _WatchingFictionViewSet,
+    AuthorViewSet,
 )
+
 
 app_name = APP_NAME
 
@@ -15,6 +18,8 @@ router.register(r"chapters", ChapterViewSet)
 router.register(r"novels", FictionViewSet)
 router.register(r"progress", ReadingProgressViewSet, "progress-detail")
 router.register(r"parser", ParserViewSet, "parsers")
+router.register(r"watching", _WatchingFictionViewSet, "watching")
+router.register(r"authors", AuthorViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

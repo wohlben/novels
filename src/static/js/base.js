@@ -1,10 +1,3 @@
-//$(document).ready(function() {
-//   $(".navbar-burger").click(function() {
-//       $(".navbar-burger").toggleClass("is-active");
-//       $(".navbar-menu").toggleClass("is-active");
-//   });
-// });
-
 function setGetParam(key, value = undefined){
     var url = new URL(window.location);
     var query_string = url.search;

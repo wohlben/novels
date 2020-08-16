@@ -10,8 +10,8 @@ services:
       dockerfile: .ci/Dockerfile
       target: static_server
     ports:
-      - 80:80
-      - 443:443
+      - 127.0.0.1:9980:80
+      - 127.0.0.1:9443:443
 
   migrations:
     build:
@@ -47,7 +47,7 @@ services:
     image: redis
     volumes:
       - type: bind
-        source: /srv/redis
+        source: ./redis
         target: /data
 
   database:
@@ -56,9 +56,17 @@ services:
       - .env
     volumes:
       - type: bind
-        source: /srv/pgdata
+        source: ./pgdata
         target: /var/lib/postgresql/data
 
     # environment:
     #   - POSTGRES_DB=django
     #   - POSTGRES_USER=django
+    auth:
+      image: quay.io/keycloak/keycloak:latest
+      env_file:
+        - kc.env
+      ports:
+        - 8980:8080
+      depends_on:
+        - database

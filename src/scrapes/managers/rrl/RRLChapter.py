@@ -43,9 +43,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
             scrape = scrapes.last()
         else:
             scrape = _Scrapes.objects.create(
-                url=chapter.url,
-                added_reason=fetch_reason,
-                parser_type_id=self.get_parser_id(),
+                url=chapter.url, added_reason=fetch_reason, parser_type_id=self.get_parser_id(),
             )
         if scrape.http_code is None:
             return self._fetch_from_source(scrape.id)
@@ -54,8 +52,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
     def pending_fetches(self):
         """Return Query Set of Scrapes within the last day."""
         return _Scrapes.objects.filter(
-            parser_type_id=self.get_parser_id(),
-            last_change__gt=_timezone.now() - _timedelta(days=1),
+            parser_type_id=self.get_parser_id(), last_change__gt=_timezone.now() - _timedelta(days=1),
         ).values("url")
 
     def refetch_chapter(self, chapter_id):
@@ -64,9 +61,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
             self.logger.info(f"{chapter.title} is already queued, skipping")
             return False
         else:
-            _Scrapes.objects.create(
-                url=chapter.url, parser_type_id=self.get_parser_id()
-            )
+            _Scrapes.objects.create(url=chapter.url, parser_type_id=self.get_parser_id())
             self.logger.info(f"added {chapter.title} to the queue")
             return True
 
@@ -80,9 +75,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
                 self.logger.info(
                     f"adding '{chapter.title}' chapter from '{chapter.fiction.title}' to the pending fetches"
                 )
-                _Scrapes.objects.create(
-                    url=chapter.url, parser_type_id=self.get_parser_id()
-                )
+                _Scrapes.objects.create(url=chapter.url, parser_type_id=self.get_parser_id())
 
             return True
         except Exception:  # pragma: no cover
@@ -103,9 +96,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
 
     def _parse_chapter_scrape(self, scrape_id: int) -> bool:
         scrape = _Scrapes.objects.get(id=scrape_id)
-        parse_log = _ParseLog.objects.create(
-            scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now()
-        )
+        parse_log = _ParseLog.objects.create(scrape=scrape, parser_id=self.get_parser_id(), started=_timezone.now())
 
         try:
             remote_id = int(scrape.url.split("/")[-2])
@@ -116,9 +107,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
             raise Exception("incorrect remote_id 0, failing on parsing error")
 
         try:
-            chapter = _Chapter.objects.get(
-                remote_id=remote_id, fiction__source__name="rrl novel"
-            )
+            chapter = _Chapter.objects.get(remote_id=remote_id, fiction__source__name="rrl novel")
 
             tree = _html.fromstring(scrape.content)
 
@@ -135,12 +124,8 @@ class RRLChapterScraper(_ScrapeManagerBase):
                 chapter_content += self._clean_chapter_content(_tostring(i))
             chapter.content = chapter_content
 
-            chapter.total_progress = len(chapter_content_element[0].getchildren())
-
             timestamp = int(tree.xpath('//i[@title="Published"]/../time/@unixtime')[0])
-            chapter.published = _timezone.make_aware(
-                _datetime.utcfromtimestamp(timestamp), _timezone.utc
-            )
+            chapter.published = _timezone.make_aware(_datetime.utcfromtimestamp(timestamp), _timezone.utc)
 
             fiction_remote_id = int(scrape.url.split("/")[4])
             fiction = _Fiction.objects.get(remote_id=fiction_remote_id)
@@ -148,9 +133,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
             chapter.fiction = fiction
             chapter.save()
 
-            self.logger.info(
-                f'updated content of "{chapter.fiction.title}: {chapter.title}"'
-            )
+            self.logger.info(f'updated content of "{chapter.fiction.title}: {chapter.title}"')
 
             parse_log.finished = _timezone.now()
             parse_log.success = True
@@ -163,10 +146,6 @@ class RRLChapterScraper(_ScrapeManagerBase):
 
     @staticmethod
     def _clean_chapter_content(content):
-        content = (
-            content.decode("unicode-escape")
-            .encode("raw-unicode-escape")
-            .decode("utf-8")
-        )
+        content = content.decode("unicode-escape").encode("raw-unicode-escape").decode("utf-8")
         removed_scripts = _re.sub(r"<script.*?</script>", "", str(content))
         return removed_scripts
