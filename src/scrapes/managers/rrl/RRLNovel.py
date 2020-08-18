@@ -25,7 +25,7 @@ class RRLNovelScraper(_ScrapeManagerBase):
         qs = (
             _Fiction.objects.exclude(watching=None)
             .exclude(url__in=_Subquery(self.pending_fetches().values("url")))
-            .filter(author=None)
+            .filter(author_id=None)
         )
         if kwargs.get("user"):
             qs.filter(watching=kwargs["user"])
