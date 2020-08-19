@@ -32,6 +32,9 @@ class _FictionQS(_models.QuerySet):
 class Fiction(_models.Model):
     """Fiction database model."""
 
+    class Meta:
+        unique_together = ["remote_id", "source"]
+
     objects = _FictionQS.as_manager()
 
     pic_url = _models.TextField(blank=True, null=True)
@@ -90,6 +93,7 @@ class Chapter(_models.Model):
 
     class Meta:
         indexes = [_models.Index(fields=["-published"])]
+        unique_together = ["remote_id", "fiction"]
 
     objects = _ChapterQS.as_manager()
 

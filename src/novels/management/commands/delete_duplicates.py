@@ -1,21 +1,39 @@
-from django.core.management.base import BaseCommand as _BaseCommand
-from django.core import serializers as _serializers
-from scrapes.models import Scrapes as _Scrapes, Parser as _Parser
+from django.core.management import BaseCommand
 from django.db.models import Count as _Count
+
+from novels.models import Fiction, Chapter
 from scrapes.models import Scrapes as _Scrapes
 
 
-class Commands(_BaseCommand):
+class Command(BaseCommand):
     help = "delete duplicate novels in the database"
 
     def handle(self, *args, **options):
         dups = (
-            _Scrapes.objects.exclude(content=None)
-            .exclude(url="https://www.royalroad.com/fictions/latest-updates")
-            .values("url")
-            .annotate(url_count=_Count("url"))
-            .filter(url_count__gt=1)
+            Chapter.objects.values("remote_id")
+            .annotate(remote_id_count=_Count("remote_id"))
+            .filter(remote_id_count__gt=1)
         )
-        while dups.count() > 0:
-            urls = [c["url"] for c in dups]
-            [_Scrapes.objects.filter(url=u).first().delete() for u in urls]
+        for i in dups:
+            cdups = Chapter.objects.filter(remote_id=i["remote_id"])
+            for index, d in enumerate(cdups):
+                if index == 0:
+                    print("not deleting first")
+                    continue
+                print("deleting " + d.title)
+                d.delete()
+
+        novel_dups = (
+            Fiction.objects.values("remote_id")
+            .annotate(remote_id_count=_Count("remote_id"))
+            .filter(remote_id_count__gt=1)
+        )
+        print(f"deleting {novel_dups.count()}")
+        for i in novel_dups:
+            cdups = Fiction.objects.filter(remote_id=i["remote_id"])
+            for index, d in enumerate(cdups):
+                if index == 0:
+                    print("not deleting first")
+                    continue
+                print("deleting " + d.title)
+                d.delete()
