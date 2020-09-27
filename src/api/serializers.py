@@ -34,6 +34,15 @@ class AuthorSerializer(_ModelSerializer):
     id = CharField()
 
 
+class AuthorDetailSerializer(_ModelSerializer):
+    class Meta:
+        model = _Author
+        fields = ("id", "name", "fictions")
+
+    fictions = StringifyPrimaryRelated(many=True, source="fiction_set", read_only=True)
+    id = CharField()
+
+
 class ChapterListSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter

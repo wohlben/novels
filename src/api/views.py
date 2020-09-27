@@ -10,6 +10,7 @@ from api.serializers import (
     ReadingProgressSerializer as _ReadingProgressSerializer,
     ParserSerializer as _ParserSerializer,
     AuthorSerializer,
+    AuthorDetailSerializer,
 )
 from novels.models import Fiction as _Fiction, Chapter as _Chapter, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
@@ -50,12 +51,16 @@ class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("name",)
     filter_class = MultipleAuthorsFilter
-    pagination_class = VariablePagination
-    serializer_class = AuthorSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.prefetch_related("fiction_set")
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AuthorSerializer
+        else:
+            return AuthorDetailSerializer
 
 
 class FictionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -106,7 +111,7 @@ class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Chapter.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
-    pagination_class = VariablePagination
+    pagination_class = None
     filter_class = MultipleChaptersFilter
 
     def get_queryset(self):
@@ -135,6 +140,7 @@ class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=["post"])
     def progress(self, request, pk=None):
         serializer = _ReadingProgressSerializer(data=request.data)
+        print(serializer.is_valid())
         if serializer.is_valid() and pk is not None:
             progress, created = _ReadingProgress.objects.get_or_create(
                 chapter_id=pk, user=self.request.user, defaults={"progress": serializer.data["progress"]}
