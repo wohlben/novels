@@ -78,6 +78,8 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action != "list":
             qs = qs.prefetch_related("chapter_set")
         qs = qs.add_watched(self.request.user)
+        qs = qs.add_chapter_count()
+        qs = qs.add_read_count(self.request.user.id)
         return qs
 
     def get_serializer_class(self):
