@@ -24,7 +24,11 @@ class _FictionQS(_models.QuerySet):
         return self.annotate(
             read=_models.Count(
                 "chapter",
-                filter=_models.Q(chapter__fiction=_models.F("id"), chapter__readingprogress__user_id=user_id,),
+                filter=_models.Q(
+                    chapter__fiction=_models.F("id"),
+                    chapter__readingprogress__user_id=user_id,
+                    chapter__readingprogress__progress=100,
+                ),
             )
         )
 
