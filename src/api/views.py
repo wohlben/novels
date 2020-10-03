@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 
 from api.filters import MultipleFictionsFilter, MultipleAuthorsFilter, MultipleChaptersFilter, WatchingFilter
@@ -76,7 +77,9 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.action != "list":
-            qs = qs.prefetch_related("chapter_set")
+            qs = qs.prefetch_related(
+                Prefetch("chapter_set", queryset=_Chapter.objects.order_by("published").exclude(published=None))
+            )
         qs = qs.add_watched(self.request.user)
         qs = qs.add_chapter_count()
         qs = qs.add_read_count(self.request.user.id)
