@@ -77,9 +77,14 @@ class FictionListSerializer(_ModelSerializer):
 class FictionSerializer(FictionListSerializer):
     class Meta:
         model = _Fiction
-        fields = ("id", "title", "authorId", "watched", "chapters")
+        fields = ("id", "title", "authorId", "watched", "chapterCount", "readCount", "chapters")
 
+    id = CharField()
+    authorId = CharField(source="author_id", default=None)
+    watched = BooleanField()
     chapters = StringifyPrimaryRelated(many=True, source="chapter_set", read_only=True)
+    chapterCount = IntegerField(source="chapters")
+    readCount = IntegerField(source="read")
 
 
 class UpdatedSerializer(_ModelSerializer):

@@ -142,7 +142,6 @@ class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=["post"])
     def progress(self, request, pk=None):
         serializer = _ReadingProgressSerializer(data=request.data)
-        print(serializer.is_valid())
         if serializer.is_valid() and pk is not None:
             progress, created = _ReadingProgress.objects.get_or_create(
                 chapter_id=pk, user=self.request.user, defaults={"progress": serializer.data["progress"]}
