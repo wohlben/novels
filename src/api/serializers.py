@@ -62,6 +62,16 @@ class ChapterSerializer(ChapterListSerializer):
         fields = ("id", "fictionId", "title", "published", "discovered", "progress", "content")
 
 
+class FictionSearchSerializer(_ModelSerializer):
+    class Meta:
+        model = _Fiction
+        fields = ("id", "title", "authorName", "watched", "chapterCount")
+
+    authorName = CharField(source="author.name", default=None)
+    chapterCount = IntegerField(source="chapters")
+    watched = BooleanField(default=None)
+
+
 class FictionListSerializer(_ModelSerializer):
     class Meta:
         model = _Fiction
@@ -77,7 +87,7 @@ class FictionListSerializer(_ModelSerializer):
 class FictionSerializer(FictionListSerializer):
     class Meta:
         model = _Fiction
-        fields = ("id", "title", "authorId", "watched", "chapterCount", "readCount", "chapters")
+        fields = ("id", "title", "authorId", "watched", "chapterCount", "readCount", "chapters", "remoteUrl")
 
     id = CharField()
     authorId = CharField(source="author_id", default=None)
@@ -85,6 +95,7 @@ class FictionSerializer(FictionListSerializer):
     chapters = StringifyPrimaryRelated(many=True, source="chapter_set", read_only=True)
     chapterCount = IntegerField(source="chapters")
     readCount = IntegerField(source="read")
+    remoteUrl = CharField(source="url")
 
 
 class UpdatedSerializer(_ModelSerializer):
