@@ -24,13 +24,20 @@ class _FictionQS(_models.QuerySet):
         return self.annotate(
             read=_models.Count(
                 "chapter",
-                filter=_models.Q(chapter__fiction=_models.F("id"), chapter__readingprogress__user_id=user_id,),
+                filter=_models.Q(
+                    chapter__fiction=_models.F("id"),
+                    chapter__readingprogress__user_id=user_id,
+                    chapter__readingprogress__progress=100,
+                ),
             )
         )
 
 
 class Fiction(_models.Model):
     """Fiction database model."""
+
+    class Meta:
+        unique_together = ["remote_id", "source"]
 
     objects = _FictionQS.as_manager()
 
@@ -90,6 +97,7 @@ class Chapter(_models.Model):
 
     class Meta:
         indexes = [_models.Index(fields=["-published"])]
+        unique_together = ["remote_id", "fiction"]
 
     objects = _ChapterQS.as_manager()
 

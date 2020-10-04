@@ -1,4 +1,9 @@
+from django.db.models import Prefetch
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.response import Response
 
 from api.filters import MultipleFictionsFilter, MultipleAuthorsFilter, MultipleChaptersFilter, WatchingFilter
 from api.serializers import (
@@ -10,6 +15,8 @@ from api.serializers import (
     ReadingProgressSerializer as _ReadingProgressSerializer,
     ParserSerializer as _ParserSerializer,
     AuthorSerializer,
+    AuthorDetailSerializer,
+    FictionSearchSerializer,
 )
 from novels.models import Fiction as _Fiction, Chapter as _Chapter, Author as _Author
 from profiles.models import ReadingProgress as _ReadingProgress
@@ -50,12 +57,32 @@ class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("name",)
     filter_class = MultipleAuthorsFilter
-    pagination_class = VariablePagination
-    serializer_class = AuthorSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.prefetch_related("fiction_set")
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AuthorSerializer
+        else:
+            return AuthorDetailSerializer
+
+
+class SearchViewSet(viewsets.ReadOnlyModelViewSet):
+    pagination_class = None
+    serializer_class = FictionSearchSerializer
+
+    @method_decorator(cache_page(60))
+    @method_decorator(vary_on_cookie)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = _Fiction.objects.add_chapter_count().exclude(chapters__lte=10).all().prefetch_related("author")
+        if self.request.user.is_authenticated:
+            qs = qs.add_watched(self.request.user)
+        return qs
 
 
 class FictionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -71,8 +98,12 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.action != "list":
-            qs = qs.prefetch_related("chapter_set")
+            qs = qs.prefetch_related(
+                Prefetch("chapter_set", queryset=_Chapter.objects.order_by("published").exclude(published=None))
+            )
         qs = qs.add_watched(self.request.user)
+        qs = qs.add_chapter_count()
+        qs = qs.add_read_count(self.request.user.id)
         return qs
 
     def get_serializer_class(self):
@@ -86,7 +117,7 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
         if request.user.has_perm("scrapes.view_system") and pk is not None:
             _managers.rrl_novel.refetch_novel(pk)
             return HttpResponse(status=204, reason="queued novel anew")
-        return HttpResponse(status=403, reason="missing system permissions")
+        return HttpResponse(status=403, content="you're not an admin mate")
 
     @action(detail=True, methods=["post"])
     def watch(self, request, pk=None):
@@ -96,17 +127,17 @@ class FictionViewSet(viewsets.ReadOnlyModelViewSet):
             watching = user.fiction_set.filter(id=pk).count()
             if watching >= 1:
                 fiction.watching.remove(user)
-                return HttpResponse(status=204, reason="removed from watching")
+                return Response({"status": "removed"}, status=200)
             fiction.watching.add(user)
-            return HttpResponse(status=204, reason="added to watching")
-        return HttpResponse(status=401, reason="not logged in")
+            return Response({"status": "added"}, status=200)
+        return HttpResponse(status=401, reason="not logged in", content="dude, you're not even logged in")
 
 
 class ChapterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Chapter.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ("fiction",)
-    pagination_class = VariablePagination
+    pagination_class = None
     filter_class = MultipleChaptersFilter
 
     def get_queryset(self):

@@ -34,6 +34,15 @@ class AuthorSerializer(_ModelSerializer):
     id = CharField()
 
 
+class AuthorDetailSerializer(_ModelSerializer):
+    class Meta:
+        model = _Author
+        fields = ("id", "name", "fictions")
+
+    fictions = StringifyPrimaryRelated(many=True, source="fiction_set", read_only=True)
+    id = CharField()
+
+
 class ChapterListSerializer(_ModelSerializer):
     class Meta:
         model = _Chapter
@@ -53,27 +62,40 @@ class ChapterSerializer(ChapterListSerializer):
         fields = ("id", "fictionId", "title", "published", "discovered", "progress", "content")
 
 
+class FictionSearchSerializer(_ModelSerializer):
+    class Meta:
+        model = _Fiction
+        fields = ("id", "title", "authorName", "watched", "chapterCount")
+
+    authorName = CharField(source="author.name", default=None)
+    chapterCount = IntegerField(source="chapters")
+    watched = BooleanField(default=None)
+
+
 class FictionListSerializer(_ModelSerializer):
     class Meta:
         model = _Fiction
-        fields = (
-            "id",
-            "title",
-            "authorId",
-            "watched",
-        )
+        fields = ("id", "title", "authorId", "watched", "chapterCount", "readCount")
 
     id = CharField()
     authorId = CharField(source="author_id", default=None)
     watched = BooleanField()
+    chapterCount = IntegerField(source="chapters")
+    readCount = IntegerField(source="read")
 
 
 class FictionSerializer(FictionListSerializer):
     class Meta:
         model = _Fiction
-        fields = ("id", "title", "authorId", "watched", "chapters")
+        fields = ("id", "title", "authorId", "watched", "chapterCount", "readCount", "chapters", "remoteUrl")
 
+    id = CharField()
+    authorId = CharField(source="author_id", default=None)
+    watched = BooleanField()
     chapters = StringifyPrimaryRelated(many=True, source="chapter_set", read_only=True)
+    chapterCount = IntegerField(source="chapters")
+    readCount = IntegerField(source="read")
+    remoteUrl = CharField(source="url")
 
 
 class UpdatedSerializer(_ModelSerializer):

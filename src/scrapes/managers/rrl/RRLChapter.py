@@ -45,7 +45,7 @@ class RRLChapterScraper(_ScrapeManagerBase):
             scrape = _Scrapes.objects.create(
                 url=chapter.url, added_reason=fetch_reason, parser_type_id=self.get_parser_id(),
             )
-        if scrape.http_code is None:
+        if scrape.http_code is None or scrape.http_code >= 500:
             return self._fetch_from_source(scrape.id)
         return scrape.id
 

@@ -8,6 +8,7 @@ from api.views import (
     ParserViewSet,
     WatchingFictionViewSet as _WatchingFictionViewSet,
     AuthorViewSet,
+    SearchViewSet,
 )
 
 
@@ -20,6 +21,7 @@ router.register(r"progress", ReadingProgressViewSet, "progress-detail")
 router.register(r"parser", ParserViewSet, "parsers")
 router.register(r"watching", _WatchingFictionViewSet, "watching")
 router.register(r"authors", AuthorViewSet)
+router.register(r"search", SearchViewSet, "search")
 
 urlpatterns = [
     path("", include(router.urls)),
