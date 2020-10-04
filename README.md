@@ -1,4 +1,4 @@
-![build status](https://ci.wohlben.de/api/badges/wohlben/novels/status.svg "build status")
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=wohlben_novels&metric=alert_status)](https://sonarcloud.io/dashboard?id=wohlben_novels)
 
 # install
 
