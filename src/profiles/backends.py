@@ -34,7 +34,7 @@ def bearer_auth(request):
                     _logger.debug(f"authenticated {user.username}")
                     return user
                 except User.DoesNotExist:
-                    user = User.objects.create(oidc_id=token.get("uuid"))
+                    user = User.objects.create(oidc_id=token.get("uuid"), username=token.get("preferred_username"))
                     _logger.info(f"created new user {user.username}")
                     return user
     except Exception as e:
