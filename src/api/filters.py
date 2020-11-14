@@ -16,7 +16,7 @@ class MultipleFictionsFilter(FilterSet):
 
     class Meta:
         model = Fiction
-        fields = ["ids", "watching", "id"]
+        fields = ["ids", "watching", "id", "author"]
 
     def filter_watching(self, qs, name, value):
         return qs.filter(watching=self.request.user)

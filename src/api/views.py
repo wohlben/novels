@@ -88,10 +88,6 @@ class SearchViewSet(viewsets.ReadOnlyModelViewSet):
 class FictionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = _Fiction.objects.all().order_by("title")
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = (
-        "author",
-        "id",
-    )
     filter_class = MultipleFictionsFilter
     pagination_class = VariablePagination
 

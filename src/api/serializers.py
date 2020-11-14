@@ -50,7 +50,6 @@ class ChapterListSerializer(_ModelSerializer):
 
     id = CharField()
     fictionId = CharField(source="fiction.id")
-    # authorId = CharField(source="fiction.author.id", default=None, required=False)
     progress = IntegerField(default=0, required=False)
     discovered = TimestampField()
     published = TimestampField()
